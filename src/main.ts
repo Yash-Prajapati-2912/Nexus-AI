@@ -3,7 +3,7 @@ import { VersioningType, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import helmet from 'helmet';
-import compression from 'compression';
+import * as compression from 'compression';
 
 import { AppModule } from './app.module';
 import { createGlobalValidationPipe } from './common/pipes/validation.pipe';

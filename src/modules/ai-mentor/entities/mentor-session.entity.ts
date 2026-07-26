@@ -7,7 +7,7 @@ import { SessionStatus } from '../constants/mentor-enums.constants';
  * Tracks session duration, context versions, provider name, and session status.
  */
 @Entity('ai_mentor_sessions')
-@Index('idx_mentor_sessions_user', ['userId', 'status'])
+@Index('idx_mentor_sessions_user', ['userId', 'sessionStatus'])
 export class MentorSession extends BaseEntity {
   @Index('idx_mentor_sessions_user_id')
   @Column({ type: 'uuid', name: 'user_id' })

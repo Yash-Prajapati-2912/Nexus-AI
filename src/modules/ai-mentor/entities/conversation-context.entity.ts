@@ -15,6 +15,6 @@ export class ConversationContext extends BaseEntity {
   @Column({ type: 'jsonb', name: 'context_snapshot' })
   contextSnapshot: Record<string, any>;
 
-  @Column({ type: 'integer', name: 'version', default: 1 })
+  @Column({ type: 'integer', name: 'context_version', default: 1 })
   contextVersion: number;
 }

@@ -19,8 +19,8 @@ export * from './database.module';
 export * from './data-source';
 
 // Subdirectory Barrel Exports
-export * from './migrations/migration.base';
-export * from './migrations/migration.utils';
+export * from './migrations/helpers/migration.base';
+export * from './migrations/helpers/migration.utils';
 export * from './seeds/seeder.base';
 export * from './seeds/dev.seeder';
 export * from './seeds/test.seeder';
