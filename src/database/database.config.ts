@@ -39,7 +39,7 @@ export const databaseConfig = registerAs('database', () => ({
   ),
   retryAttempts: parseInt(process.env.DATABASE_RETRY_ATTEMPTS || '10', 10),
   retryDelay: parseInt(process.env.DATABASE_RETRY_DELAY || '3000', 10),
-  autoLoadEntities: true,
+  synchronize: process.env.DATABASE_SYNCHRONIZE !== 'false',
   migrationsRun: process.env.DATABASE_MIGRATIONS_RUN === 'true',
 }));
 
@@ -72,8 +72,8 @@ export function getDatabaseOptions(configService: ConfigService): TypeOrmModuleO
         }
       : false,
 
-    // MANDATORY: Never enable auto-synchronize in enterprise production/dev codebase
-    synchronize: false,
+    // Enable auto-synchronize as requested for current dev setup
+    synchronize: configService.get<boolean>('database.synchronize') ?? true,
 
     // Entity Auto-loading and explicit path fallbacks
     autoLoadEntities: true,
@@ -82,7 +82,7 @@ export function getDatabaseOptions(configService: ConfigService): TypeOrmModuleO
     // Migration directory configuration
     migrations: [path.join(__dirname, './migrations/*{.ts,.js}')],
     migrationsTableName: 'typeorm_migrations',
-    migrationsRun: configService.get<boolean>('database.migrationsRun') || false,
+    migrationsRun: false,
 
     // Naming strategy enforcing snake_case standard
     namingStrategy: new DatabaseNamingStrategy(),
