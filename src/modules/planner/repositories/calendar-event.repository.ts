@@ -40,7 +40,7 @@ export class CalendarEventRepository extends BaseRepository<CalendarEvent> {
       );
     }
 
-    qb.orderBy('event.start_time', 'ASC');
+    qb.orderBy('event.startTime', 'ASC');
 
     return qb.getMany();
   }

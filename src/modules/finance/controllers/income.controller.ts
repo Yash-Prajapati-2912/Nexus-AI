@@ -32,7 +32,7 @@ import { IncomeResponseDto } from '../dto/income-response.dto';
 @ApiTags('Smart Finance - Income')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('finance/income')
+@Controller(['finance/income', 'finance/incomes'])
 export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 

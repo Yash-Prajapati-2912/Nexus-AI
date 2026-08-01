@@ -42,10 +42,31 @@ async function bootstrap(): Promise<void> {
   // Enable Gzip Response Compression
   app.use(compression());
 
-  // Enable CORS with origin whitelisting
-  const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',');
+  // Enable CORS with origin whitelisting and dynamic local dev support
+  const rawCorsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim());
+
   app.enableCors({
-    origin: corsOrigins,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow non-browser requests (e.g., mobile apps, Postman, cURL)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // In development mode, allow all dynamic localhost and 127.0.0.1 origins (e.g., Flutter Web dev server)
+      if (process.env.NODE_ENV !== 'production') {
+        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+          return callback(null, true);
+        }
+      }
+
+      if (rawCorsOrigins.includes(origin) || rawCorsOrigins.includes('*')) {
+        return callback(null, true);
+      }
+
+      callback(new Error(`CORS origin '${origin}' not allowed.`));
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Origin',
@@ -64,9 +85,10 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix(apiPrefix);
 
   // Enable URI Path Versioning (/api/v1/)
+  const apiVersion = (process.env.API_VERSION || '1').replace(/^v/i, '');
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: process.env.API_VERSION || 'v1',
+    defaultVersion: apiVersion,
   });
 
   // Apply Global Validation Pipe
@@ -112,9 +134,9 @@ async function bootstrap(): Promise<void> {
   logger.log(`================================================================`);
   logger.log(`Nexus AI Backend Server successfully running on port ${port}`);
   logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  logger.log(`API Base URL: http://localhost:${port}/${apiPrefix}/v1`);
+  logger.log(`API Base URL: http://localhost:${port}/${apiPrefix}/v${apiVersion}`);
   logger.log(`Swagger Interactive Docs: http://localhost:${port}/api/docs`);
-  logger.log(`Health Check Endpoint: http://localhost:${port}/${apiPrefix}/v1/health`);
+  logger.log(`Health Check Endpoint: http://localhost:${port}/${apiPrefix}/v${apiVersion}/health`);
   logger.log(`================================================================`);
 }
 

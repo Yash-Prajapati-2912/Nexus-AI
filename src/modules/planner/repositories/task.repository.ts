@@ -144,17 +144,17 @@ export class TaskRepository extends BaseRepository<Task> {
     const sortBy = queryDto.sortBy || TaskSortField.DUE_DATE;
 
     // Always sort pinned tasks first
-    qb.addOrderBy('task.is_pinned', 'DESC');
+    qb.addOrderBy('task.isPinned', 'DESC');
 
     switch (sortBy) {
       case TaskSortField.PRIORITY:
         qb.addOrderBy('task.priority', sortOrder);
         break;
       case TaskSortField.CREATED_AT:
-        qb.addOrderBy('task.created_at', sortOrder);
+        qb.addOrderBy('task.createdAt', sortOrder);
         break;
       case TaskSortField.UPDATED_AT:
-        qb.addOrderBy('task.updated_at', sortOrder);
+        qb.addOrderBy('task.updatedAt', sortOrder);
         break;
       case TaskSortField.TITLE:
         qb.addOrderBy('task.title', sortOrder);
@@ -164,7 +164,7 @@ export class TaskRepository extends BaseRepository<Task> {
         break;
       case TaskSortField.DUE_DATE:
       default:
-        qb.addOrderBy('task.due_date', sortOrder, 'NULLS LAST');
+        qb.addOrderBy('task.dueDate', sortOrder, 'NULLS LAST');
         break;
     }
 

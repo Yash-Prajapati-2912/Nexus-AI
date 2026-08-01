@@ -28,4 +28,19 @@ export class ProductivityController {
   ): Promise<ProductivityMetricsResponseDto> {
     return this.productivityService.getProductivityMetrics(userId);
   }
+
+  @Get('summary')
+  @ApiOperation({
+    summary: 'Get comprehensive productivity analytics summary',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Productivity metrics calculated successfully',
+    type: ProductivityMetricsResponseDto,
+  })
+  async getProductivityMetricsSummary(
+    @CurrentUser('id') userId: string,
+  ): Promise<ProductivityMetricsResponseDto> {
+    return this.productivityService.getProductivityMetrics(userId);
+  }
 }

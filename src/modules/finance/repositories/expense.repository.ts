@@ -82,6 +82,8 @@ export class ExpenseRepository extends BaseRepository<Expense> {
     const sortOrder = queryDto.sortOrder || 'DESC';
     if (sortField === 'category') {
       qb.orderBy('category.name', sortOrder);
+    } else if (sortField === 'date') {
+      qb.orderBy('expense.expenseDate', sortOrder);
     } else {
       qb.orderBy(`expense.${sortField}`, sortOrder);
     }

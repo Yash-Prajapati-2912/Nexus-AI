@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as path from 'path';
 import {
   HealthCheckService,
   TypeOrmHealthIndicator,
@@ -32,7 +33,7 @@ export class HealthService {
       () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024), // 300MB limit
       () =>
         this.disk.checkStorage('disk_space', {
-          path: '/',
+          path: path.parse(process.cwd()).root,
           thresholdPercent: 0.9, // Alert if disk space exceeds 90%
         }),
     ]);

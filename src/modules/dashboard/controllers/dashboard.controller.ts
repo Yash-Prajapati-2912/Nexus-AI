@@ -40,6 +40,15 @@ export class DashboardController {
     return this.dashboardService.getDashboard(userId);
   }
 
+  @Get('summary')
+  @ApiOperation({ summary: 'Get Master Aggregated Dashboard Payload (Planner, Finance, Profile, Mentor)' })
+  @ApiResponse({ status: 200, description: 'Master aggregated dashboard payload', type: DashboardResponseDto })
+  async getDashboardSummary(
+    @CurrentUser('id') userId: string,
+  ): Promise<DashboardResponseDto> {
+    return this.dashboardService.getDashboard(userId);
+  }
+
   @Get('widgets')
   @ApiOperation({ summary: 'Get Configured Active Dashboard Widgets' })
   @ApiResponse({ status: 200, description: 'Configured active dashboard widgets list' })

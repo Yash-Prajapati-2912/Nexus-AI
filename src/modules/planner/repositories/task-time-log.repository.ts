@@ -37,7 +37,7 @@ export class TaskTimeLogRepository extends BaseRepository<TaskTimeLog> {
       });
     }
 
-    qb.orderBy('log.start_time', 'DESC');
+    qb.orderBy('log.startTime', 'DESC');
 
     return qb.getMany();
   }

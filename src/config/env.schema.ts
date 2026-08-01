@@ -13,7 +13,7 @@ export const environmentValidationSchema = Joi.object({
     .default('development'),
   PORT: Joi.number().default(3000),
   API_PREFIX: Joi.string().default('api'),
-  API_VERSION: Joi.string().default('v1'),
+  API_VERSION: Joi.string().default('1'),
   CORS_ORIGINS: Joi.string().default('http://localhost:3000'),
 
   // PostgreSQL Database Configuration

@@ -41,7 +41,7 @@ export class SkillRepository extends BaseRepository<Skill> {
       qb.andWhere('skill.level = :level', { level });
     }
 
-    qb.orderBy('skill.is_verified', 'DESC')
+    qb.orderBy('skill.isVerified', 'DESC')
       .addOrderBy('skill.name', 'ASC');
 
     return qb.getMany();

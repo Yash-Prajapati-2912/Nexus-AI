@@ -25,7 +25,7 @@ export class ReminderRepository extends BaseRepository<Reminder> {
       .where('reminder.user_id = :userId', { userId })
       .andWhere('reminder.status = :status', { status: ReminderStatus.PENDING })
       .andWhere('reminder.deleted_at IS NULL')
-      .orderBy('reminder.remind_at', 'ASC')
+      .orderBy('reminder.remindAt', 'ASC')
       .take(limit)
       .getMany();
   }

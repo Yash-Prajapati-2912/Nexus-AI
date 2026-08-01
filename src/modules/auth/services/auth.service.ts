@@ -77,7 +77,7 @@ export class AuthService {
       password: hashedPassword,
       firstName: dto.firstName,
       lastName: dto.lastName,
-      isEmailVerified: false,
+      isEmailVerified: process.env.NODE_ENV !== 'production' ? true : false,
       status: UserStatus.ACTIVE,
       roles: [UserRole.STUDENT],
       failedLoginAttempts: 0,
@@ -180,6 +180,12 @@ export class AuthService {
     // Reset failed attempts on successful login
     await this.userRepository.resetFailedAttempts(user.id);
 
+    // Auto-verify email in development mode
+    if (process.env.NODE_ENV !== 'production' && !user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await this.userRepository.save(user);
+    }
+
     // Create session and issue tokens
     const session = await this.sessionService.createSession(user.id, deviceContext);
     const tokens = await this.tokenService.generateTokenPair(user, session.id, deviceContext);
@@ -236,6 +242,10 @@ export class AuthService {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new NotFoundException('Authenticated user profile not found');
+    }
+    if (process.env.NODE_ENV !== 'production' && !user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await this.userRepository.save(user);
     }
     return AuthMapper.toUserResponse(user);
   }
