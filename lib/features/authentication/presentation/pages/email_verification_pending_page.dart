@@ -52,6 +52,13 @@ class EmailVerificationPendingPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   PrimaryButton(
+                    label: 'Continue to Dashboard',
+                    onPressed: () {
+                      context.read<AuthenticationBloc>().add(AppStartedEvent());
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  SecondaryButton(
                     label: 'Resend Verification Email',
                     onPressed: () {
                       context.read<AuthenticationBloc>().add(ResendVerificationRequestedEvent(email: email));

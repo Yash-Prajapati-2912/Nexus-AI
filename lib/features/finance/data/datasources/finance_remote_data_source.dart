@@ -50,6 +50,20 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   FinanceRemoteDataSourceImpl(this._apiClient);
 
+  List<dynamic> _extractList(dynamic responseData) {
+    dynamic payload = responseData;
+    if (payload is Map<String, dynamic> && payload['data'] != null) {
+      payload = payload['data'];
+    }
+    if (payload is Map<String, dynamic> && payload['data'] != null) {
+      payload = payload['data'];
+    }
+    if (payload is Map<String, dynamic> && payload['items'] != null) {
+      payload = payload['items'];
+    }
+    return (payload is List) ? payload : [];
+  }
+
   @override
   Future<List<ExpenseModel>> getExpenses({
     String? categoryId,
@@ -71,11 +85,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
       },
     );
 
-    final rawData = response.data;
-    final list = (rawData is Map<String, dynamic> && rawData['items'] is List)
-        ? rawData['items'] as List<dynamic>
-        : (rawData is List<dynamic> ? rawData : []);
-
+    final list = _extractList(response.data);
     return list.map((e) => ExpenseModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -101,8 +111,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   @override
   Future<List<IncomeModel>> getIncomes({String? sourceCategory, String? startDate, String? endDate}) async {
     final response = await _apiClient.get('/finance/incomes');
-    final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = _extractList(response.data);
     return list.map((e) => IncomeModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -128,8 +137,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   @override
   Future<List<BudgetModel>> getBudgets() async {
     final response = await _apiClient.get('/finance/budgets');
-    final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = _extractList(response.data);
     return list.map((e) => BudgetModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -150,8 +158,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   @override
   Future<List<SavingsGoalModel>> getSavingsGoals() async {
     final response = await _apiClient.get('/finance/savings-goals');
-    final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = _extractList(response.data);
     return list.map((e) => SavingsGoalModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -187,8 +194,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   @override
   Future<List<FinanceCategoryModel>> getCategories() async {
     final response = await _apiClient.get('/finance/categories');
-    final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = _extractList(response.data);
     return list.map((e) => FinanceCategoryModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -201,8 +207,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
         if (type != null) 'type': type,
       },
     );
-    final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = _extractList(response.data);
     return list.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 

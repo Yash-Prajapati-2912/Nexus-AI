@@ -31,7 +31,8 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource implements IAuthRemo
       data: dto.toJson(),
     );
     final data = response.data['data'] as Map<String, dynamic>;
-    return AuthTokensModel.fromJson(data);
+    final tokensData = (data['tokens'] as Map<String, dynamic>?) ?? data;
+    return AuthTokensModel.fromJson(tokensData);
   }
 
   @override
@@ -61,7 +62,8 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource implements IAuthRemo
       data: {'refreshToken': refreshToken},
     );
     final data = response.data['data'] as Map<String, dynamic>;
-    return AuthTokensModel.fromJson(data);
+    final tokensData = (data['tokens'] as Map<String, dynamic>?) ?? data;
+    return AuthTokensModel.fromJson(tokensData);
   }
 
   @override

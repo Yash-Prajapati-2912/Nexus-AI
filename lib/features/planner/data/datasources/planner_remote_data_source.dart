@@ -29,10 +29,24 @@ abstract class IPlannerRemoteDataSource {
 class PlannerRemoteDataSourceImpl extends BaseRemoteDataSource implements IPlannerRemoteDataSource {
   PlannerRemoteDataSourceImpl(super.apiClient);
 
+  List<dynamic> _extractList(dynamic responseData) {
+    dynamic payload = responseData;
+    if (payload is Map<String, dynamic> && payload['data'] != null) {
+      payload = payload['data'];
+    }
+    if (payload is Map<String, dynamic> && payload['data'] != null) {
+      payload = payload['data'];
+    }
+    if (payload is Map<String, dynamic> && payload['items'] != null) {
+      payload = payload['items'];
+    }
+    return (payload is List) ? payload : [];
+  }
+
   @override
   Future<List<TaskModel>> getTasks() async {
     final response = await apiClient.get(ApiConstants.tasks);
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => TaskModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -71,7 +85,7 @@ class PlannerRemoteDataSourceImpl extends BaseRemoteDataSource implements IPlann
   @override
   Future<List<AssignmentModel>> getAssignments() async {
     final response = await apiClient.get('/planner/assignments');
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => AssignmentModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -101,7 +115,7 @@ class PlannerRemoteDataSourceImpl extends BaseRemoteDataSource implements IPlann
   @override
   Future<List<StudySessionModel>> getStudySessions() async {
     final response = await apiClient.get('/planner/sessions');
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => StudySessionModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -117,21 +131,21 @@ class PlannerRemoteDataSourceImpl extends BaseRemoteDataSource implements IPlann
   @override
   Future<List<GoalModel>> getGoals() async {
     final response = await apiClient.get('/planner/goals');
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => GoalModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<List<CalendarEventModel>> getCalendarEvents() async {
     final response = await apiClient.get('/planner/calendar');
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => CalendarEventModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<List<TaskModel>> searchPlanner(String query) async {
     final response = await apiClient.get('${ApiConstants.tasks}?search=$query');
-    final list = (response.data is List) ? response.data as List : (response.data['data'] as List? ?? []);
+    final list = _extractList(response.data);
     return list.map((e) => TaskModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 }
