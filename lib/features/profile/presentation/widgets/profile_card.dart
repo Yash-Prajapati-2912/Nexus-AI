@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../theme/design_tokens/colors.dart';
 
 class ProfileCard extends StatelessWidget {
   final String title;
@@ -16,40 +18,54 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? DesignColors.primaryDark : DesignColors.primaryLight;
+    final titleColor = isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight;
 
-    return Card(
-      elevation: 2,
+    return GlassCard(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, color: theme.colorScheme.primary, size: 20),
-                    const SizedBox(width: 8),
-                    Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                if (onEdit != null)
-                  IconButton(
-                    icon: const Icon(Icons.edit_rounded, size: 18),
-                    onPressed: onEdit,
-                    visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: primaryColor, size: 20),
                   ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            child,
-          ],
-        ),
+                  const SizedBox(width: 12),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+              if (onEdit != null)
+                IconButton(
+                  icon: Icon(Icons.edit_outlined, size: 18, color: primaryColor),
+                  onPressed: onEdit,
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
 }
+

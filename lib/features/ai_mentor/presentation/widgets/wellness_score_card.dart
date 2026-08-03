@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/design_system/widgets/cards/app_card.dart';
 import '../../domain/entities/student_wellness.dart';
 
 class WellnessScoreCard extends StatelessWidget {
@@ -11,34 +12,40 @@ class WellnessScoreCard extends StatelessWidget {
     final theme = Theme.of(context);
     final score = wellness.overallWellnessScore;
 
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
                   children: [
                     const Icon(Icons.favorite_rounded, color: Colors.pinkAccent, size: 22),
                     const SizedBox(width: 8),
-                    Text('Student Wellness Score', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Text(
+                        'Student Wellness Score',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withAlpha(30),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text('$score/100', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withAlpha(30),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
-            ),
+                child: Text('$score/100', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+              ),
+            ],
+          ),
             const SizedBox(height: 14),
             Row(
               children: [
@@ -53,7 +60,6 @@ class WellnessScoreCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

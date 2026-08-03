@@ -19,10 +19,12 @@ class UserModel extends UserEntity {
 
     final firstName = map['firstName'] as String? ?? '';
     final lastName = map['lastName'] as String? ?? '';
-    final computedFullName = map['fullName'] as String? ??
-        (firstName.isNotEmpty || lastName.isNotEmpty
+    final rawFullName = map['fullName'] as String? ?? map['displayName'] as String? ?? map['name'] as String?;
+    final computedFullName = (rawFullName != null && rawFullName.trim().isNotEmpty)
+        ? rawFullName.trim()
+        : (firstName.isNotEmpty || lastName.isNotEmpty
             ? '$firstName $lastName'.trim()
-            : '');
+            : 'User');
 
     String roleStr = 'STUDENT';
     if (map['role'] != null) {

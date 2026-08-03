@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../router/route_names.dart';
 import '../../../../shared/design_system/widgets/error_states/app_error_card.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -33,12 +36,43 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return BaseScaffold(
       appBar: AppBar(
-        title: const Text('Nexus AI Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => context.go(RouteNames.dashboard),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.auto_awesome_rounded, color: Colors.indigoAccent, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  'Nexus AI',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_outline_rounded),
+            tooltip: 'My Profile',
+            onPressed: () => context.push(RouteNames.profile),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh',
             onPressed: () => context.read<DashboardBloc>().add(RefreshDashboardEvent()),
           ),
         ],
@@ -70,8 +104,8 @@ class _DashboardPageState extends State<DashboardPage> {
               context.read<DashboardBloc>().add(RefreshDashboardEvent());
             },
             child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0, bottom: 100.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -106,3 +140,4 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 }
+

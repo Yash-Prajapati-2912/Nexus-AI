@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Reusable Skeleton Shimmer Loader Block widget.
+/// 2026 Reusable Skeleton Shimmer Loader Block widget with Dual-Theme support.
 class SkeletonLoader extends StatelessWidget {
   final double width;
   final double height;
@@ -10,18 +10,22 @@ class SkeletonLoader extends StatelessWidget {
     super.key,
     required this.width,
     required this.height,
-    this.borderRadius = 8.0,
+    this.borderRadius = 12.0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: color,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
   }
 }
+

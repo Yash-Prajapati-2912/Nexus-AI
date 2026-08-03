@@ -8,6 +8,8 @@ import '../bloc/income_state.dart';
 import '../widgets/finance_skeleton.dart';
 import '../widgets/income_card.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class IncomeListPage extends StatefulWidget {
   const IncomeListPage({super.key});
 
@@ -24,7 +26,7 @@ class _IncomeListPageState extends State<IncomeListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Income Stream'),
       ),
@@ -47,7 +49,7 @@ class _IncomeListPageState extends State<IncomeListPage> {
               return const Center(child: Text('No income records added yet.'));
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
               itemCount: state.incomes.length,
               itemBuilder: (context, index) {
                 final item = state.incomes[index];

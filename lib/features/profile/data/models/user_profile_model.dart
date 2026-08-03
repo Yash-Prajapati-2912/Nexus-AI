@@ -21,23 +21,43 @@ class UserProfileModel extends UserProfile {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+    final userMap = json['user'] is Map<String, dynamic> ? json['user'] as Map<String, dynamic> : null;
+
+    final firstName = json['firstName'] as String? ?? userMap?['firstName'] as String? ?? '';
+    final lastName = json['lastName'] as String? ?? userMap?['lastName'] as String? ?? '';
+    final rawName = json['fullName'] as String? ??
+        json['displayName'] as String? ??
+        json['name'] as String? ??
+        userMap?['fullName'] as String? ??
+        userMap?['displayName'] as String?;
+    final computedName = (rawName != null && rawName.trim().isNotEmpty)
+        ? rawName.trim()
+        : (firstName.isNotEmpty || lastName.isNotEmpty ? '$firstName $lastName'.trim() : 'Student');
+
+    final emailVal = json['email'] as String? ?? userMap?['email'] as String? ?? '';
+    final usernameVal = json['username'] as String? ??
+        userMap?['username'] as String? ??
+        (emailVal.isNotEmpty ? emailVal.split('@').first : 'student');
+
     return UserProfileModel(
-      id: json['id'] as String? ?? '',
-      userId: json['userId'] as String? ?? '',
-      displayName: json['displayName'] as String? ?? json['name'] as String? ?? 'Student',
-      username: json['username'] as String? ?? 'student',
-      email: json['email'] as String? ?? '',
-      phone: json['phone'] as String?,
-      avatarUrl: json['avatarUrl'] as String? ?? json['avatar'] as String?,
-      coverImageUrl: json['coverImageUrl'] as String?,
-      bio: json['bio'] as String? ?? 'Computer Science Undergraduate',
-      dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth'] as String) : null,
+      id: json['id'] as String? ?? userMap?['id'] as String? ?? '',
+      userId: json['userId'] as String? ?? userMap?['id'] as String? ?? '',
+      displayName: computedName,
+      username: usernameVal,
+      email: emailVal,
+      phone: json['phone'] as String? ?? userMap?['phone'] as String?,
+      avatarUrl: json['avatarUrl'] as String? ?? json['avatar'] as String? ?? userMap?['avatarUrl'] as String? ?? userMap?['avatar'] as String?,
+      coverImageUrl: json['coverImageUrl'] as String? ?? userMap?['coverImageUrl'] as String?,
+      bio: json['bio'] as String? ?? '',
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'] as String)
+          : (userMap?['dateOfBirth'] != null ? DateTime.tryParse(userMap!['dateOfBirth'] as String) : null),
       gender: json['gender'] as String?,
-      country: json['country'] as String? ?? 'United States',
-      city: json['city'] as String? ?? 'San Francisco',
+      country: json['country'] as String? ?? '',
+      city: json['city'] as String? ?? '',
       timezone: json['timezone'] as String? ?? 'UTC',
       language: json['language'] as String? ?? 'en',
-      completionPercentage: json['completionPercentage'] as int? ?? 90,
+      completionPercentage: (json['profileCompletionPercentage'] as num?)?.toInt() ?? (json['completionPercentage'] as num?)?.toInt() ?? 85,
     );
   }
 

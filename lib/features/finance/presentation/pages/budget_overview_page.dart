@@ -8,6 +8,8 @@ import '../bloc/budget_state.dart';
 import '../widgets/budget_card.dart';
 import '../widgets/finance_skeleton.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class BudgetOverviewPage extends StatefulWidget {
   const BudgetOverviewPage({super.key});
 
@@ -24,7 +26,7 @@ class _BudgetOverviewPageState extends State<BudgetOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Budget Management'),
       ),
@@ -42,7 +44,7 @@ class _BudgetOverviewPageState extends State<BudgetOverviewPage> {
               return const Center(child: Text('No active budgets set.'));
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
               itemCount: state.budgets.length,
               itemBuilder: (context, index) {
                 final b = state.budgets[index];

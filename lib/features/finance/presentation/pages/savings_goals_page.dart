@@ -8,6 +8,8 @@ import '../bloc/savings_state.dart';
 import '../widgets/finance_skeleton.dart';
 import '../widgets/savings_goal_card.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class SavingsGoalsPage extends StatefulWidget {
   const SavingsGoalsPage({super.key});
 
@@ -24,7 +26,7 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Savings Goals'),
       ),
@@ -47,7 +49,7 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
               return const Center(child: Text('No savings goals created yet.'));
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
               itemCount: state.goals.length,
               itemBuilder: (context, index) {
                 final g = state.goals[index];

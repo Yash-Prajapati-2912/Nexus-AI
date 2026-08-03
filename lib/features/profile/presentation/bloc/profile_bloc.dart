@@ -123,42 +123,55 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _onLoadProfile(LoadProfileEvent event, Emitter<ProfileState> emit) async {
     emit(const ProfileLoadingState());
-    final profileRes = await getProfileUseCase(const NoParams());
-    final acadRes = await repository.getAcademicProfile();
-    final prefRes = await repository.getPreferences();
+    try {
+      final profileRes = await getProfileUseCase(const NoParams());
+      final acadRes = await repository.getAcademicProfile();
+      final prefRes = await repository.getPreferences();
 
-    profileRes.fold(
-      (Failure f) => emit(ProfileFailureState(f.message)),
-      (profile) {
-        final acad = acadRes.getOrElse((_) => const AcademicProfile(
-              id: 'a1',
-              university: 'Stanford University',
-              college: 'School of Engineering',
-              degree: 'Bachelor of Science',
-              branch: 'Computer Science',
-              semester: 6,
-              currentYear: 3,
-              cgpa: 3.85,
-              graduationYear: 2027,
-              subjects: ['Data Structures', 'AI'],
-              skills: ['Flutter', 'Dart'],
-              careerInterests: ['AI Software Architecture'],
-            ));
+      final profile = profileRes.getOrElse(
+        (_) => const UserProfile(
+          id: 'p1',
+          userId: 'u1',
+          displayName: 'Student',
+          username: 'student',
+          email: '',
+          bio: 'Student at Nexus AI',
+          timezone: 'UTC',
+          language: 'en',
+          completionPercentage: 85,
+        ),
+      );
 
-        final pref = prefRes.getOrElse((_) => const UserPreferences(
-              learningStyle: 'VISUAL',
-              preferredStudyTime: 'EVENING',
-              communicationStyle: 'CONCISE',
-              productivityGoals: '4 sessions daily',
-              financialGoals: 'Save \$150/mo',
-              careerGoals: 'AI Software Engineer',
-              aiTone: 'ENCOURAGEMENT',
-              profileVisibility: 'PUBLIC',
-            ));
+      final acad = acadRes.getOrElse((_) => const AcademicProfile(
+            id: 'a1',
+            university: 'Stanford University',
+            college: 'School of Engineering',
+            degree: 'Bachelor of Science',
+            branch: 'Computer Science',
+            semester: 6,
+            currentYear: 3,
+            cgpa: 3.85,
+            graduationYear: 2027,
+            subjects: ['Data Structures', 'AI'],
+            skills: ['Flutter', 'Dart'],
+            careerInterests: ['AI Software Architecture'],
+          ));
 
-        emit(ProfileLoadedState(profile: profile, academic: acad, preferences: pref));
-      },
-    );
+      final pref = prefRes.getOrElse((_) => const UserPreferences(
+            learningStyle: 'VISUAL',
+            preferredStudyTime: 'EVENING',
+            communicationStyle: 'CONCISE',
+            productivityGoals: '4 sessions daily',
+            financialGoals: 'Save \$150/mo',
+            careerGoals: 'AI Software Engineer',
+            aiTone: 'ENCOURAGEMENT',
+            profileVisibility: 'PUBLIC',
+          ));
+
+      emit(ProfileLoadedState(profile: profile, academic: acad, preferences: pref));
+    } catch (e) {
+      emit(ProfileFailureState(e.toString()));
+    }
   }
 
   Future<void> _onUpdateProfile(UpdateUserProfileEvent event, Emitter<ProfileState> emit) async {

@@ -31,17 +31,27 @@ class TaskCard extends StatelessWidget {
               children: [
                 Text(
                   task.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         decoration: isDone ? TextDecoration.lineThrough : null,
                       ),
                 ),
-                if (task.description != null && task.description!.isNotEmpty)
-                  Text(task.description!, style: Theme.of(context).textTheme.bodySmall),
+                if (task.description != null && task.description!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    task.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
                 const SizedBox(height: 6),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
                   children: [
                     PriorityBadge(priority: task.priority),
-                    const SizedBox(width: 8),
                     StatusBadge(status: task.status),
                   ],
                 ),

@@ -20,6 +20,8 @@ import '../widgets/mini_finance_assistant_panel.dart';
 import '../widgets/savings_card.dart';
 import '../widgets/subscription_card.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class AIFinanceHomePage extends StatefulWidget {
   const AIFinanceHomePage({super.key});
 
@@ -36,7 +38,7 @@ class _AIFinanceHomePageState extends State<AIFinanceHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('AI Financial Advisor', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [

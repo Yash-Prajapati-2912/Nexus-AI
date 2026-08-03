@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../shared/design_system/widgets/empty_states/specialized_empty_states.dart';
 import '../../../../shared/design_system/widgets/error_states/app_error_card.dart';
 import '../../../../shared/design_system/widgets/loaders/shimmer_loader.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
+import '../../../../theme/design_tokens/colors.dart';
+import '../../../../theme/design_tokens/radius.dart';
 import '../bloc/planner_bloc.dart';
 import '../bloc/planner_event.dart';
 import '../bloc/planner_state.dart';
@@ -25,7 +28,10 @@ class _PlannerHomePageState extends State<PlannerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? DesignColors.primaryDark : DesignColors.primaryLight;
+
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Smart Planner', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
@@ -35,16 +41,39 @@ class _PlannerHomePageState extends State<PlannerHomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final bloc = context.read<PlannerBloc>();
-          await Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const CreateTaskPage()),
-          );
-          bloc.add(LoadPlannerEvent());
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New Task'),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: DesignRadius.full,
+          gradient: isDark ? DesignColors.primaryGradientDark : DesignColors.primaryGradientLight,
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withOpacity(0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () async {
+            final bloc = context.read<PlannerBloc>();
+            await Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const CreateTaskPage()),
+            );
+            bloc.add(LoadPlannerEvent());
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          highlightElevation: 0,
+          icon: const Icon(Icons.add_rounded, color: Colors.white),
+          label: const Text(
+            'New Task',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
       ),
       body: BlocBuilder<PlannerBloc, PlannerState>(
         builder: (context, state) {
@@ -90,7 +119,7 @@ class _PlannerHomePageState extends State<PlannerHomePage> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
             itemCount: tasks.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
@@ -111,3 +140,4 @@ class _PlannerHomePageState extends State<PlannerHomePage> {
     );
   }
 }
+

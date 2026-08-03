@@ -8,6 +8,8 @@ import '../bloc/expense_state.dart';
 import '../widgets/expense_card.dart';
 import '../widgets/finance_skeleton.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class ExpenseListPage extends StatefulWidget {
   const ExpenseListPage({super.key});
 
@@ -24,7 +26,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Expenses'),
         actions: [
@@ -57,7 +59,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
               return const Center(child: Text('No expenses recorded yet.'));
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
               itemCount: state.expenses.length,
               itemBuilder: (context, index) {
                 final exp = state.expenses[index];

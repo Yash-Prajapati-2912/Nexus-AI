@@ -10,11 +10,33 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final _nameController = TextEditingController(text: 'Alex Rivers');
-  final _usernameController = TextEditingController(text: 'alexrivers');
-  final _bioController = TextEditingController(text: 'Computer Science Undergraduate & AI Architect');
-  final _cityController = TextEditingController(text: 'San Francisco');
-  final _countryController = TextEditingController(text: 'United States');
+  late TextEditingController _nameController;
+  late TextEditingController _usernameController;
+  late TextEditingController _bioController;
+  late TextEditingController _cityController;
+  late TextEditingController _countryController;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _usernameController = TextEditingController();
+    _bioController = TextEditingController();
+    _cityController = TextEditingController();
+    _countryController = TextEditingController();
+  }
+
+  void _initializeControllers(ProfileState state) {
+    if (!_initialized && state is ProfileLoadedState) {
+      _nameController.text = state.profile.displayName;
+      _usernameController.text = state.profile.username;
+      _bioController.text = state.profile.bio ?? '';
+      _cityController.text = state.profile.city ?? '';
+      _countryController.text = state.profile.country ?? '';
+      _initialized = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -41,45 +63,59 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-        actions: [
-          IconButton(icon: const Icon(Icons.check_rounded), onPressed: _saveProfile),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Display Name', border: OutlineInputBorder()),
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        _initializeControllers(state);
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Edit Profile'),
+            actions: [
+              IconButton(icon: const Icon(Icons.check_rounded), onPressed: _saveProfile),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Display Name', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _bioController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(labelText: 'Bio', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _cityController,
+                  decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _countryController,
+                  decoration: const InputDecoration(labelText: 'Country', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  child: const Text('Save Changes'),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _bioController,
-              maxLines: 3,
-              decoration: const InputDecoration(labelText: 'Bio', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _cityController,
-              decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _countryController,
-              decoration: const InputDecoration(labelText: 'Country', border: OutlineInputBorder()),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -62,18 +62,18 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
       return AcademicProfileModel.fromJson(rawData);
     }
     return const AcademicProfileModel(
-      id: 'a1',
-      university: 'Stanford University',
-      college: 'School of Engineering',
-      degree: 'Bachelor of Science',
-      branch: 'Computer Science',
-      semester: 6,
-      currentYear: 3,
-      cgpa: 3.85,
-      graduationYear: 2027,
-      subjects: ['Data Structures', 'AI'],
-      skills: ['Flutter', 'Dart'],
-      careerInterests: ['AI Software Architecture'],
+      id: '',
+      university: 'Not specified',
+      college: '',
+      degree: 'Student',
+      branch: '',
+      semester: 1,
+      currentYear: 1,
+      cgpa: 0.0,
+      graduationYear: 2026,
+      subjects: [],
+      skills: [],
+      careerInterests: [],
     );
   }
 

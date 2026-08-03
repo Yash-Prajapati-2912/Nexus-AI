@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../router/route_names.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/prompt_template.dart';
 import '../../domain/entities/student_wellness.dart';
@@ -30,7 +31,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('AI Mentor', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
@@ -117,7 +118,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                   ];
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +132,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 1.5,
+                    childAspectRatio: 1.2,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     children: [

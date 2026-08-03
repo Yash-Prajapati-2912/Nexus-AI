@@ -7,7 +7,7 @@ class DevEnv implements AppEnv {
   EnvironmentType get environmentType => EnvironmentType.development;
 
   @override
-  String get apiBaseUrl => kIsWeb ? 'http://localhost:3000/api/v1' : 'http://10.0.2.2:3000/api/v1';
+  String get apiBaseUrl => kIsWeb ? 'http://localhost:3000/api/v1' : 'http://127.0.0.1:3000/api/v1';
 
   @override
   int get connectTimeoutMs => 15000;

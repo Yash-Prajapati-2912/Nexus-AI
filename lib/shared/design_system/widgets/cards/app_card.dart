@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/glass_card.dart';
 
+/// 2026 Glassmorphic App Card wrapper with Dual-Theme support.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -14,20 +16,11 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = Card(
-      child: Padding(
-        padding: padding,
-        child: child,
-      ),
+    return GlassCard(
+      padding: padding,
+      onTap: onTap,
+      child: child,
     );
-
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: card,
-      );
-    }
-    return card;
   }
 }
+

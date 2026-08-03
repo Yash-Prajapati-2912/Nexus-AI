@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/glass_card.dart';
 
-/// Reusable Authentication Container Card.
+/// 2026 Reusable Authentication Container Card with Glassmorphism.
 class AuthCard extends StatelessWidget {
   final Widget child;
 
@@ -8,19 +9,10 @@ class AuthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: child,
-      ),
+    return GlassCard(
+      padding: const EdgeInsets.all(28.0),
+      child: child,
     );
   }
 }
+
