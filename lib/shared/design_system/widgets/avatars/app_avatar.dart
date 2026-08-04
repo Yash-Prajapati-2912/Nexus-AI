@@ -16,15 +16,24 @@ class AppAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final avatarBgColor = isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5);
+
     return Stack(
       children: [
         CircleAvatar(
           radius: radius,
+          backgroundColor: avatarBgColor,
+          foregroundColor: Colors.white,
           backgroundImage: imageUrl != null && imageUrl!.isNotEmpty ? NetworkImage(imageUrl!) : null,
           child: (imageUrl == null || imageUrl!.isEmpty)
               ? Text(
                   name != null && name!.isNotEmpty ? name![0].toUpperCase() : 'U',
-                  style: TextStyle(fontSize: radius * 0.8, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: radius * 0.8,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 )
               : null,
         ),

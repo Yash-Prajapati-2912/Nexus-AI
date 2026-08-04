@@ -16,10 +16,17 @@ class RememberMeCheckbox extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Checkbox(
-          value: value,
-          onChanged: onChanged,
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Checkbox(
+            value: value,
+            onChanged: onChanged,
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
         ),
+        const SizedBox(width: 6),
         Text(
           'Remember me',
           style: Theme.of(context).textTheme.bodySmall,

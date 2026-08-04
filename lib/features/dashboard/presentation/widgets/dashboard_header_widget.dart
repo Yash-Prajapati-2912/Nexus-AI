@@ -32,17 +32,36 @@ class DashboardHeaderWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
+          // Glowing Gradient Profile Ring with Inner Border Gap
           Container(
             padding: const EdgeInsets.all(2.5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: primaryGradient,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF818CF8), Color(0xFF6366F1), Color(0xFFA855F7), Color(0xFFEC4899)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: (isDark ? const Color(0xFF6366F1) : const Color(0xFF818CF8)).withOpacity(0.35),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-            child: AppAvatar(
-              imageUrl: user.avatarUrl,
-              name: user.fullName,
-              radius: 26,
-              isOnline: true,
+            child: Container(
+              padding: const EdgeInsets.all(2.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              ),
+              child: AppAvatar(
+                imageUrl: user.avatarUrl,
+                name: user.fullName,
+                radius: 24,
+                isOnline: true,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -50,19 +69,21 @@ class DashboardHeaderWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => primaryGradient.createShader(bounds),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Text(
-                      '$greeting, ${user.fullName.trim().isNotEmpty ? user.fullName.trim().split(' ').first : 'User'}! 👋',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.3,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => primaryGradient.createShader(bounds),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Text(
+                        '$greeting, ${user.fullName.trim().isNotEmpty ? user.fullName.trim().split(' ').first : 'User'}! 👋',
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ),
                   ),

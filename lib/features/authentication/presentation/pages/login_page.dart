@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextField(
                           controller: _emailController,
                           label: 'Email',
-                          hint: 'student@university.edu',
+                          hint: 'Enter your email',
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: const Icon(Icons.email_outlined),
                           validator: Validators.email,
@@ -96,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextField(
                           controller: _passwordController,
                           label: 'Password',
+                          hint: 'Enter your password',
                           obscureText: _obscurePassword,
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
@@ -115,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             RememberMeCheckbox(
                               value: _rememberMe,

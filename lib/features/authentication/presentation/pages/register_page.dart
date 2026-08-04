@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         CustomTextField(
                           controller: _fullNameController,
                           label: 'Full Name',
-                          hint: 'Alex Mercer',
+                          hint: 'Enter your full name',
                           prefixIcon: const Icon(Icons.person_outline),
                           validator: (val) => Validators.required(val, message: 'Full Name is required'),
                         ),
@@ -101,7 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         CustomTextField(
                           controller: _emailController,
                           label: 'Email Address',
-                          hint: 'student@university.edu',
+                          hint: 'Enter your email',
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: const Icon(Icons.email_outlined),
                           validator: Validators.email,
@@ -110,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         CustomTextField(
                           controller: _passwordController,
                           label: 'Password',
+                          hint: 'Enter your password',
                           obscureText: _obscurePassword,
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
@@ -130,6 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         CustomTextField(
                           controller: _confirmPasswordController,
                           label: 'Confirm Password',
+                          hint: 'Re-enter your password',
                           obscureText: _obscurePassword,
                           prefixIcon: const Icon(Icons.lock_reset_outlined),
                           validator: (val) {

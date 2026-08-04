@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/storage/session_manager.dart';
+import '../../../../di/injection_container.dart';
 import '../../../../router/route_names.dart';
 import '../../../../shared/design_system/widgets/error_states/app_error_card.dart';
 import '../../../../shared/widgets/base_scaffold.dart';
@@ -226,6 +228,38 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                           title: Text('Export My Data', style: TextStyle(fontWeight: FontWeight.w600, color: titleColor)),
                           trailing: Icon(Icons.chevron_right_rounded, color: subtitleColor),
                           onTap: () => context.push(RouteNames.profileExportData),
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.logout_rounded, color: Colors.orangeAccent),
+                          title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.orangeAccent)),
+                          trailing: Icon(Icons.chevron_right_rounded, color: subtitleColor),
+                          onTap: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('Sign Out'),
+                                content: const Text('Are you sure you want to sign out of your account?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                                    child: const Text('Sign Out', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true && context.mounted) {
+                              await getIt<SessionManager>().clearSession();
+                              if (context.mounted) {
+                                context.go(RouteNames.login);
+                              }
+                            }
+                          },
                         ),
                         const Divider(height: 8),
                         ListTile(

@@ -60,16 +60,19 @@ class ModernBottomNavbar extends StatelessWidget {
   ];
 
   int _getSelectedIndex() {
-    if (currentRoute.startsWith(RouteNames.planner) || currentRoute.startsWith('/ai-planner')) {
+    if (currentRoute.startsWith(RouteNames.planner) ||
+        currentRoute.startsWith('/ai-planner')) {
       return 1;
     }
-    if (currentRoute.startsWith(RouteNames.finance) || currentRoute.startsWith('/ai-finance')) {
+    if (currentRoute.startsWith(RouteNames.finance) ||
+        currentRoute.startsWith('/ai-finance')) {
       return 2;
     }
     if (currentRoute.startsWith(RouteNames.aiMentor)) {
       return 3;
     }
-    if (currentRoute.startsWith(RouteNames.profile) || currentRoute.startsWith('/settings')) {
+    if (currentRoute.startsWith(RouteNames.profile) ||
+        currentRoute.startsWith('/settings')) {
       return 4;
     }
     return 0; // Default to Dashboard
@@ -87,13 +90,13 @@ class ModernBottomNavbar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedIndex = _getSelectedIndex();
 
-    final glassTint = isDark
-        ? const Color(0x06FFFFFF)
-        : const Color(0x08FFFFFF);
+    final glassTint =
+        isDark ? const Color(0x06FFFFFF) : const Color(0x08FFFFFF);
     final glassBorderColor = isDark
         ? Colors.white.withValues(alpha: 0.32)
         : Colors.white.withValues(alpha: 0.75);
-    final primaryAccent = isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5);
+    final primaryAccent =
+        isDark ? const Color(0xFF6366F1) : const Color(0xFF4F46E5);
     final inactiveIconColor = isDark
         ? Colors.white.withValues(alpha: 0.60)
         : const Color(0xFF64748B).withValues(alpha: 0.85);
@@ -120,7 +123,8 @@ class ModernBottomNavbar extends StatelessWidget {
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: (isDark ? const Color(0xFF6366F1) : Colors.white).withValues(alpha: isDark ? 0.08 : 0.30),
+                    color: (isDark ? const Color(0xFF6366F1) : Colors.white)
+                        .withValues(alpha: isDark ? 0.08 : 0.30),
                     blurRadius: 10,
                     spreadRadius: -2,
                     offset: const Offset(0, 2),
@@ -139,9 +143,11 @@ class ModernBottomNavbar extends StatelessWidget {
                           end: Alignment.bottomRight,
                           stops: const [0.0, 0.45, 1.0],
                           colors: [
-                            Colors.white.withValues(alpha: isDark ? 0.15 : 0.35),
+                            Colors.white
+                                .withValues(alpha: isDark ? 0.15 : 0.35),
                             Colors.white.withValues(alpha: 0.02),
-                            Colors.white.withValues(alpha: isDark ? 0.08 : 0.20),
+                            Colors.white
+                                .withValues(alpha: isDark ? 0.08 : 0.20),
                           ],
                         ),
                       ),
@@ -158,7 +164,8 @@ class ModernBottomNavbar extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             Colors.white.withValues(alpha: 0.0),
-                            Colors.white.withValues(alpha: isDark ? 0.60 : 0.95),
+                            Colors.white
+                                .withValues(alpha: isDark ? 0.60 : 0.95),
                             Colors.white.withValues(alpha: 0.0),
                           ],
                         ),
@@ -171,98 +178,114 @@ class ModernBottomNavbar extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: List.generate(_items.length, (index) {
-                      final item = _items[index];
-                      final isSelected = selectedIndex == index;
+                        final item = _items[index];
+                        final isSelected = selectedIndex == index;
 
-                      return Expanded(
-                        child: InkWell(
-                          onTap: () => _onItemTapped(context, index),
-                          borderRadius: BorderRadius.circular(30),
-                          splashColor: primaryAccent.withValues(alpha: 0.10),
-                          highlightColor: Colors.transparent,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Soft Glowing Liquid Glass Active Capsule
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.fastOutSlowIn,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? (isDark
-                                          ? const Color(0xFF6366F1).withValues(alpha: 0.25)
-                                          : Colors.white.withValues(alpha: 0.45))
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: isSelected
-                                      ? Border.all(
-                                          color: isDark
-                                              ? const Color(0xFF818CF8)
-                                              : Colors.white,
-                                          width: 1.0,
-                                        )
-                                      : Border.all(color: Colors.transparent, width: 1.0),
-                                  boxShadow: isSelected
-                                      ? [
-                                          BoxShadow(
-                                            color: (isDark ? const Color(0xFF6366F1) : Colors.indigoAccent)
-                                                .withValues(alpha: 0.25),
-                                            blurRadius: 10,
-                                            spreadRadius: 0,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                child: AnimatedScale(
-                                  scale: isSelected ? 1.1 : 1.0,
+                        return Expanded(
+                          child: InkWell(
+                            onTap: () => _onItemTapped(context, index),
+                            borderRadius: BorderRadius.circular(30),
+                            splashColor: primaryAccent.withValues(alpha: 0.10),
+                            highlightColor: Colors.transparent,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Soft Glowing Liquid Glass Active Capsule
+                                AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
                                   curve: Curves.fastOutSlowIn,
-                                  child: Icon(
-                                    isSelected ? item.activeIcon : item.icon,
-                                    size: 19,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 3),
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? (isDark ? Colors.white : primaryAccent)
-                                        : inactiveIconColor,
+                                        ? (isDark
+                                            ? const Color(0xFF6366F1)
+                                                .withValues(alpha: 0.25)
+                                            : Colors.white
+                                                .withValues(alpha: 0.45))
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: isSelected
+                                        ? Border.all(
+                                            color: isDark
+                                                ? const Color(0xFF818CF8)
+                                                : Colors.white,
+                                            width: 1.0,
+                                          )
+                                        : Border.all(
+                                            color: Colors.transparent,
+                                            width: 1.0),
+                                    boxShadow: isSelected
+                                        ? [
+                                            BoxShadow(
+                                              color: (isDark
+                                                      ? const Color(0xFF6366F1)
+                                                      : Colors.indigoAccent)
+                                                  .withValues(alpha: 0.25),
+                                              blurRadius: 10,
+                                              spreadRadius: 0,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
+                                  child: AnimatedScale(
+                                    scale: isSelected ? 1.1 : 1.0,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.fastOutSlowIn,
+                                    child: Icon(
+                                      isSelected ? item.activeIcon : item.icon,
+                                      size: 19,
+                                      color: isSelected
+                                          ? (isDark
+                                              ? Colors.white
+                                              : primaryAccent)
+                                          : inactiveIconColor,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              // Typography Label
-                              AnimatedOpacity(
-                                duration: const Duration(milliseconds: 250),
-                                opacity: isSelected ? 1.0 : 0.65,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      item.label,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        height: 1.1,
-                                        fontSize: isSelected ? 10.5 : 10.0,
-                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                        color: isSelected
-                                            ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                                            : (isDark ? Colors.white70 : const Color(0xFF64748B)),
-                                        letterSpacing: isSelected ? 0.1 : 0.2,
+                                const SizedBox(height: 2),
+                                // Typography Label
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 250),
+                                  opacity: isSelected ? 1.0 : 0.65,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        item.label,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          height: 1.1,
+                                          fontSize: isSelected ? 10.5 : 10.0,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.w500,
+                                          color: isSelected
+                                              ? (isDark
+                                                  ? Colors.white
+                                                  : const Color(0xFF0F172A))
+                                              : (isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF64748B)),
+                                          letterSpacing: isSelected ? 0.1 : 0.2,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           ),
         ),

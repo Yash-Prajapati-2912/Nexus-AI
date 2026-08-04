@@ -10,6 +10,11 @@ class ForgotPasswordLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       child: Text(
         'Forgot password?',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
