@@ -91,9 +91,16 @@ export class ProfileService {
   }
 
   async getProfile(userId: string): Promise<ProfileResponseDto> {
-    const profile = await this.profileRepository.findByUserId(userId);
+    let profile = await this.profileRepository.findByUserId(userId);
     if (!profile) {
-      throw new NotFoundException('User profile not found.');
+      try {
+        return await this.createProfile(userId, {});
+      } catch (_) {
+        profile = await this.profileRepository.findByUserId(userId);
+        if (!profile) {
+          throw new NotFoundException('User profile not found.');
+        }
+      }
     }
     return ProfileMapper.toDto(profile);
   }

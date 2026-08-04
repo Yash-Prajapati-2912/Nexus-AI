@@ -11,8 +11,14 @@ export class ProfileOverviewAggregator {
   async aggregate(userId: string): Promise<IProfileOverviewData> {
     const profile = await this.profileService.getProfile(userId).catch(() => null);
 
+    const computedName = profile?.fullName && profile.fullName.trim().length > 0
+      ? profile.fullName.trim()
+      : (profile?.degree ? `${profile.degree}` : 'Student');
+
     return {
-      fullName: profile ? `${profile.degree || 'Student'}` : 'Nexus Student',
+      fullName: computedName,
+      email: profile?.email || '',
+      avatar: profile?.avatar || null,
       profileCompletionPercentage: profile ? Number(profile.profileCompletionPercentage) : 80,
       currentSemester: profile ? profile.semester : 4,
       skillsCount: profile && profile.skills ? profile.skills.length : 3,

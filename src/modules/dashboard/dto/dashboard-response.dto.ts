@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DomainSource } from '../constants/dashboard-enums.constants';
 
 export class WidgetItemDto {
@@ -75,6 +75,9 @@ export class UserInsightItemDto {
 export class DashboardResponseDto {
   @ApiProperty({ description: 'User UUID' })
   userId: string;
+
+  @ApiPropertyOptional({ description: 'User identity details' })
+  user?: Record<string, any>;
 
   @ApiProperty({ description: 'Planner summary overview' })
   plannerOverview: Record<string, any>;

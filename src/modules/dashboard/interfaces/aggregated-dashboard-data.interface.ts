@@ -19,6 +19,8 @@ export interface IFinanceOverviewData {
 
 export interface IProfileOverviewData {
   fullName: string;
+  email?: string;
+  avatar?: string | null;
   profileCompletionPercentage: number;
   currentSemester: number | null;
   skillsCount: number;

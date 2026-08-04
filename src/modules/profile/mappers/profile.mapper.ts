@@ -11,6 +11,13 @@ export class ProfileMapper {
     const dto = new ProfileResponseDto();
     dto.id = entity.id;
     dto.userId = entity.userId;
+    if (entity.user) {
+      dto.firstName = entity.user.firstName || '';
+      dto.lastName = entity.user.lastName || '';
+      dto.fullName = `${entity.user.firstName || ''} ${entity.user.lastName || ''}`.trim();
+      dto.email = entity.user.email || '';
+      dto.username = entity.user.email ? entity.user.email.split('@')[0] : '';
+    }
     dto.avatar = entity.avatar;
     dto.bio = entity.bio;
     dto.dateOfBirth = entity.dateOfBirth;

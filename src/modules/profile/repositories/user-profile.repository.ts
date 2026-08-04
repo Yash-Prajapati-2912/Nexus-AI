@@ -15,7 +15,7 @@ export class UserProfileRepository extends BaseRepository<UserProfile> {
 
   async findByUserId(
     userId: string,
-    relations: string[] = ['educationHistory', 'skills', 'careerGoals', 'preferences'],
+    relations: string[] = ['user', 'educationHistory', 'skills', 'careerGoals', 'preferences'],
     entityManager?: EntityManager,
   ): Promise<UserProfile | null> {
     const repo = this.getRepo(entityManager);
@@ -27,7 +27,7 @@ export class UserProfileRepository extends BaseRepository<UserProfile> {
 
   async findByProfileIdWithRelations(
     profileId: string,
-    relations: string[] = ['educationHistory', 'skills', 'careerGoals', 'preferences'],
+    relations: string[] = ['user', 'educationHistory', 'skills', 'careerGoals', 'preferences'],
     entityManager?: EntityManager,
   ): Promise<UserProfile | null> {
     const repo = this.getRepo(entityManager);

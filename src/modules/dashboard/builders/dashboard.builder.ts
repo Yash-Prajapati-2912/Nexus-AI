@@ -71,6 +71,13 @@ export class DashboardBuilder {
   build(): DashboardResponseDto {
     return {
       userId: this.userId,
+      user: {
+        userId: this.userId,
+        id: this.userId,
+        fullName: this.profileData?.fullName || 'Student',
+        email: this.profileData?.email || '',
+        avatarUrl: this.profileData?.avatar || null,
+      },
       plannerOverview: this.plannerData || {
         todaysTasksCount: 0,
         completedTasksCount: 0,

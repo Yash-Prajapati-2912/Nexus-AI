@@ -13,6 +13,21 @@ export class ProfileResponseDto {
   @ApiProperty({ example: 'c3d4e5f6-a7b8-9012-cdef-345678901234' })
   userId: string;
 
+  @ApiPropertyOptional({ example: 'Alex' })
+  firstName?: string;
+
+  @ApiPropertyOptional({ example: 'Rivers' })
+  lastName?: string;
+
+  @ApiPropertyOptional({ example: 'Alex Rivers' })
+  fullName?: string;
+
+  @ApiPropertyOptional({ example: 'alex.rivers@stanford.edu' })
+  email?: string;
+
+  @ApiPropertyOptional({ example: 'alexrivers' })
+  username?: string;
+
   @ApiPropertyOptional({ example: 'https://res.cloudinary.com/nexus-ai/image/upload/v1/avatars/user123.jpg', nullable: true })
   avatar: string | null;
 
