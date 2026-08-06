@@ -1,10 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
+  import {
   IsEnum,
   IsOptional,
   IsString,
   MaxLength,
   IsUrl,
+  IsNumber,
+  IsArray,
 } from 'class-validator';
 import { Gender } from '../constants/gender.enum';
 import { CurrentStatus } from '../constants/current-status.enum';
@@ -17,6 +19,42 @@ import { IsCountryCustom } from '../validators/is-country.validator';
 import { IsLanguageCustom } from '../validators/is-language.validator';
 
 export class CreateProfileDto {
+  @ApiPropertyOptional({
+    description: 'Display name or full name',
+    example: 'Alex Rivers',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  displayName?: string;
+
+  @ApiPropertyOptional({
+    description: 'Username',
+    example: 'alexrivers',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  username?: string;
+
+  @ApiPropertyOptional({
+    description: 'First name',
+    example: 'Alex',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  firstName?: string;
+
+  @ApiPropertyOptional({
+    description: 'Last name',
+    example: 'Rivers',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  lastName?: string;
+
   @ApiPropertyOptional({
     description: 'Avatar image URL hosted on Cloudinary or CDN',
     example: 'https://res.cloudinary.com/nexus-ai/image/upload/v1/avatars/user123.jpg',
@@ -127,6 +165,32 @@ export class CreateProfileDto {
   @IsOptional()
   @IsGraduationYearCustom()
   graduationYear?: number;
+
+  @ApiPropertyOptional({
+    description: 'Cumulative Grade Point Average (0.0 to 10.0)',
+    example: 8.5,
+  })
+  @IsOptional()
+  @IsNumber()
+  cgpa?: number;
+
+  @ApiPropertyOptional({
+    description: 'List of technical and academic skills',
+    example: ['Flutter', 'Dart', 'PostgreSQL'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
+
+  @ApiPropertyOptional({
+    description: 'List of career and learning interests/goals',
+    example: ['AI Architecture', 'Machine Learning'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  careerInterests?: string[];
 
   @ApiPropertyOptional({
     enum: CurrentStatus,

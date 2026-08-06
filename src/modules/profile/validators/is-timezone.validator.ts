@@ -14,13 +14,16 @@ export class IsTimezoneCustomConstraint implements ValidatorConstraintInterface 
     if (typeof timezone !== 'string') {
       return false;
     }
+    const tzStr = timezone.trim();
     try {
-      Intl.DateTimeFormat(undefined, { timeZone: timezone.trim() });
+      Intl.DateTimeFormat(undefined, { timeZone: tzStr });
       return true;
     } catch (e) {
-      // Fallback for standard offset strings like UTC, GMT, UTC+5:30
-      const standardOffsetRegex = /^(UTC|GMT)([+-]\d{1,2}(:\d{2})?)?$/i;
-      return standardOffsetRegex.test(timezone.trim());
+      // Fallback for standard offset strings (UTC+5:30, GMT-8, +05:30) and combined format (IST (UTC+05:30))
+      const combinedOffsetRegex = /^([A-Z0-9_\/\-\s]+)?\s*(\((UTC|GMT)?[+-]\d{1,2}(:\d{2})?\))?$/i;
+      const standardOffsetRegex = /^(UTC|GMT)?([+-]\d{1,2}(:\d{2})?)$/i;
+      const abbrRegex = /^[A-Z]{3,5}$/i;
+      return combinedOffsetRegex.test(tzStr) || standardOffsetRegex.test(tzStr) || abbrRegex.test(tzStr);
     }
   }
 

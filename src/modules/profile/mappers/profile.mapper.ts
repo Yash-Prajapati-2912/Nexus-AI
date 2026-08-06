@@ -31,6 +31,7 @@ export class ProfileMapper {
     dto.department = entity.department;
     dto.semester = entity.semester;
     dto.graduationYear = entity.graduationYear;
+    dto.cgpa = entity.cgpa ? Number(entity.cgpa) : null;
     dto.currentStatus = entity.currentStatus;
     dto.profileCompletionPercentage = Number(entity.profileCompletionPercentage) || 0;
     dto.timezone = entity.timezone;

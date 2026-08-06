@@ -8,7 +8,7 @@ import {
 @ValidatorConstraint({ name: 'IsPhoneNumberCustom', async: false })
 export class IsPhoneNumberCustomConstraint implements ValidatorConstraintInterface {
   validate(phone: any): boolean {
-    if (phone === undefined || phone === null || phone === '') {
+    if (phone === undefined || phone === null || phone === '' || (typeof phone === 'string' && phone.trim() === '')) {
       return true;
     }
     if (typeof phone !== 'string') {

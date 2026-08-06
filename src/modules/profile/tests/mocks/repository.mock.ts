@@ -19,6 +19,7 @@ export const createMockRepository = () => ({
   createQueryBuilder: jest.fn(),
   create: jest.fn((entity) => entity),
   save: jest.fn((entity) => Promise.resolve(entity)),
+  saveUser: jest.fn((user) => Promise.resolve(user)),
   update: jest.fn().mockResolvedValue(true),
   softDeleteById: jest.fn().mockResolvedValue(true),
   hardDelete: jest.fn().mockResolvedValue(true),

@@ -88,6 +88,14 @@ export class UserProfile extends BaseEntity {
 
   @Column({
     type: 'numeric',
+    precision: 4,
+    scale: 2,
+    nullable: true,
+  })
+  cgpa: number | null;
+
+  @Column({
+    type: 'numeric',
     precision: 5,
     scale: 2,
     name: 'profile_completion_percentage',

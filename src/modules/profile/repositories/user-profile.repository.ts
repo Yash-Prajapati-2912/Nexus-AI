@@ -4,6 +4,8 @@ import { Repository, EntityManager } from 'typeorm';
 import { BaseRepository } from '../../../database/base.repository';
 import { UserProfile } from '../entities/user-profile.entity';
 
+import { User } from '../../auth/entities/user.entity';
+
 @Injectable()
 export class UserProfileRepository extends BaseRepository<UserProfile> {
   constructor(
@@ -44,5 +46,10 @@ export class UserProfileRepository extends BaseRepository<UserProfile> {
   ): Promise<void> {
     const repo = this.getRepo(entityManager);
     await repo.update(profileId, { profileCompletionPercentage: percentage });
+  }
+
+  async saveUser(user: User, entityManager?: EntityManager): Promise<User> {
+    const repo = this.getRepo(entityManager);
+    return repo.manager.save(user);
   }
 }

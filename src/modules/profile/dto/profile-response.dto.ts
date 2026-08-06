@@ -67,6 +67,9 @@ export class ProfileResponseDto {
   @ApiPropertyOptional({ example: 2026, nullable: true })
   graduationYear: number | null;
 
+  @ApiPropertyOptional({ example: 8.5, nullable: true })
+  cgpa: number | null;
+
   @ApiProperty({ enum: CurrentStatus, example: CurrentStatus.STUDENT })
   currentStatus: CurrentStatus;
 

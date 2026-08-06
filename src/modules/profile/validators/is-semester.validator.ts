@@ -8,7 +8,7 @@ import {
 @ValidatorConstraint({ name: 'IsSemesterCustom', async: false })
 export class IsSemesterCustomConstraint implements ValidatorConstraintInterface {
   validate(semester: any): boolean {
-    if (semester === undefined || semester === null) {
+    if (semester === undefined || semester === null || semester === 0 || semester === '0' || semester === '') {
       return true;
     }
     const numSemester = Number(semester);

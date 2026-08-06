@@ -8,7 +8,7 @@ import {
 @ValidatorConstraint({ name: 'IsGraduationYearCustom', async: false })
 export class IsGraduationYearCustomConstraint implements ValidatorConstraintInterface {
   validate(year: any): boolean {
-    if (year === undefined || year === null) {
+    if (year === undefined || year === null || year === 0 || year === '0' || year === '') {
       return true;
     }
     const numYear = Number(year);

@@ -15,12 +15,20 @@ import { ThemePreference } from '../constants/theme.enum';
 import { CurrentStatus } from '../constants/current-status.enum';
 import { IPublicProfile } from '../interfaces/public-profile.interface';
 
+import { SkillRepository } from '../repositories/skill.repository';
+import { CareerGoalRepository } from '../repositories/career-goal.repository';
+import { SkillCategory } from '../constants/skill-category.enum';
+import { SkillLevel } from '../constants/skill-level.enum';
+import { CareerGoalStatus } from '../constants/career-goal-status.enum';
+
 @Injectable()
 export class ProfileService {
   constructor(
     private readonly profileRepository: UserProfileRepository,
     private readonly preferenceRepository: UserPreferenceRepository,
     private readonly completionService: ProfileCompletionService,
+    private readonly skillRepository: SkillRepository,
+    private readonly careerGoalRepository: CareerGoalRepository,
   ) {}
 
   async createProfile(userId: string, dto: CreateProfileDto): Promise<ProfileResponseDto> {
@@ -124,6 +132,17 @@ export class ProfileService {
       throw new NotFoundException('User profile not found.');
     }
 
+    if (profile.user && (dto.displayName !== undefined || dto.firstName !== undefined || dto.lastName !== undefined)) {
+      if (dto.displayName !== undefined) {
+        const parts = dto.displayName.trim().split(' ');
+        profile.user.firstName = parts[0] || '';
+        profile.user.lastName = parts.slice(1).join(' ') || '';
+      }
+      if (dto.firstName !== undefined) profile.user.firstName = dto.firstName.trim();
+      if (dto.lastName !== undefined) profile.user.lastName = dto.lastName.trim();
+      await this.profileRepository.saveUser(profile.user);
+    }
+
     if (dto.avatar !== undefined) profile.avatar = dto.avatar || null;
     if (dto.bio !== undefined) profile.bio = dto.bio ? dto.bio.trim() : null;
     if (dto.dateOfBirth !== undefined)
@@ -141,6 +160,8 @@ export class ProfileService {
     if (dto.semester !== undefined) profile.semester = dto.semester ?? null;
     if (dto.graduationYear !== undefined)
       profile.graduationYear = dto.graduationYear ?? null;
+    if (dto.cgpa !== undefined)
+      profile.cgpa = dto.cgpa ?? null;
     if (dto.currentStatus !== undefined) profile.currentStatus = dto.currentStatus;
     if (dto.timezone !== undefined)
       profile.timezone = dto.timezone ? dto.timezone.trim() : 'UTC';
@@ -148,6 +169,52 @@ export class ProfileService {
       profile.language = dto.language ? dto.language.trim() : 'en';
 
     await this.profileRepository.save(profile, userId);
+
+    if (dto.skills && Array.isArray(dto.skills)) {
+      for (const skillName of dto.skills) {
+        const nameTrimmed = skillName.trim();
+        if (nameTrimmed) {
+          const existing = await this.skillRepository.findByNameAndProfileId(profile.id, nameTrimmed);
+          if (!existing) {
+            const newSkill = this.skillRepository.create(
+              {
+                profileId: profile.id,
+                name: nameTrimmed,
+                category: SkillCategory.TECHNICAL,
+                level: SkillLevel.INTERMEDIATE,
+              },
+              userId,
+            );
+            await this.skillRepository.save(newSkill, userId);
+          }
+        }
+      }
+    }
+
+    if (dto.careerInterests && Array.isArray(dto.careerInterests)) {
+      const existingGoals = await this.careerGoalRepository.findByProfileId(profile.id);
+      for (const goalTitle of dto.careerInterests) {
+        const titleTrimmed = goalTitle.trim();
+        if (titleTrimmed) {
+          const existing = existingGoals.find(
+            (g) => g.title.toLowerCase() === titleTrimmed.toLowerCase(),
+          );
+          if (!existing) {
+            const newGoal = this.careerGoalRepository.create(
+              {
+                profileId: profile.id,
+                title: titleTrimmed,
+                targetIndustry: 'Technology',
+                targetYear: new Date().getFullYear() + 1,
+                status: CareerGoalStatus.IN_PROGRESS,
+              },
+              userId,
+            );
+            await this.careerGoalRepository.save(newGoal, userId);
+          }
+        }
+      }
+    }
 
     const updatedFull = await this.profileRepository.findByProfileIdWithRelations(profile.id);
     if (updatedFull) {
