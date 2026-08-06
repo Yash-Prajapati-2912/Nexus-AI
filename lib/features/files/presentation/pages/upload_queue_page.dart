@@ -5,20 +5,52 @@ import '../widgets/upload_progress_card.dart';
 class UploadQueuePage extends StatelessWidget {
   const UploadQueuePage({super.key});
 
-  final List<UploadTask> _tasks = const [
-    UploadTask(id: 'u1', filePath: '/path/doc.pdf', fileName: 'CS101_Submission.pdf', progress: 0.8, status: UploadStatus.UPLOADING),
-    UploadTask(id: 'u2', filePath: '/path/img.png', fileName: 'Whiteboard_Scan.png', progress: 1.0, status: UploadStatus.SUCCESS),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<UploadTask> tasks = [];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Queue')),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 12),
-        itemCount: _tasks.length,
-        itemBuilder: (context, index) => UploadProgressCard(task: _tasks[index]),
-      ),
+      body: tasks.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.cloud_upload_outlined,
+                      size: 64,
+                      color: isDark ? Colors.white38 : Colors.grey,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Uploads in Queue',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'All file uploads have completed successfully.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.only(top: 12),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) => UploadProgressCard(task: tasks[index]),
+            ),
     );
   }
 }

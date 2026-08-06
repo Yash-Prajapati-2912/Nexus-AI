@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'design_tokens/colors.dart';
 import 'design_tokens/radius.dart';
@@ -40,12 +41,55 @@ abstract class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
         iconTheme: const IconThemeData(color: DesignColors.textPrimaryLight),
         actionsIconTheme: const IconThemeData(color: DesignColors.textPrimaryLight),
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: DesignColors.textPrimaryLight,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: DesignColors.primaryLight,
+          foregroundColor: DesignColors.onPrimaryLight,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: const RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: DesignColors.primaryLight,
+          side: const BorderSide(color: DesignColors.primaryLight, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: const RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: DesignColors.primaryLight,
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: DesignColors.primaryLight,
+        foregroundColor: DesignColors.onPrimaryLight,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: DesignColors.textPrimaryLight,
         ),
       ),
       cardTheme: const CardThemeData(
@@ -160,12 +204,55 @@ abstract class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
         iconTheme: const IconThemeData(color: DesignColors.textPrimaryDark),
         actionsIconTheme: const IconThemeData(color: DesignColors.textPrimaryDark),
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: DesignColors.textPrimaryDark,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: DesignColors.primaryDark,
+          foregroundColor: DesignColors.onPrimaryDark,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: const RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: DesignColors.primaryDark,
+          side: const BorderSide(color: DesignColors.primaryDark, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: const RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: DesignColors.primaryDark,
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: DesignColors.primaryDark,
+        foregroundColor: DesignColors.onPrimaryDark,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: DesignColors.textPrimaryDark,
         ),
       ),
       cardTheme: const CardThemeData(

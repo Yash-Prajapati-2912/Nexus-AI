@@ -20,9 +20,12 @@ class ProfileHeader extends StatelessWidget {
     final glowColor = isDark ? DesignColors.accentPurpleDark.withOpacity(0.4) : DesignColors.primaryLight.withOpacity(0.25);
 
     return GlassCard(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
@@ -44,7 +47,9 @@ class ProfileHeader extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            profile.displayName,
+            (profile.displayName.isNotEmpty && profile.displayName != 'User')
+                ? profile.displayName
+                : (profile.email.isNotEmpty ? profile.email.split('@').first : 'User'),
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -52,15 +57,17 @@ class ProfileHeader extends StatelessWidget {
               letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            '@${profile.username} • ${profile.email}',
-            style: TextStyle(
-              fontSize: 13,
-              color: subtitleColor,
-              fontWeight: FontWeight.w500,
+          if (profile.username.trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              '@${profile.username.trim()}',
+              style: TextStyle(
+                fontSize: 13,
+                color: subtitleColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
+          ],
           if (profile.bio != null && profile.bio!.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
@@ -87,7 +94,8 @@ class ProfileHeader extends StatelessWidget {
           CompletionIndicator(percentage: profile.completionPercentage),
         ],
       ),
-    );
+    ),
+  );
   }
 }
 

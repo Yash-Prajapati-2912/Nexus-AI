@@ -147,6 +147,10 @@ class _GenerateStudyPlanPageState extends State<GenerateStudyPlanPage> {
                     IconButton.filled(
                       icon: const Icon(Icons.add),
                       onPressed: _addSubject,
+                      style: IconButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                      ),
                     ),
                   ],
                 ),

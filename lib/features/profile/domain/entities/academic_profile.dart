@@ -30,6 +30,10 @@ class AcademicProfile extends Equatable {
     required this.careerInterests,
   });
 
+  bool get isEmpty => university.trim().isEmpty && degree.trim().isEmpty && branch.trim().isEmpty;
+
+  int get resolvedCurrentYear => currentYear > 0 ? currentYear : (semester > 0 ? (semester + 1) ~/ 2 : 0);
+
   @override
   List<Object?> get props => [
         id,

@@ -588,28 +588,31 @@ abstract class AppRouter {
         // Profile & User Management Routes
         GoRoute(
           path: RouteNames.profileHome,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<ProfileBloc>(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
             child: const ProfileHomePage(),
           ),
         ),
         GoRoute(
           path: RouteNames.profileEdit,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<ProfileBloc>(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
             child: const EditProfilePage(),
           ),
         ),
         GoRoute(
           path: RouteNames.profileAcademic,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<ProfileBloc>(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
             child: const AcademicProfilePage(),
           ),
         ),
         GoRoute(
           path: RouteNames.profilePersonalInformation,
-          builder: (context, state) => const PersonalInformationPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const PersonalInformationPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileAchievements,
@@ -621,27 +624,45 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.profileSkills,
-          builder: (context, state) => const SkillsPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const SkillsPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileInterests,
-          builder: (context, state) => const InterestsPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const InterestsPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileGoalsOverview,
-          builder: (context, state) => const GoalsOverviewPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const GoalsOverviewPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileConnectedAccounts,
-          builder: (context, state) => const ConnectedAccountsPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const ConnectedAccountsPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profilePrivacySettings,
-          builder: (context, state) => const PrivacySettingsPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const PrivacySettingsPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileSecurityOverview,
-          builder: (context, state) => const SecurityOverviewPage(),
+          builder: (context, state) => BlocProvider.value(
+            value: getIt<ProfileBloc>(),
+            child: const SecurityOverviewPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.profileDeleteAccount,

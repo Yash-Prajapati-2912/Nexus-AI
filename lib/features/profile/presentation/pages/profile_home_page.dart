@@ -167,37 +167,97 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                   ProfileCard(
                     title: 'Academic Details',
                     icon: Icons.school_rounded,
-                    onEdit: () => context.push(RouteNames.profileAcademic),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          acad.university,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${acad.degree} • ${acad.branch}',
-                          style: TextStyle(fontSize: 14, color: subtitleColor),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            _buildInfoBadge(
-                              context,
-                              label: 'CGPA: ${acad.cgpa}',
-                              color: const Color(0xFF10B981),
+                    onEdit: () => context.push(RouteNames.profileAcademic).then((_) {
+                      if (context.mounted) {
+                        context.read<ProfileBloc>().add(const LoadProfileEvent());
+                      }
+                    }),
+                    child: acad.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.school_outlined,
+                                  size: 42,
+                                  color: subtitleColor.withOpacity(0.6),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'No Academic Data Found',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: titleColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Please update info to get your academic data',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: primaryColor,
+                                    side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  onPressed: () => context.push(RouteNames.profileAcademic).then((_) {
+                                    if (context.mounted) {
+                                      context.read<ProfileBloc>().add(const LoadProfileEvent());
+                                    }
+                                  }),
+                                  icon: const Icon(Icons.edit_rounded, size: 16),
+                                  label: const Text(
+                                    'Update Academic Info',
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            _buildInfoBadge(
-                              context,
-                              label: 'Year ${acad.currentYear} (Sem ${acad.semester})',
-                              color: primaryColor,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (acad.university.isNotEmpty)
+                                Text(
+                                  acad.university,
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: titleColor),
+                                ),
+                              if (acad.degree.isNotEmpty || acad.branch.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${acad.degree}${acad.degree.isNotEmpty && acad.branch.isNotEmpty ? " • " : ""}${acad.branch}',
+                                  style: TextStyle(fontSize: 14, color: subtitleColor),
+                                ),
+                              ],
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  if (acad.cgpa > 0)
+                                    _buildInfoBadge(
+                                      context,
+                                      label: 'CGPA: ${acad.cgpa}',
+                                      color: const Color(0xFF10B981),
+                                    ),
+                                  if (acad.resolvedCurrentYear > 0 || acad.semester > 0) ...[
+                                    if (acad.cgpa > 0) const SizedBox(width: 8),
+                                    _buildInfoBadge(
+                                      context,
+                                      label: 'Year ${acad.resolvedCurrentYear} (Sem ${acad.semester})',
+                                      color: primaryColor,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
                   ),
 
                   // Personal Information Card
@@ -207,11 +267,28 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                     onEdit: () => context.push(RouteNames.profilePersonalInformation),
                     child: Column(
                       children: [
-                        _buildDetailRow(context, icon: Icons.email_outlined, label: 'Email', value: user.email),
+                        _buildDetailRow(
+                          context,
+                          icon: Icons.email_outlined,
+                          label: 'Email',
+                          value: user.email.isNotEmpty ? user.email : 'Not provided',
+                        ),
                         const Divider(height: 16),
-                        _buildDetailRow(context, icon: Icons.location_on_outlined, label: 'Location', value: '${user.city ?? "San Francisco"}, ${user.country ?? "United States"}'),
+                        _buildDetailRow(
+                          context,
+                          icon: Icons.location_on_outlined,
+                          label: 'Location',
+                          value: (user.city != null && user.city!.isNotEmpty) || (user.country != null && user.country!.isNotEmpty)
+                              ? '${user.city ?? ""}${user.city != null && user.city!.isNotEmpty && user.country != null && user.country!.isNotEmpty ? ", " : ""}${user.country ?? ""}'
+                              : 'Not provided',
+                        ),
                         const Divider(height: 16),
-                        _buildDetailRow(context, icon: Icons.schedule_outlined, label: 'Timezone', value: user.timezone),
+                        _buildDetailRow(
+                          context,
+                          icon: Icons.schedule_outlined,
+                          label: 'Timezone',
+                          value: user.timezone.isNotEmpty ? user.timezone : 'UTC',
+                        ),
                       ],
                     ),
                   ),

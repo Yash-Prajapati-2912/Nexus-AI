@@ -26,7 +26,7 @@ void main() {
     );
 
     expect(find.text('Alex Rivers'), findsOneWidget);
-    expect(find.text('@alexrivers • alex@stanford.edu'), findsOneWidget);
+    expect(find.text('@alexrivers'), findsOneWidget);
     expect(find.text('Computer Science Student'), findsOneWidget);
     expect(find.text('90% Profile Complete'), findsOneWidget);
   });

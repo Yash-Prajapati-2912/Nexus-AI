@@ -17,23 +17,43 @@ class AcademicProfileModel extends AcademicProfile {
   });
 
   factory AcademicProfileModel.fromJson(Map<String, dynamic> json) {
-    final rawSubs = json['subjects'] as List<dynamic>? ?? ['Data Structures', 'Algorithms', 'Database Systems', 'AI & ML'];
-    final rawSkills = json['skills'] as List<dynamic>? ?? ['Flutter', 'Dart', 'TypeScript', 'NestJS', 'Python'];
-    final rawInterests = json['careerInterests'] as List<dynamic>? ?? ['Software Engineering', 'AI Architecture', 'Cloud Systems'];
+    final rawSubs = json['subjects'] as List<dynamic>? ?? [];
+    final rawSkills = json['skills'] as List<dynamic>? ?? [];
+    final rawInterests = json['careerGoals'] as List<dynamic>? ?? json['careerInterests'] as List<dynamic>? ?? [];
+
+    final sem = json['semester'] as int? ?? 0;
+    final yearFromSem = sem > 0 ? (sem + 1) ~/ 2 : 0;
+    final yearVal = (json['currentYear'] as int? ?? 0) > 0
+        ? (json['currentYear'] as int)
+        : yearFromSem;
+
+    final parsedSkills = rawSkills.map((e) {
+      if (e is Map<String, dynamic>) {
+        return e['name'] as String? ?? '';
+      }
+      return e.toString();
+    }).where((s) => s.trim().isNotEmpty).toList();
+
+    final parsedInterests = rawInterests.map((e) {
+      if (e is Map<String, dynamic>) {
+        return e['title'] as String? ?? e['name'] as String? ?? '';
+      }
+      return e.toString();
+    }).where((s) => s.trim().isNotEmpty).toList();
 
     return AcademicProfileModel(
-      id: json['id'] as String? ?? 'acad1',
-      university: json['university'] as String? ?? 'Stanford University',
-      college: json['college'] as String? ?? 'School of Engineering',
-      degree: json['degree'] as String? ?? 'Bachelor of Science',
-      branch: json['branch'] as String? ?? 'Computer Science',
-      semester: json['semester'] as int? ?? 6,
-      currentYear: json['currentYear'] as int? ?? 3,
-      cgpa: (json['cgpa'] as num?)?.toDouble() ?? 3.85,
-      graduationYear: json['graduationYear'] as int? ?? 2027,
+      id: json['id'] as String? ?? '',
+      university: json['university'] as String? ?? json['institution'] as String? ?? '',
+      college: json['college'] as String? ?? '',
+      degree: json['degree'] as String? ?? '',
+      branch: json['branch'] as String? ?? json['department'] as String? ?? '',
+      semester: sem,
+      currentYear: yearVal,
+      cgpa: (json['cgpa'] as num?)?.toDouble() ?? 0.0,
+      graduationYear: json['graduationYear'] as int? ?? 0,
       subjects: rawSubs.map((e) => e.toString()).toList(),
-      skills: rawSkills.map((e) => e.toString()).toList(),
-      careerInterests: rawInterests.map((e) => e.toString()).toList(),
+      skills: parsedSkills,
+      careerInterests: parsedInterests,
     );
   }
 

@@ -204,6 +204,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 IconButton.filled(
                   icon: const Icon(Icons.send_rounded),
                   onPressed: () => _sendMessage(_inputController.text),
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ],
             ),

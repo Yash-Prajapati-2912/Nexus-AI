@@ -31,46 +31,54 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
 
   ProfileRemoteDataSourceImpl(this._apiClient);
 
+  dynamic _unpackData(dynamic raw) {
+    if (raw is Map<String, dynamic> && raw.containsKey('data') && raw['data'] != null) {
+      return raw['data'];
+    }
+    return raw;
+  }
+
   @override
   Future<UserProfileModel> getProfile() async {
     final response = await _apiClient.get('/profile/me');
-    final data = response.data as Map<String, dynamic>;
-    return UserProfileModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return UserProfileModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<UserProfileModel> updateProfile(Map<String, dynamic> body) async {
     final response = await _apiClient.patch('/profile/me', data: body);
-    final data = response.data as Map<String, dynamic>;
-    return UserProfileModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return UserProfileModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<String> uploadAvatar(String imagePath) async {
     final response = await _apiClient.post('/profile/avatar', data: {'imagePath': imagePath});
-    final data = response.data as Map<String, dynamic>;
-    return data['avatarUrl'] as String? ?? '';
+    final data = _unpackData(response.data);
+    if (data is Map<String, dynamic>) {
+      return data['avatarUrl'] as String? ?? data['avatar'] as String? ?? '';
+    }
+    return '';
   }
 
   @override
   Future<AcademicProfileModel> getAcademicProfile() async {
-    final response = await _apiClient.get('/profile/education');
-    final rawData = response.data;
-    if (rawData is List<dynamic> && rawData.isNotEmpty) {
-      return AcademicProfileModel.fromJson(rawData.first as Map<String, dynamic>);
-    } else if (rawData is Map<String, dynamic>) {
+    final response = await _apiClient.get('/profile/me');
+    final rawData = _unpackData(response.data);
+    if (rawData is Map<String, dynamic>) {
       return AcademicProfileModel.fromJson(rawData);
     }
     return const AcademicProfileModel(
       id: '',
-      university: 'Not specified',
+      university: '',
       college: '',
-      degree: 'Student',
+      degree: '',
       branch: '',
-      semester: 1,
-      currentYear: 1,
+      semester: 0,
+      currentYear: 0,
       cgpa: 0.0,
-      graduationYear: 2026,
+      graduationYear: 0,
       subjects: [],
       skills: [],
       careerInterests: [],
@@ -79,36 +87,53 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
 
   @override
   Future<AcademicProfileModel> updateAcademicProfile(Map<String, dynamic> body) async {
-    final response = await _apiClient.post('/profile/education', data: body);
-    final data = response.data as Map<String, dynamic>;
-    return AcademicProfileModel.fromJson(data);
+    final payload = Map<String, dynamic>.from(body);
+    if (payload.containsKey('branch') && (!payload.containsKey('department') || payload['department'] == null)) {
+      payload['department'] = payload['branch'];
+    }
+    payload.remove('branch');
+    payload.remove('username');
+
+    if (payload['semester'] == 0 || payload['semester'] == '0') {
+      payload.remove('semester');
+    }
+    if (payload['graduationYear'] == 0 || payload['graduationYear'] == '0') {
+      payload.remove('graduationYear');
+    }
+
+    final response = await _apiClient.patch('/profile/me', data: payload);
+    final data = _unpackData(response.data);
+    if (data is Map<String, dynamic>) {
+      return AcademicProfileModel.fromJson(data);
+    }
+    return AcademicProfileModel.fromJson(body);
   }
 
   @override
   Future<UserPreferencesModel> getPreferences() async {
     final response = await _apiClient.get('/profile/preferences');
-    final data = response.data as Map<String, dynamic>;
-    return UserPreferencesModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return UserPreferencesModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<UserPreferencesModel> updatePreferences(Map<String, dynamic> body) async {
     final response = await _apiClient.patch('/profile/preferences', data: body);
-    final data = response.data as Map<String, dynamic>;
-    return UserPreferencesModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return UserPreferencesModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<UserStatisticsModel> getStatistics() async {
     final response = await _apiClient.get('/profile/analytics');
-    final data = response.data as Map<String, dynamic>;
-    return UserStatisticsModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return UserStatisticsModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<AchievementModel>> getAchievements() async {
     final response = await _apiClient.get('/profile/achievements');
-    final rawData = response.data;
+    final rawData = _unpackData(response.data);
     final list = rawData is List<dynamic> ? rawData : [];
     return list.map((e) => AchievementModel.fromJson(e as Map<String, dynamic>)).toList();
   }
@@ -116,7 +141,7 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
   @override
   Future<List<ConnectedAccountModel>> getConnectedAccounts() async {
     final response = await _apiClient.get('/profile/connected-accounts');
-    final rawData = response.data;
+    final rawData = _unpackData(response.data);
     final list = rawData is List<dynamic> ? rawData : [];
     return list.map((e) => ConnectedAccountModel.fromJson(e as Map<String, dynamic>)).toList();
   }
@@ -134,8 +159,8 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
   @override
   Future<SecuritySettingsModel> getSecuritySettings() async {
     final response = await _apiClient.get('/profile/security');
-    final data = response.data as Map<String, dynamic>;
-    return SecuritySettingsModel.fromJson(data);
+    final data = _unpackData(response.data);
+    return SecuritySettingsModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -149,8 +174,11 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
   @override
   Future<String> exportUserData() async {
     final response = await _apiClient.post('/profile/export-data', data: {});
-    final data = response.data as Map<String, dynamic>;
-    return data['downloadUrl'] as String? ?? 'https://api.nexus-ai.com/exports/user_data.json';
+    final data = _unpackData(response.data);
+    if (data is Map<String, dynamic>) {
+      return data['downloadUrl'] as String? ?? 'https://api.nexus-ai.com/exports/user_data.json';
+    }
+    return 'https://api.nexus-ai.com/exports/user_data.json';
   }
 
   @override

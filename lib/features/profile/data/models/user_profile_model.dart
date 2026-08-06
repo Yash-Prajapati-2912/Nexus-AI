@@ -21,43 +21,46 @@ class UserProfileModel extends UserProfile {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
-    final userMap = json['user'] is Map<String, dynamic> ? json['user'] as Map<String, dynamic> : null;
+    final target = (json['data'] is Map<String, dynamic>) ? json['data'] as Map<String, dynamic> : json;
+    final userMap = target['user'] is Map<String, dynamic> ? target['user'] as Map<String, dynamic> : null;
 
-    final firstName = json['firstName'] as String? ?? userMap?['firstName'] as String? ?? '';
-    final lastName = json['lastName'] as String? ?? userMap?['lastName'] as String? ?? '';
-    final rawName = json['fullName'] as String? ??
-        json['displayName'] as String? ??
-        json['name'] as String? ??
+    final firstName = target['firstName'] as String? ?? userMap?['firstName'] as String? ?? '';
+    final lastName = target['lastName'] as String? ?? userMap?['lastName'] as String? ?? '';
+    final rawName = target['fullName'] as String? ??
+        target['displayName'] as String? ??
+        target['name'] as String? ??
         userMap?['fullName'] as String? ??
         userMap?['displayName'] as String?;
+    final emailVal = target['email'] as String? ?? userMap?['email'] as String? ?? '';
     final computedName = (rawName != null && rawName.trim().isNotEmpty)
         ? rawName.trim()
-        : (firstName.isNotEmpty || lastName.isNotEmpty ? '$firstName $lastName'.trim() : 'Student');
+        : (firstName.isNotEmpty || lastName.isNotEmpty
+            ? '$firstName $lastName'.trim()
+            : (emailVal.isNotEmpty ? emailVal.split('@').first : 'User'));
 
-    final emailVal = json['email'] as String? ?? userMap?['email'] as String? ?? '';
-    final usernameVal = json['username'] as String? ??
+    final usernameVal = target['username'] as String? ??
         userMap?['username'] as String? ??
-        (emailVal.isNotEmpty ? emailVal.split('@').first : 'student');
+        (emailVal.isNotEmpty ? emailVal.split('@').first : '');
 
     return UserProfileModel(
-      id: json['id'] as String? ?? userMap?['id'] as String? ?? '',
-      userId: json['userId'] as String? ?? userMap?['id'] as String? ?? '',
+      id: target['id'] as String? ?? userMap?['id'] as String? ?? '',
+      userId: target['userId'] as String? ?? userMap?['id'] as String? ?? '',
       displayName: computedName,
       username: usernameVal,
       email: emailVal,
-      phone: json['phone'] as String? ?? userMap?['phone'] as String?,
-      avatarUrl: json['avatarUrl'] as String? ?? json['avatar'] as String? ?? userMap?['avatarUrl'] as String? ?? userMap?['avatar'] as String?,
-      coverImageUrl: json['coverImageUrl'] as String? ?? userMap?['coverImageUrl'] as String?,
-      bio: json['bio'] as String? ?? '',
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.tryParse(json['dateOfBirth'] as String)
+      phone: target['phone'] as String? ?? userMap?['phone'] as String?,
+      avatarUrl: target['avatarUrl'] as String? ?? target['avatar'] as String? ?? userMap?['avatarUrl'] as String? ?? userMap?['avatar'] as String?,
+      coverImageUrl: target['coverImageUrl'] as String? ?? userMap?['coverImageUrl'] as String?,
+      bio: target['bio'] as String? ?? '',
+      dateOfBirth: target['dateOfBirth'] != null
+          ? DateTime.tryParse(target['dateOfBirth'] as String)
           : (userMap?['dateOfBirth'] != null ? DateTime.tryParse(userMap!['dateOfBirth'] as String) : null),
-      gender: json['gender'] as String?,
-      country: json['country'] as String? ?? '',
-      city: json['city'] as String? ?? '',
-      timezone: json['timezone'] as String? ?? 'UTC',
-      language: json['language'] as String? ?? 'en',
-      completionPercentage: (json['profileCompletionPercentage'] as num?)?.toInt() ?? (json['completionPercentage'] as num?)?.toInt() ?? 85,
+      gender: target['gender'] as String?,
+      country: target['country'] as String? ?? '',
+      city: target['city'] as String? ?? '',
+      timezone: target['timezone'] as String? ?? 'UTC',
+      language: target['language'] as String? ?? 'en',
+      completionPercentage: (target['profileCompletionPercentage'] as num?)?.toInt() ?? (target['completionPercentage'] as num?)?.toInt() ?? 0,
     );
   }
 

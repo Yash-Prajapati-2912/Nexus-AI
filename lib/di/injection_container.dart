@@ -476,7 +476,7 @@ Future<void> configureDependencies(AppEnv env) async {
   getIt.registerLazySingleton(() => DeleteAccountUseCase(getIt<IProfileRepository>()));
   getIt.registerLazySingleton(() => ChangePasswordUseCase(getIt<IProfileRepository>()));
 
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => ProfileBloc(
       getProfileUseCase: getIt<GetProfileUseCase>(),
       updateProfileUseCase: getIt<UpdateProfileUseCase>(),
