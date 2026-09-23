@@ -27,7 +27,10 @@ export class Task extends BaseEntity {
 
   @ManyToOne(() => Category, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'category_id' })
-  category: Category | null;
+  categoryEntity: Category | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  category: string | null;
 
   @Column({
     type: 'enum',

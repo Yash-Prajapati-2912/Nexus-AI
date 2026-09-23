@@ -21,7 +21,10 @@ export class TaskResponseDto {
   categoryId: string | null;
 
   @ApiPropertyOptional({ type: () => CategoryResponseDto, nullable: true })
-  category?: CategoryResponseDto | null;
+  categoryEntity?: CategoryResponseDto | null;
+
+  @ApiPropertyOptional({ example: 'Assignments & Coursework', nullable: true })
+  category: string | null;
 
   @ApiProperty({ enum: TaskPriority, example: TaskPriority.HIGH })
   priority: TaskPriority;

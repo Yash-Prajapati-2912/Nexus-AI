@@ -23,7 +23,7 @@ export class TaskRepository extends BaseRepository<Task> {
     const repo = this.getRepo(entityManager);
     return repo.findOne({
       where: { id: taskId },
-      relations: ['category', 'labelMappings', 'labelMappings.label'],
+      relations: ['categoryEntity', 'labelMappings', 'labelMappings.label'],
     });
   }
 
@@ -39,7 +39,7 @@ export class TaskRepository extends BaseRepository<Task> {
 
     const qb = repo
       .createQueryBuilder('task')
-      .leftJoinAndSelect('task.category', 'category')
+      .leftJoinAndSelect('task.categoryEntity', 'categoryEntity')
       .leftJoinAndSelect('task.labelMappings', 'labelMappings')
       .leftJoinAndSelect('labelMappings.label', 'label')
       .where('task.user_id = :userId', { userId })

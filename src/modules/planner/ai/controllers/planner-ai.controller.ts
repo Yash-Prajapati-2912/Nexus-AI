@@ -131,4 +131,13 @@ export class PlannerAIController {
   ): Promise<AIPlanningResponseDto> {
     return this.aiService.generateWeeklyPlan(userId, dto);
   }
+
+  @Post('auto-extract')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'AI automatic task extraction from uploaded document or raw text note' })
+  async autoExtractTask(
+    @Body('content') content: string,
+  ) {
+    return this.aiService.autoExtractTask(content || '');
+  }
 }

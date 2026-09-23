@@ -27,8 +27,10 @@ export class TaskMapper {
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
 
-    if (entity.category) {
-      dto.category = CategoryMapper.toDto(entity.category);
+    dto.category = entity.category;
+
+    if (entity.categoryEntity) {
+      dto.categoryEntity = CategoryMapper.toDto(entity.categoryEntity);
     }
 
     if (entity.labelMappings && entity.labelMappings.length > 0) {

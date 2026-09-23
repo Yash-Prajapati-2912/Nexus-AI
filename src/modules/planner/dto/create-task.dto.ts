@@ -44,6 +44,15 @@ export class CreateTaskDto {
   categoryId?: string;
 
   @ApiPropertyOptional({
+    description: 'Extracted task category',
+    example: 'Assignments & Coursework',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  category?: string;
+
+  @ApiPropertyOptional({
     enum: TaskPriority,
     description: 'Task priority level',
     example: TaskPriority.HIGH,

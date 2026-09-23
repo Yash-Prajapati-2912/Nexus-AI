@@ -63,6 +63,9 @@ export class DashboardService {
   ) {}
 
   async getDashboard(userId: string): Promise<DashboardResponseDto> {
+    if (process.env.NODE_ENV !== 'production') {
+      await this.cacheService.invalidateUserDashboard(userId);
+    }
     const cacheKey = `dashboard_main_${userId}`;
     const cached = await this.cacheService.get<DashboardResponseDto>(cacheKey);
     if (cached) return cached;

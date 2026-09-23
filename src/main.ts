@@ -48,35 +48,9 @@ async function bootstrap(): Promise<void> {
     .map((o) => o.trim());
 
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow non-browser requests (e.g., mobile apps, Postman, cURL)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      // In development mode, allow all dynamic localhost and 127.0.0.1 origins (e.g., Flutter Web dev server)
-      if (process.env.NODE_ENV !== 'production') {
-        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-          return callback(null, true);
-        }
-      }
-
-      if (rawCorsOrigins.includes(origin) || rawCorsOrigins.includes('*')) {
-        return callback(null, true);
-      }
-
-      callback(new Error(`CORS origin '${origin}' not allowed.`));
-    },
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'X-Correlation-ID',
-      'Idempotency-Key',
-    ],
+    allowedHeaders: ['*'],
     credentials: true,
   });
 

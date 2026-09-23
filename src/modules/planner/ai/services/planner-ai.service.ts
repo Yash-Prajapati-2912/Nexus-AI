@@ -137,6 +137,25 @@ export class PlannerAIService {
     return this.executeAIPlan(userId, AIPlanningActionType.WEEKLY_PLAN, context);
   }
 
+  async autoExtractTask(content: string) {
+    const provider = this.providerFactory.getProvider();
+    if (provider && typeof (provider as any).autoExtractTaskDetails === 'function') {
+      return (provider as any).autoExtractTaskDetails(content);
+    }
+    // Fallback if provider doesn't support autoExtractTaskDetails directly
+    const isUrgent = /urgent|exam|deadline|due tomorrow|final|critical/i.test(content);
+    return {
+      title: content.split('\n')[0].substring(0, 60) || 'Auto Extracted Task',
+      description: content.substring(0, 200),
+      priority: isUrgent ? 'HIGH' : 'MEDIUM',
+      category: 'ACADEMIC',
+      dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+      estimatedMinutes: 60,
+      subtasks: ['Review assignment details', 'Complete task steps'],
+      priorityReasoning: isUrgent ? 'High priority assigned due to urgent keywords.' : 'Medium priority automatically set.',
+    };
+  }
+
   private async executeAIPlan(
     userId: string,
     actionType: AIPlanningActionType,

@@ -45,6 +45,7 @@ export class TaskService {
         title: dto.title.trim(),
         description: dto.description ? dto.description.trim() : null,
         categoryId: dto.categoryId || null,
+        category: dto.category || null,
         priority: dto.priority || TaskPriority.MEDIUM,
         status: dto.status || TaskStatus.TODO,
         estimatedDurationMinutes: dto.estimatedDurationMinutes ?? null,
@@ -131,6 +132,7 @@ export class TaskService {
 
     if (dto.title !== undefined) task.title = dto.title.trim();
     if (dto.description !== undefined) task.description = dto.description ? dto.description.trim() : null;
+    if (dto.category !== undefined) task.category = dto.category;
     if (dto.priority !== undefined) task.priority = dto.priority;
 
     if (dto.status !== undefined) {

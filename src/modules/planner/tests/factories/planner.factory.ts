@@ -29,7 +29,7 @@ export class PlannerFactory {
     task.metadata = override.metadata || null;
     task.createdAt = override.createdAt || new Date();
     task.updatedAt = override.updatedAt || new Date();
-    task.category = override.category !== undefined ? override.category : this.createMockCategory({ id: task.categoryId || undefined });
+    task.categoryEntity = override.categoryEntity !== undefined ? override.categoryEntity : this.createMockCategory({ id: task.categoryId || undefined });
     task.labelMappings = override.labelMappings || [];
     return task;
   }
