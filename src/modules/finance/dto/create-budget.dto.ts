@@ -23,7 +23,7 @@ export class CreateBudgetDto {
   @IsPositive()
   plannedAmount: number;
 
-  @ApiPropertyOptional({ description: 'Currency code ISO-4217', example: 'USD', default: 'USD' })
+  @ApiPropertyOptional({ description: 'Currency code ISO-4217', example: 'INR', default: 'INR' })
   @IsOptional()
   @IsString()
   @Length(3, 3)

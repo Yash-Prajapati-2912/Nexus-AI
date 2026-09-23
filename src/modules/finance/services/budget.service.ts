@@ -33,13 +33,17 @@ export class BudgetService {
     );
 
     if (existing) {
-      throw new ConflictException(
-        `A budget already exists for period ${dto.month}/${dto.year}`,
-      );
+      existing.plannedAmount = dto.plannedAmount;
+      existing.remainingAmount = dto.plannedAmount - Number(existing.spentAmount);
+      existing.status = Number(existing.spentAmount) > dto.plannedAmount ? BudgetStatus.EXCEEDED : BudgetStatus.ACTIVE;
+      if (dto.notes !== undefined) existing.notes = dto.notes;
+      if (dto.currency) existing.currency = dto.currency.toUpperCase();
+      const updated = await this.budgetRepository.save(existing, userId);
+      return FinanceMapper.toBudgetDto(updated);
     }
 
     const plannedAmount = dto.plannedAmount;
-    const currency = dto.currency ? dto.currency.toUpperCase() : 'USD';
+    const currency = dto.currency ? dto.currency.toUpperCase() : 'INR';
 
     const budget = this.budgetRepository.create(
       {
