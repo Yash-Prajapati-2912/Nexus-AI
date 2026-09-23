@@ -52,7 +52,7 @@ class PlannerRemoteDataSourceImpl extends BaseRemoteDataSource implements IPlann
 
   @override
   Future<TaskModel> createTask(TaskModel model) async {
-    final response = await apiClient.post(ApiConstants.tasks, data: model.toJson());
+    final response = await apiClient.post(ApiConstants.tasks, data: model.toCreateJson());
     final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
         ? response.data['data']
         : response.data;

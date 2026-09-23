@@ -3,6 +3,7 @@ import '../../../../shared/design_system/widgets/cards/app_card.dart';
 import '../../domain/entities/task_entity.dart';
 import 'priority_badge.dart';
 import 'status_badge.dart';
+import 'task_detail_modal.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskEntity task;
@@ -21,49 +22,64 @@ class TaskCard extends StatelessWidget {
     final isDone = task.status == TaskStatus.completed;
 
     return AppCard(
-      child: Row(
-        children: [
-          Checkbox(value: isDone, onChanged: onToggle),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        decoration: isDone ? TextDecoration.lineThrough : null,
-                      ),
-                ),
-                if (task.description != null && task.description!.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    task.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          TaskDetailModal.show(
+            context: context,
+            task: task,
+            onToggleCompletion: () => onToggle(!isDone),
+            onDelete: onDelete,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Checkbox(value: isDone, onChanged: onToggle),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PriorityBadge(priority: task.priority),
-                    StatusBadge(status: task.status),
+                    Text(
+                      task.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            decoration: isDone ? TextDecoration.lineThrough : null,
+                          ),
+                    ),
+                    if (task.description != null && task.description!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        task.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        PriorityBadge(priority: task.priority),
+                        StatusBadge(status: task.status),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                onPressed: onDelete,
+              ),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-            onPressed: onDelete,
-          ),
-        ],
+        ),
       ),
     );
   }
 }
+

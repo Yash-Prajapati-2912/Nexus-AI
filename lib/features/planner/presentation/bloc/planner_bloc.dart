@@ -32,6 +32,18 @@ class PlannerBloc extends Bloc<PlannerEvent, PlannerState> {
     on<ToggleTaskCompletionEvent>(_onToggleTaskCompletion);
     on<DeleteTaskEvent>(_onDeleteTask);
     on<SearchPlannerEvent>(_onSearchPlanner);
+    on<UpdateTaskEvent>(_onUpdateTask);
+  }
+
+  Future<void> _onUpdateTask(
+    UpdateTaskEvent event,
+    Emitter<PlannerState> emit,
+  ) async {
+    final result = await _createTaskUseCase(event.task);
+    result.fold(
+      (failure) => emit(PlannerErrorState(failure.message)),
+      (_) => add(LoadPlannerEvent()),
+    );
   }
 
   Future<void> _onLoadPlanner(

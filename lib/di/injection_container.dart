@@ -283,7 +283,10 @@ Future<void> configureDependencies(AppEnv env) async {
   getIt.registerLazySingleton(() => GetNotificationSummaryUseCase(getIt<IDashboardRepository>()));
 
   getIt.registerFactory(
-    () => DashboardBloc(getDashboardUseCase: getIt<GetDashboardUseCase>()),
+    () => DashboardBloc(
+      getDashboardUseCase: getIt<GetDashboardUseCase>(),
+      getPlannerUseCase: getIt<GetPlannerUseCase>(),
+    ),
   );
 
   // Smart Planner Feature

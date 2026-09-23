@@ -29,12 +29,24 @@ class DashboardModel {
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
     return DashboardModel(
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>? ?? {}),
-      plannerSummary: PlannerSummaryModel.fromJson(json['plannerSummary'] as Map<String, dynamic>? ?? {}),
-      financeSummary: FinanceSummaryModel.fromJson(json['financeSummary'] as Map<String, dynamic>? ?? {}),
-      aiInsight: AiInsightModel.fromJson(json['aiInsight'] as Map<String, dynamic>? ?? {}),
-      notificationSummary: NotificationSummaryModel.fromJson(json['notificationSummary'] as Map<String, dynamic>? ?? {}),
-      productivityStats: ProductivityStatsModel.fromJson(json['productivityStats'] as Map<String, dynamic>? ?? {}),
-      chartData: ChartDataModel.fromJson(json['chartData'] as Map<String, dynamic>? ?? {}),
+      plannerSummary: PlannerSummaryModel.fromJson(
+        (json['plannerOverview'] ?? json['plannerSummary']) as Map<String, dynamic>? ?? {},
+      ),
+      financeSummary: FinanceSummaryModel.fromJson(
+        (json['financeOverview'] ?? json['financeSummary']) as Map<String, dynamic>? ?? {},
+      ),
+      aiInsight: AiInsightModel.fromJson(
+        (json['aiInsightsOverview'] ?? json['aiInsight']) as Map<String, dynamic>? ?? {},
+      ),
+      notificationSummary: NotificationSummaryModel.fromJson(
+        (json['notificationSummary'] ?? json['notifications']) as Map<String, dynamic>? ?? {},
+      ),
+      productivityStats: ProductivityStatsModel.fromJson(
+        (json['productivityStats'] ?? json['productivity']) as Map<String, dynamic>? ?? {},
+      ),
+      chartData: ChartDataModel.fromJson(
+        (json['chartData'] ?? json['charts']) as Map<String, dynamic>? ?? {},
+      ),
     );
   }
 

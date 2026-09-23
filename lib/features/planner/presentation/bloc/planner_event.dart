@@ -41,3 +41,12 @@ class SearchPlannerEvent extends PlannerEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class UpdateTaskEvent extends PlannerEvent {
+  final TaskEntity task;
+  const UpdateTaskEvent(this.task);
+
+  @override
+  List<Object?> get props => [task];
+}
+

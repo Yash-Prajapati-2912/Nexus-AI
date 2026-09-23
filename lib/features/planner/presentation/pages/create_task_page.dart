@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../di/injection_container.dart';
 import '../../../../shared/design_system/widgets/buttons/app_primary_button.dart';
 import '../../../../shared/design_system/widgets/inputs/app_text_field.dart';
 import '../../domain/entities/task_entity.dart';
+import '../../domain/services/academic_document_classifier.dart';
 import '../bloc/planner_bloc.dart';
 import '../bloc/planner_event.dart';
 
@@ -13,20 +17,146 @@ class CreateTaskPage extends StatefulWidget {
   State<CreateTaskPage> createState() => _CreateTaskPageState();
 }
 
-class _CreateTaskPageState extends State<CreateTaskPage> {
+class _CreateTaskPageState extends State<CreateTaskPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  // Manual Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   TaskPriority _priority = TaskPriority.medium;
 
+  // Auto-Detect Controllers & State
+  final _documentTextController = TextEditingController();
+  String? _selectedFileName;
+  bool _isAnalyzing = false;
+  String? _extractionError;
+  ClassifiedDocumentResult? _classifiedResult;
+  PdfExtractionQualityResult? _pdfQualityResult;
+
+  PlannerBloc _getPlannerBloc() {
+    try {
+      return context.read<PlannerBloc>();
+    } catch (_) {
+      return getIt<PlannerBloc>();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
   @override
   void dispose() {
+    _tabController.dispose();
     _titleController.dispose();
     _descController.dispose();
+    _documentTextController.dispose();
     super.dispose();
   }
 
-  void _onSave() {
+  // File Picker method
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['txt', 'pdf', 'doc', 'docx', 'md', 'json'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        final filename = file.name;
+
+        setState(() {
+          _selectedFileName = filename;
+          _extractionError = null;
+          _classifiedResult = null;
+          _pdfQualityResult = null;
+        });
+
+        PdfExtractionQualityResult qualityResult;
+        if (file.bytes != null) {
+          qualityResult = AcademicDocumentClassifierService.extractAndValidatePdfText(file.bytes!, filename);
+        } else if (file.path != null) {
+          final bytes = await File(file.path!).readAsBytes();
+          qualityResult = AcademicDocumentClassifierService.extractAndValidatePdfText(bytes, filename);
+        } else {
+          qualityResult = const PdfExtractionQualityResult(
+            text: '',
+            pageCount: 0,
+            characterCount: 0,
+            isValid: false,
+            isScanned: true,
+            extractionStatus: 'UNREADABLE PDF',
+            failureReason: 'Could not extract readable text from this PDF.',
+          );
+        }
+
+        setState(() {
+          _pdfQualityResult = qualityResult;
+        });
+
+        if (qualityResult.isValid) {
+          _documentTextController.text = qualityResult.text;
+          await _analyzeDocumentWithAi(text: qualityResult.text, filename: filename);
+        } else {
+          _documentTextController.clear();
+          setState(() {
+            _extractionError = qualityResult.failureReason ?? 'Could not extract readable text from this PDF.';
+          });
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _extractionError = 'Could not extract readable text from this PDF.';
+      });
+    }
+  }
+
+  // Trigger AI Auto-Extract on File Data
+  Future<void> _analyzeDocumentWithAi({String? text, String? filename}) async {
+    final docText = text ?? _documentTextController.text.trim();
+    final docFn = filename ?? _selectedFileName;
+
+    if (docText.isEmpty && docFn == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please upload a file or paste document text first')),
+      );
+      return;
+    }
+
+    if (_pdfQualityResult != null && !_pdfQualityResult!.isValid) {
+      setState(() {
+        _extractionError = _pdfQualityResult!.failureReason ?? 'Could not extract readable text from this PDF.';
+        _classifiedResult = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isAnalyzing = true;
+      _extractionError = null;
+      _classifiedResult = null;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final result = AcademicDocumentClassifierService.classifyDocumentContent(
+      text: docText,
+      filename: docFn,
+    );
+
+    setState(() {
+      _isAnalyzing = false;
+      _classifiedResult = result;
+    });
+  }
+
+  void _saveManualTask() {
     if (_formKey.currentState?.validate() ?? false) {
       final newTask = TaskEntity(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -36,54 +166,343 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         priority: _priority,
         status: TaskStatus.pending,
       );
-      context.read<PlannerBloc>().add(CreateTaskEvent(newTask));
+      _getPlannerBloc().add(CreateTaskEvent(newTask));
       Navigator.of(context).pop();
     }
   }
 
+  void _saveAiTask() {
+    if (_classifiedResult == null || _classifiedResult!.tasks.isEmpty) return;
+    final res = _classifiedResult!;
+    final bloc = _getPlannerBloc();
+
+    final categoryString = DocumentClassification.topLevelCategoryToString(res.classification.topLevelCategory);
+
+    for (final t in res.tasks) {
+      final taskEntity = TaskEntity(
+        id: '${DateTime.now().millisecondsSinceEpoch}_${t.title.hashCode}',
+        title: t.title,
+        description: t.description,
+        category: categoryString,
+        dueDate: t.deadline ?? DateTime.now().add(const Duration(days: 4)),
+        priority: t.priority.toUpperCase() == 'HIGH'
+            ? TaskPriority.high
+            : (t.priority.toUpperCase() == 'LOW' ? TaskPriority.low : TaskPriority.medium),
+        status: TaskStatus.pending,
+        subtasks: t.actionSteps,
+        requirements: t.prerequisites,
+        timeAllocationHint: t.estimatedTimeReason,
+        priorityReasoning: t.priorityReason,
+        metadata: {
+          ...res.toJson(),
+          'taskEvidence': t.taskEvidence,
+          'documentFacts': t.documentFacts,
+          'aiRecommendations': t.aiRecommendations,
+          'deliverables': t.deliverables,
+        },
+      );
+      bloc.add(CreateTaskEvent(taskEntity));
+    }
+
+    final message = res.tasks.length > 1
+        ? '✨ ${res.tasks.length} Individual Tasks Created Successfully!'
+        : '✨ Task Created Successfully under "${res.classification.subject}"!';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Task', style: TextStyle(fontWeight: FontWeight.bold)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppTextField(
-                controller: _titleController,
-                label: 'Task Title',
-                validator: (val) => val == null || val.isEmpty ? 'Title is required' : null,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _descController,
-                label: 'Description (Optional)',
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TaskPriority>(
-                value: _priority,
-                decoration: const InputDecoration(labelText: 'Priority'),
-                items: TaskPriority.values
-                    .map((p) => DropdownMenuItem(value: p, child: Text(p.name.toUpperCase())))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _priority = val);
-                },
-              ),
-              const SizedBox(height: 32),
-              AppPrimaryButton(
-                label: 'Create Task',
-                onPressed: _onSave,
-              ),
-            ],
-          ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.indigoAccent,
+          labelColor: Colors.indigoAccent,
+          unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.auto_awesome_rounded, size: 20),
+              text: 'Auto Detect (AI)',
+            ),
+            Tab(
+              icon: Icon(Icons.edit_note_rounded, size: 20),
+              text: 'Create Manually',
+            ),
+          ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // TAB 1: AUTO DETECT (AI)
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.psychology_rounded, color: Colors.indigoAccent, size: 28),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Gemini AI Task Extractor',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: isDark ? Colors.white : Colors.indigo[900],
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Upload a document, PDF, or paste text to auto-detect priority & details.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // File Upload Section
+                GestureDetector(
+                  onTap: _pickFile,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.02),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.cloud_upload_outlined, color: Colors.indigoAccent, size: 36),
+                        const SizedBox(height: 8),
+                        Text(
+                          _selectedFileName != null
+                              ? '📄 Selected File: $_selectedFileName'
+                              : 'Tap to upload Document / PDF / Syllabus file',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Center(
+                  child: Text('OR PASTE TEXT BELOW', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  controller: _documentTextController,
+                  label: 'Syllabus, Notes or Assignment Details',
+                  hint: 'Paste task details or exam dates here...',
+                  maxLines: 4,
+                ),
+                const SizedBox(height: 20),
+                AppPrimaryButton(
+                  label: _isAnalyzing ? 'Analyzing Document with Gemini AI...' : '⚡ Analyze Document Content',
+                  onPressed: _isAnalyzing ? null : () => _analyzeDocumentWithAi(),
+                ),
+
+                if (_extractionError != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.redAccent, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _extractionError!,
+                            style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                if (_isAnalyzing) ...[
+                  const SizedBox(height: 24),
+                  const Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(color: Colors.indigoAccent),
+                        SizedBox(height: 12),
+                        Text('Analyzing document...', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ],
+
+                if (_classifiedResult != null && !_isAnalyzing) ...[
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.indigo.withValues(alpha: 0.04),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.check_circle_rounded, color: Colors.green, size: 22),
+                            SizedBox(width: 8),
+                            Text(
+                              'Analysis completed ✓',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'File: ${_selectedFileName ?? "Uploaded Document"}',
+                          style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.indigoAccent.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _classifiedResult!.classification.subject,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.indigoAccent),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.indigo.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                DocumentClassification.topLevelCategoryToString(_classifiedResult!.classification.topLevelCategory),
+                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: isDark ? Colors.white70 : Colors.indigo[900]),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${_classifiedResult!.taskCount} task${_classifiedResult!.taskCount == 1 ? "" : "s"} detected:',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        const SizedBox(height: 10),
+                        ..._classifiedResult!.tasks.map((t) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigoAccent, fontSize: 14)),
+                              Expanded(
+                                child: Text(
+                                  t.title,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                        const SizedBox(height: 20),
+                        AppPrimaryButton(
+                          label: _classifiedResult!.taskCount > 1
+                              ? 'Confirm & Save ${_classifiedResult!.taskCount} Tasks'
+                              : 'Confirm & Save Task',
+                          onPressed: _saveAiTask,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // TAB 2: MANUAL ENTRY
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppTextField(
+                    controller: _titleController,
+                    label: 'Task Title',
+                    validator: (val) => val == null || val.isEmpty ? 'Title is required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  AppTextField(
+                    controller: _descController,
+                    label: 'Description (Optional)',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<TaskPriority>(
+                    value: _priority,
+                    decoration: const InputDecoration(labelText: 'Priority'),
+                    items: TaskPriority.values
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p.name.toUpperCase())))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _priority = val);
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  AppPrimaryButton(
+                    label: 'Create Task',
+                    onPressed: _saveManualTask,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

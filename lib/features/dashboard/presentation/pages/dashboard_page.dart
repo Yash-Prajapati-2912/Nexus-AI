@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../router/route_names.dart';
 import '../../../../shared/design_system/widgets/error_states/app_error_card.dart';
 import '../../../../shared/widgets/base_scaffold.dart';
+import '../../../planner/domain/entities/task_entity.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -13,11 +14,11 @@ import '../widgets/expense_chart_widget.dart';
 import '../widgets/finance_summary_widget.dart';
 import '../widgets/planner_summary_widget.dart';
 import '../widgets/productivity_section_widget.dart';
-import '../widgets/quick_actions_widget.dart';
 import '../widgets/recent_activity_widget.dart';
 import '../widgets/skeleton_dashboard_widget.dart';
 import '../widgets/task_completion_chart_widget.dart';
-import '../widgets/today_overview_widget.dart';
+import '../widgets/task_priority_chart_widget.dart';
+import '../widgets/task_status_donut_chart.dart';
 import '../widgets/weekly_study_chart_widget.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -99,6 +100,15 @@ class _DashboardPageState extends State<DashboardPage> {
               ? state.dashboard
               : (state as DashboardRefreshingState).currentDashboard;
 
+          final tasks = (state is DashboardLoadedState)
+              ? state.tasks
+              : (state as DashboardRefreshingState).currentTasks;
+
+          final activeTasks = tasks.where((t) => t.status != TaskStatus.completed).toList();
+          final highPriorityCount = activeTasks.where((t) => t.priority == TaskPriority.high || t.priority == TaskPriority.urgent).length;
+          final mediumPriorityCount = activeTasks.where((t) => t.priority == TaskPriority.medium).length;
+          final lowPriorityCount = activeTasks.where((t) => t.priority == TaskPriority.low).length;
+
           return RefreshIndicator(
             onRefresh: () async {
               context.read<DashboardBloc>().add(RefreshDashboardEvent());
@@ -111,11 +121,18 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: [
                   DashboardHeaderWidget(user: dashboard.user),
                   const SizedBox(height: 20),
-                  const QuickActionsWidget(),
+                  // 1. Task Overview (Donut Chart)
+                  TaskStatusDonutChart(tasks: tasks),
                   const SizedBox(height: 20),
-                  TodayOverviewWidget(summary: dashboard.plannerSummary),
+                  // 2. Task Priority Distribution (Horizontal progress bars)
+                  TaskPriorityChartWidget(
+                    highPriorityCount: highPriorityCount,
+                    mediumPriorityCount: mediumPriorityCount,
+                    lowPriorityCount: lowPriorityCount,
+                  ),
                   const SizedBox(height: 20),
-                  PlannerSummaryWidget(summary: dashboard.plannerSummary),
+                  // 3. Smart Planner Summary
+                  PlannerSummaryWidget(tasks: tasks),
                   const SizedBox(height: 20),
                   FinanceSummaryWidget(summary: dashboard.financeSummary),
                   const SizedBox(height: 20),
