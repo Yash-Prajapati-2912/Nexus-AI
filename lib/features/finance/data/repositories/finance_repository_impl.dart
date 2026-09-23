@@ -4,6 +4,7 @@ import 'package:nexus_ai/core/error/failures.dart';
 import 'package:nexus_ai/features/finance/data/datasources/finance_remote_data_source.dart';
 import 'package:nexus_ai/features/finance/data/models/budget_model.dart';
 import 'package:nexus_ai/features/finance/data/models/expense_model.dart';
+import 'package:nexus_ai/features/finance/data/models/finance_category_model.dart';
 import 'package:nexus_ai/features/finance/data/models/income_model.dart';
 import 'package:nexus_ai/features/finance/data/models/savings_goal_model.dart';
 import 'package:nexus_ai/features/finance/domain/entities/budget.dart';
@@ -212,6 +213,17 @@ class FinanceRepositoryImpl implements IFinanceRepository {
     try {
       final models = await remoteDataSource.getCategories();
       return Right(models);
+    } catch (e) {
+      return Left(_mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, FinanceCategory>> createCategory(FinanceCategory category) async {
+    try {
+      final model = FinanceCategoryModel.fromEntity(category);
+      final created = await remoteDataSource.createCategory(model);
+      return Right(created);
     } catch (e) {
       return Left(_mapExceptionToFailure(e));
     }

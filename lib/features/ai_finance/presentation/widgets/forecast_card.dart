@@ -36,21 +36,21 @@ class ForecastCard extends StatelessWidget {
                 Expanded(
                   child: _Box(
                     label: 'Next 7 Days',
-                    amount: '\$${forecast.nextWeekForecastAmount.toStringAsFixed(0)}',
+                    amount: '₹${forecast.nextWeekForecastAmount.toStringAsFixed(0)}',
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _Box(
                     label: 'Next 30 Days',
-                    amount: '\$${forecast.nextMonthForecastAmount.toStringAsFixed(0)}',
+                    amount: '₹${forecast.nextMonthForecastAmount.toStringAsFixed(0)}',
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: _Box(
                     label: 'Est. Savings',
-                    amount: '\$${forecast.predictedMonthEndSavings.toStringAsFixed(0)}',
+                    amount: '₹${forecast.predictedMonthEndSavings.toStringAsFixed(0)}',
                     color: const Color(0xFF10B981),
                   ),
                 ),

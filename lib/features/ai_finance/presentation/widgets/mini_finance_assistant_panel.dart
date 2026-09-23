@@ -21,7 +21,7 @@ class _MiniFinanceAssistantPanelState extends State<MiniFinanceAssistantPanel> {
   ];
 
   final List<String> _suggestedPrompts = [
-    'How can I save \$100 this month?',
+    'How can I save ₹1,000 this month?',
     'Am I on track for my savings goal?',
     'What is my safe daily limit?',
   ];
@@ -42,7 +42,7 @@ class _MiniFinanceAssistantPanelState extends State<MiniFinanceAssistantPanel> {
         _isTyping = false;
         _messages.add({
           'sender': 'AI',
-          'text': 'Based on your current transaction history:\n- Your safe daily spending limit is **\$32.50**.\n- Reducing dining out by 20% will save **\$65/month** toward your savings goal!',
+          'text': 'Based on your current transaction history:\n- Your safe daily spending limit is **₹250.00**.\n- Reducing dining out by 20% will save **₹650/month** toward your savings goal!',
         });
       });
     });

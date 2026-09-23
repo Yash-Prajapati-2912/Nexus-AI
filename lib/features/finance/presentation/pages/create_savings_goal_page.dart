@@ -18,7 +18,7 @@ class _CreateSavingsGoalPageState extends State<CreateSavingsGoalPage> {
   final TextEditingController _targetAmountController = TextEditingController();
   final TextEditingController _initialAmountController = TextEditingController();
 
-  DateTime _targetDate = DateTime.now().add(const Duration(days: 180));
+  final DateTime _targetDate = DateTime.now().add(const Duration(days: 180));
 
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
@@ -68,14 +68,14 @@ class _CreateSavingsGoalPageState extends State<CreateSavingsGoalPage> {
               TextFormField(
                 controller: _targetAmountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Target Goal Amount (\$)', border: OutlineInputBorder(), prefixText: '\$ '),
+                decoration: const InputDecoration(labelText: 'Target Goal Amount (₹)', border: OutlineInputBorder(), prefixText: '₹ '),
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter target amount' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _initialAmountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Initial Savings Deposit (Optional)', border: OutlineInputBorder(), prefixText: '\$ '),
+                decoration: const InputDecoration(labelText: 'Initial Savings Deposit (Optional)', border: OutlineInputBorder(), prefixText: '₹ '),
               ),
               const SizedBox(height: 32),
               SizedBox(

@@ -62,25 +62,29 @@ class _ReportsPageState extends State<ReportsPage> {
                   );
                 }
 
+                if (state is ReportFailureState) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Failed to load report: ${state.message}',
+                        style: const TextStyle(color: Colors.redAccent),
+                      ),
+                    ),
+                  );
+                }
+
                 final report = (state is ReportLoadedState)
                     ? state.report
-                    : const FinancialReport(
-                        timeframe: 'MONTHLY',
-                        totalIncome: 3250.00,
-                        totalExpense: 1420.50,
-                        netSavings: 1829.50,
-                        savingsRatePercentage: 56.3,
-                        expenseBreakdown: [
-                          CategoryBreakdownItem(categoryName: 'Education', amount: 500, percentage: 35, colorHex: '#3B82F6'),
-                          CategoryBreakdownItem(categoryName: 'Food & Dining', amount: 420, percentage: 30, colorHex: '#EF4444'),
-                          CategoryBreakdownItem(categoryName: 'Transportation', amount: 250, percentage: 18, colorHex: '#F59E0B'),
-                          CategoryBreakdownItem(categoryName: 'Shopping', amount: 250.5, percentage: 17, colorHex: '#EC4899'),
-                        ],
-                        incomeBreakdown: [
-                          CategoryBreakdownItem(categoryName: 'Salary', amount: 2500, percentage: 77, colorHex: '#10B981'),
-                          CategoryBreakdownItem(categoryName: 'Scholarship', amount: 750, percentage: 23, colorHex: '#8B5CF6'),
-                        ],
-                        cashFlowSeries: [1100, 850, 1600, 950, 1829.5],
+                    : FinancialReport(
+                        timeframe: _selectedTimeframe,
+                        totalIncome: 0.0,
+                        totalExpense: 0.0,
+                        netSavings: 0.0,
+                        savingsRatePercentage: 0.0,
+                        expenseBreakdown: const [],
+                        incomeBreakdown: const [],
+                        cashFlowSeries: const [],
                       );
 
                 return Column(

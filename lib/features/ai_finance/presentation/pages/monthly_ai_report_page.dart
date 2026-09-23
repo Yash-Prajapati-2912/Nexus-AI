@@ -10,13 +10,13 @@ class MonthlyAIReportPage extends StatelessWidget {
 # Monthly AI Financial Executive Report
 ## Month: July 2026
 
-- **Total Earned**: \$3,291.25
-- **Total Spent**: \$840.50
-- **Net Monthly Savings**: \$2,450.75
+- **Total Earned**: ₹32,912.50
+- **Total Spent**: ₹8,405.00
+- **Net Monthly Savings**: ₹24,507.50
 - **Savings Rate**: 74.5%
 
 ## AI Key Highlights
-- **Top Expense Category**: Education (\$500.00)
+- **Top Expense Category**: Education (₹5,000.00)
 - **Spending Discipline**: Excellent adherence to monthly budget limits.
 - **Goal Impact**: Advanced emergency fund target date by 14 days.
 ''';

@@ -7,7 +7,7 @@ class AIFinanceHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<AIFinanceHistoryItem> items = [
-      AIFinanceHistoryItem(id: 'h1', title: 'July 2026 Executive Summary', reportType: 'EXECUTIVE_SUMMARY', createdAt: DateTime.now(), summarySnippet: 'Total savings \$2,450.75'),
+      AIFinanceHistoryItem(id: 'h1', title: 'July 2026 Executive Summary', reportType: 'EXECUTIVE_SUMMARY', createdAt: DateTime.now(), summarySnippet: 'Total savings ₹24,507.50'),
       AIFinanceHistoryItem(id: 'h2', title: 'Q2 Spending Anomaly Audit', reportType: 'SPENDING_ANALYSIS', createdAt: DateTime.now().subtract(const Duration(days: 5)), summarySnippet: 'Detected 1 large bookstore transaction'),
     ];
 

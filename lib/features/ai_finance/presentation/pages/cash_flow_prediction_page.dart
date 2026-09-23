@@ -21,11 +21,11 @@ class CashFlowPredictionPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _RowItem(label: 'Net Cash Inflow', value: '+\$2,450.00', color: const Color(0xFF10B981)),
+                    const _RowItem(label: 'Net Cash Inflow', value: '+₹2,450.00', color: Color(0xFF10B981)),
                     const Divider(),
-                    _RowItem(label: 'Net Cash Outflow', value: '-\$820.00', color: Colors.redAccent),
+                    const _RowItem(label: 'Net Cash Outflow', value: '-₹820.00', color: Colors.redAccent),
                     const Divider(),
-                    _RowItem(label: 'Predicted End Balance', value: '+\$1,630.00', color: theme.colorScheme.primary),
+                    _RowItem(label: 'Predicted End Balance', value: '+₹16,300.00', color: theme.colorScheme.primary),
                   ],
                 ),
               ),

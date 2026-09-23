@@ -45,7 +45,7 @@ class SubscriptionAnalysisPage extends StatelessWidget {
                     ),
                     title: Text(sub.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(sub.isUnusedOrRedundant ? 'Flagged as Unused' : 'Active Subscription'),
-                    trailing: Text('\$${sub.cost.toStringAsFixed(2)}/mo', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: Text('₹${sub.cost.toStringAsFixed(2)}/mo', style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 )),
           ],

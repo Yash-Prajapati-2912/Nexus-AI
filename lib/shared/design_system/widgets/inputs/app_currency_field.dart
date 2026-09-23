@@ -8,7 +8,7 @@ class AppCurrencyField extends StatelessWidget {
   const AppCurrencyField({
     super.key,
     required this.controller,
-    this.currencySymbol = '\$',
+    this.currencySymbol = '₹',
   });
 
   @override

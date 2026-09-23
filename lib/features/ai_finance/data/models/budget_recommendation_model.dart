@@ -45,7 +45,7 @@ class BudgetRecommendationModel extends BudgetRecommendation {
       safeDailySpendingLimit: (json['safeDailySpendingLimit'] as num?)?.toDouble() ?? (json['safeDailyBudget'] as num?)?.toDouble() ?? 32.50,
       recommendedTotalMonthlyBudget: (json['recommendedTotalMonthlyBudget'] as num?)?.toDouble() ?? 950.00,
       categoryAdjustments: adjs,
-      optimizationStrategy: json['optimizationStrategy'] as String? ?? json['strategy'] as String? ?? 'Reallocate \$50 from Entertainment to Savings.',
+      optimizationStrategy: json['optimizationStrategy'] as String? ?? json['strategy'] as String? ?? 'Reallocate ₹500 from Entertainment to Savings.',
     );
   }
 

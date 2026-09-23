@@ -36,7 +36,7 @@ class SubscriptionCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '\$${analysis.totalMonthlySubscriptionCost.toStringAsFixed(2)}/mo',
+                    '₹${analysis.totalMonthlySubscriptionCost.toStringAsFixed(2)}/mo',
                     style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -48,7 +48,7 @@ class SubscriptionCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   if (analysis.unusedCount > 0)
                     _Pill(
-                      label: '${analysis.unusedCount} Unused (Save \$${analysis.potentialMonthlySavingsFromCancellation.toStringAsFixed(0)}/mo)',
+                      label: '${analysis.unusedCount} Unused (Save ₹${analysis.potentialMonthlySavingsFromCancellation.toStringAsFixed(0)}/mo)',
                       color: Colors.redAccent,
                     ),
                 ],

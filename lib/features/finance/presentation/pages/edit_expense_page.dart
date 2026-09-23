@@ -93,7 +93,7 @@ class _EditExpensePageState extends State<EditExpensePage> {
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Amount (\$)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'Amount (₹)', border: OutlineInputBorder()),
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter amount' : null,
               ),
               const SizedBox(height: 16),

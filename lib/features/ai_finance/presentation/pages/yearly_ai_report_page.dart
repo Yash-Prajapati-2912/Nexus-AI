@@ -10,9 +10,9 @@ class YearlyAIReportPage extends StatelessWidget {
 # Annual AI Financial Intelligence Report
 ## Year 2026 Overview
 
-- **Total Annual Income**: \$38,400.00
-- **Total Annual Expense**: \$9,800.00
-- **Total Net Accumulated Savings**: \$28,600.00
+- **Total Annual Income**: ₹3,84,000.00
+- **Total Annual Expense**: ₹98,000.00
+- **Total Net Accumulated Savings**: ₹2,86,000.00
 - **Annual Wellness Score**: 92/100
 
 ## Strategic Takeaways

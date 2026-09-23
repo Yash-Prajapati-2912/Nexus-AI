@@ -14,8 +14,8 @@ class BudgetRecommendationsPage extends StatelessWidget {
           safeDailySpendingLimit: 32.50,
           recommendedTotalMonthlyBudget: 950.00,
           categoryAdjustments: [
-            CategoryBudgetAdjustment(categoryName: 'Food & Dining', currentLimit: 500, recommendedLimit: 450, reasoning: 'Average usage is \$420'),
-            CategoryBudgetAdjustment(categoryName: 'Entertainment', currentLimit: 200, recommendedLimit: 150, reasoning: 'Save \$50 towards emergency fund'),
+            CategoryBudgetAdjustment(categoryName: 'Food & Dining', currentLimit: 500, recommendedLimit: 450, reasoning: 'Average usage is ₹4,200'),
+            CategoryBudgetAdjustment(categoryName: 'Entertainment', currentLimit: 200, recommendedLimit: 150, reasoning: 'Save ₹500 towards emergency fund'),
           ],
           optimizationStrategy: 'Optimizing monthly caps based on historical 3-month spending trends.',
         );
@@ -35,7 +35,7 @@ class BudgetRecommendationsPage extends StatelessWidget {
                   children: [
                     Text('Recommended Safe Daily Limit', style: theme.textTheme.labelMedium),
                     const SizedBox(height: 4),
-                    Text('\$${data.safeDailySpendingLimit.toStringAsFixed(2)}/day', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                    Text('₹${data.safeDailySpendingLimit.toStringAsFixed(2)}/day', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                   ],
                 ),
               ),
@@ -52,7 +52,7 @@ class BudgetRecommendationsPage extends StatelessWidget {
                       children: [
                         Text(adj.categoryName, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text('Current: \$${adj.currentLimit.toStringAsFixed(0)} ➔ Recommended: \$${adj.recommendedLimit.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                        Text('Current: ₹${adj.currentLimit.toStringAsFixed(0)} ➔ Recommended: ₹${adj.recommendedLimit.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
                         const SizedBox(height: 4),
                         Text(adj.reasoning, style: theme.textTheme.bodySmall),
                       ],

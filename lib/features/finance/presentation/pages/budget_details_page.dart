@@ -37,19 +37,19 @@ class BudgetDetailsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _RowItem(label: 'Total Budget Limit', value: '\$${item.totalLimit.toStringAsFixed(2)}'),
+                    _RowItem(label: 'Total Budget Limit', value: '₹${item.totalLimit.toStringAsFixed(2)}'),
                     const Divider(),
-                    _RowItem(label: 'Current Total Spent', value: '\$${item.currentSpent.toStringAsFixed(2)}'),
+                    _RowItem(label: 'Current Total Spent', value: '₹${item.currentSpent.toStringAsFixed(2)}'),
                     const Divider(),
                     _RowItem(
                       label: 'Remaining Balance',
-                      value: '\$${item.remainingAmount.clamp(0, double.infinity).toStringAsFixed(2)}',
+                      value: '₹${item.remainingAmount.clamp(0, double.infinity).toStringAsFixed(2)}',
                       color: item.isOverBudget ? Colors.redAccent : const Color(0xFF10B981),
                     ),
                     const Divider(),
                     _RowItem(label: 'Period Type', value: item.period),
                     const Divider(),
-                    _RowItem(label: 'Alert Threshold', value: '80% & 100% Alerts Active'),
+                    const _RowItem(label: 'Alert Threshold', value: '80% & 100% Alerts Active'),
                   ],
                 ),
               ),

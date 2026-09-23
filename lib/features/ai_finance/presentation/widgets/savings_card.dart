@@ -32,7 +32,7 @@ class SavingsCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  '+\$${savings.totalPotentialMonthlySavings.toStringAsFixed(0)}/mo',
+                  '+₹${savings.totalPotentialMonthlySavings.toStringAsFixed(0)}/mo',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF10B981),

@@ -16,7 +16,7 @@ class SavingsAdvisorPage extends StatelessWidget {
             SavingsTip(title: 'Switch to Meal Prep', category: 'Food & Dining', potentialMonthlySavings: 80, difficultyLevel: 'EASY', actionableAdvice: 'Prep lunches on Sunday evenings.'),
             SavingsTip(title: 'Cancel Unused Streaming', category: 'Subscriptions', potentialMonthlySavings: 15, difficultyLevel: 'EASY', actionableAdvice: 'Cancel redundant streaming tier.'),
           ],
-          aiStrategySummary: 'Implement these 2 micro-habits to unlock \$160/month in extra savings.',
+          aiStrategySummary: 'Implement these 2 micro-habits to unlock ₹1,600/month in extra savings.',
         );
 
     return Scaffold(
@@ -38,7 +38,7 @@ class SavingsAdvisorPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Total Potential Savings', style: theme.textTheme.labelMedium),
-                        Text('+\$${data.totalPotentialMonthlySavings.toStringAsFixed(0)}/month', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF10B981))),
+                        Text('+₹${data.totalPotentialMonthlySavings.toStringAsFixed(0)}/month', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF10B981))),
                       ],
                     ),
                   ],
@@ -53,7 +53,7 @@ class SavingsAdvisorPage extends StatelessWidget {
                   child: ListTile(
                     title: Text(tip.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('${tip.actionableAdvice}\nDifficulty: ${tip.difficultyLevel}'),
-                    trailing: Text('+\$${tip.potentialMonthlySavings.toStringAsFixed(0)}/mo', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                    trailing: Text('+₹${tip.potentialMonthlySavings.toStringAsFixed(0)}/mo', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
                   ),
                 )),
           ],

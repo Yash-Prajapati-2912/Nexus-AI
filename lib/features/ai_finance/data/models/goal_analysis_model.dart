@@ -19,7 +19,7 @@ class GoalAnalysisModel extends GoalAnalysis {
       riskLevel: json['riskLevel'] as String? ?? 'LOW',
       predictedCompletionDate: json['predictedCompletionDate'] != null ? DateTime.parse(json['predictedCompletionDate'] as String) : DateTime.now().add(const Duration(days: 90)),
       recommendedMonthlyContribution: (json['recommendedMonthlyContribution'] as num?)?.toDouble() ?? 120.0,
-      aiOptimizationTip: json['aiOptimizationTip'] as String? ?? 'On track! Increase monthly contribution by \$20 to finish 2 weeks early.',
+      aiOptimizationTip: json['aiOptimizationTip'] as String? ?? 'On track! Increase monthly contribution by ₹200 to finish 2 weeks early.',
     );
   }
 

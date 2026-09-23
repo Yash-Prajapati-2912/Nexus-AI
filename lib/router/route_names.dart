@@ -36,6 +36,7 @@ abstract class RouteNames {
   static const String financeIncome = '/finance/income';
   static const String financeAddIncome = '/finance/add-income';
   static const String financeBudgets = '/finance/budgets';
+  static const String financeCreateBudget = '/finance/create-budget';
   static const String financeBudgetDetails = '/finance/budget-details';
   static const String financeSavings = '/finance/savings';
   static const String financeCreateSavingsGoal = '/finance/create-savings-goal';

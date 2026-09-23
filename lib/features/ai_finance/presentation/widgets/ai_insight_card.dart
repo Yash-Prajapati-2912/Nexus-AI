@@ -49,7 +49,7 @@ class AIInsightCard extends StatelessWidget {
                 children: [
                   _StatPill(
                     label: 'Daily Avg',
-                    value: '\$${insight.dailyAverageSpent.toStringAsFixed(2)}',
+                    value: '₹${insight.dailyAverageSpent.toStringAsFixed(2)}',
                   ),
                   const SizedBox(width: 8),
                   _StatPill(

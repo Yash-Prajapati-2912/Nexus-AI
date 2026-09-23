@@ -42,6 +42,7 @@ abstract class IFinanceRepository {
 
   // Categories, Transactions & Reports
   Future<Either<Failure, List<FinanceCategory>>> getCategories();
+  Future<Either<Failure, FinanceCategory>> createCategory(FinanceCategory category);
   Future<Either<Failure, List<Transaction>>> getTransactions({String? query, String? type});
   Future<Either<Failure, FinancialReport>> getFinancialReport(String timeframe);
 }

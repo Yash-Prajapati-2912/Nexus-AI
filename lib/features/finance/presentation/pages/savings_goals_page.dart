@@ -78,7 +78,7 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Amount (\$)', prefixText: '\$ '),
+          decoration: const InputDecoration(labelText: 'Amount (₹)', prefixText: '₹ '),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),

@@ -21,7 +21,7 @@ class SpendingInsightsPage extends StatelessWidget {
             CategorySpendingShare(categoryName: 'Transportation', amount: 250, percentage: 18, trendDirection: 'STABLE'),
           ],
           lifestyleAnalysis: 'Your lifestyle spending is well aligned with average university student benchmarks.',
-          detectedAnomalies: ['Unusual \$145 textbook purchase on Monday'],
+          detectedAnomalies: ['Unusual ₹1,450 textbook purchase on Monday'],
           confidenceScore: 0.94,
         );
 
@@ -41,7 +41,7 @@ class SpendingInsightsPage extends StatelessWidget {
                   child: ListTile(
                     title: Text(cat.categoryName, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('Trend: ${cat.trendDirection}'),
-                    trailing: Text('\$${cat.amount.toStringAsFixed(0)} (${cat.percentage.toInt()}%)', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: Text('₹${cat.amount.toStringAsFixed(0)} (${cat.percentage.toInt()}%)', style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 )),
           ],

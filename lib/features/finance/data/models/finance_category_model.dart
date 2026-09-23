@@ -32,6 +32,15 @@ class FinanceCategoryModel extends FinanceCategory {
     };
   }
 
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'name': name.trim(),
+      'colour': colorHex,
+      'icon': iconName,
+      if (monthlyBudgetLimit != null) 'monthlyLimit': monthlyBudgetLimit,
+    };
+  }
+
   factory FinanceCategoryModel.fromEntity(FinanceCategory entity) {
     return FinanceCategoryModel(
       id: entity.id,

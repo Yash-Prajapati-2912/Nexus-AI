@@ -41,6 +41,7 @@ abstract class IFinanceRemoteDataSource {
 
   // Categories & Transactions & Reports
   Future<List<FinanceCategoryModel>> getCategories();
+  Future<FinanceCategoryModel> createCategory(FinanceCategoryModel category);
   Future<List<TransactionModel>> getTransactions({String? query, String? type});
   Future<FinancialReportModel> getFinancialReport(String timeframe);
 }
@@ -91,9 +92,11 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<ExpenseModel> createExpense(ExpenseModel expense) async {
-    final response = await _apiClient.post('/finance/expenses', data: expense.toJson());
-    final data = response.data as Map<String, dynamic>;
-    return ExpenseModel.fromJson(data);
+    final response = await _apiClient.post('/finance/expenses', data: expense.toCreateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return ExpenseModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -143,9 +146,11 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<BudgetModel> createBudget(BudgetModel budget) async {
-    final response = await _apiClient.post('/finance/budgets', data: budget.toJson());
-    final data = response.data as Map<String, dynamic>;
-    return BudgetModel.fromJson(data);
+    final response = await _apiClient.post('/finance/budgets', data: budget.toCreateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return BudgetModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -196,6 +201,15 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
     final response = await _apiClient.get('/finance/categories');
     final list = _extractList(response.data);
     return list.map((e) => FinanceCategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<FinanceCategoryModel> createCategory(FinanceCategoryModel category) async {
+    final response = await _apiClient.post('/finance/categories', data: category.toCreateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return FinanceCategoryModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override

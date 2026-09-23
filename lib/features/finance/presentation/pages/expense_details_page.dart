@@ -101,7 +101,7 @@ class ExpenseDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '-\$${item.amount.toStringAsFixed(2)}',
+                    '-₹${item.amount.toStringAsFixed(2)}',
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.redAccent,

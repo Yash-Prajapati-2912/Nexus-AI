@@ -46,6 +46,7 @@ import '../features/finance/presentation/pages/edit_expense_page.dart';
 import '../features/finance/presentation/pages/income_list_page.dart';
 import '../features/finance/presentation/pages/add_income_page.dart';
 import '../features/finance/presentation/pages/budget_overview_page.dart';
+import '../features/finance/presentation/pages/create_budget_page.dart';
 import '../features/finance/presentation/pages/budget_details_page.dart';
 import '../features/finance/presentation/pages/savings_goals_page.dart';
 import '../features/finance/presentation/pages/create_savings_goal_page.dart';
@@ -386,6 +387,13 @@ abstract class AppRouter {
           builder: (context, state) => BlocProvider(
             create: (_) => getIt<BudgetBloc>(),
             child: const BudgetOverviewPage(),
+          ),
+        ),
+        GoRoute(
+          path: RouteNames.financeCreateBudget,
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<BudgetBloc>(),
+            child: const CreateBudgetPage(),
           ),
         ),
         GoRoute(

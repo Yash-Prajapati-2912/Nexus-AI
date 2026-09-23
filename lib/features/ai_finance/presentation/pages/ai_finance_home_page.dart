@@ -83,69 +83,69 @@ class _AIFinanceHomePageState extends State<AIFinanceHomePage> {
             final health = (state is AIFinanceLoadedState)
                 ? state.health
                 : const FinancialHealth(
-                    overallScore: 84,
-                    budgetHealthScore: 80,
-                    savingsScore: 88,
-                    expenseScore: 82,
-                    incomeStabilityScore: 90,
-                    cashFlowHealthScore: 85,
-                    investmentReadinessScore: 75,
-                    wellnessRating: 'EXCELLENT',
-                    summaryReasoning: 'Your overall financial health is strong with stable net savings.',
-                    topStrengths: ['Consistent income', 'Disciplined budgeting'],
-                    keyRisks: ['Dining out overhead'],
+                    overallScore: 0,
+                    budgetHealthScore: 0,
+                    savingsScore: 0,
+                    expenseScore: 0,
+                    incomeStabilityScore: 0,
+                    cashFlowHealthScore: 0,
+                    investmentReadinessScore: 0,
+                    wellnessRating: 'N/A',
+                    summaryReasoning: 'No AI health data available.',
+                    topStrengths: [],
+                    keyRisks: [],
                   );
 
             final insight = (state is AIFinanceLoadedState)
                 ? state.insight
                 : const SpendingInsight(
-                    dailyAverageSpent: 28.50,
-                    monthlyComparisonPercentage: -12.4,
-                    weeklyComparisonPercentage: -4.2,
+                    dailyAverageSpent: 0.0,
+                    monthlyComparisonPercentage: 0.0,
+                    weeklyComparisonPercentage: 0.0,
                     highestCategories: [],
-                    lifestyleAnalysis: 'Moderate student lifestyle spending.',
+                    lifestyleAnalysis: 'No spending insights available.',
                     detectedAnomalies: [],
-                    confidenceScore: 0.94,
+                    confidenceScore: 0.0,
                   );
 
             final forecast = (state is AIFinanceLoadedState)
                 ? state.forecast
                 : const Forecast(
-                    nextWeekForecastAmount: 180,
-                    nextMonthForecastAmount: 820,
-                    quarterlyForecastAmount: 2450,
-                    yearlyForecastAmount: 9800,
-                    predictedMonthEndSavings: 1450,
+                    nextWeekForecastAmount: 0.0,
+                    nextMonthForecastAmount: 0.0,
+                    quarterlyForecastAmount: 0.0,
+                    yearlyForecastAmount: 0.0,
+                    predictedMonthEndSavings: 0.0,
                     predictedOverspendingRisk: false,
-                    overspendingProbability: 0.15,
-                    projectedCashFlowSeries: [850, 920, 780, 1100],
-                    forecastExplanation: 'Positive cash flow trajectory expected.',
+                    overspendingProbability: 0.0,
+                    projectedCashFlowSeries: [],
+                    forecastExplanation: 'No forecast data available.',
                   );
 
             final budgetRec = (state is AIFinanceLoadedState)
                 ? state.budgetRec
                 : const BudgetRecommendation(
-                    safeDailySpendingLimit: 32.50,
-                    recommendedTotalMonthlyBudget: 950.00,
+                    safeDailySpendingLimit: 0.0,
+                    recommendedTotalMonthlyBudget: 0.0,
                     categoryAdjustments: [],
-                    optimizationStrategy: 'Optimal daily limit established.',
+                    optimizationStrategy: 'No budget recommendations available.',
                   );
 
             final savingsRec = (state is AIFinanceLoadedState)
                 ? state.savingsRec
                 : const SavingsRecommendation(
-                    totalPotentialMonthlySavings: 160.00,
+                    totalPotentialMonthlySavings: 0.0,
                     tips: [],
-                    aiStrategySummary: 'Potential \$160/mo savings identified.',
+                    aiStrategySummary: 'No savings advice available.',
                   );
 
             final subscriptions = (state is AIFinanceLoadedState)
                 ? state.subscriptions
                 : const SubscriptionAnalysis(
-                    totalMonthlySubscriptionCost: 49.99,
-                    activeSubscriptionCount: 4,
-                    unusedCount: 1,
-                    potentialMonthlySavingsFromCancellation: 14.99,
+                    totalMonthlySubscriptionCost: 0.0,
+                    activeSubscriptionCount: 0,
+                    unusedCount: 0,
+                    potentialMonthlySavingsFromCancellation: 0.0,
                     subscriptions: [],
                   );
 

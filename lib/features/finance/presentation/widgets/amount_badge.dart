@@ -9,7 +9,7 @@ class AmountBadge extends StatelessWidget {
     super.key,
     required this.amount,
     this.isExpense = true,
-    this.currencySymbol = '\$',
+    this.currencySymbol = '₹',
   });
 
   @override

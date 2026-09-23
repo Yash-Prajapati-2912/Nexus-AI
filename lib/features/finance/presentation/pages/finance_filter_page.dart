@@ -31,8 +31,8 @@ class _FinanceFilterPageState extends State<FinanceFilterPage> {
               max: 5000,
               divisions: 50,
               labels: RangeLabels(
-                '\$${_amountRange.start.toInt()}',
-                '\$${_amountRange.end.toInt()}',
+                '₹${_amountRange.start.toInt()}',
+                '₹${_amountRange.end.toInt()}',
               ),
               onChanged: (val) => setState(() => _amountRange = val),
             ),

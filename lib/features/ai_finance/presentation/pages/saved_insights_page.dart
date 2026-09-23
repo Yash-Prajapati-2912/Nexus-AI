@@ -13,7 +13,7 @@ class SavedInsightsPage extends StatelessWidget {
           Card(
             child: ListTile(
               leading: Icon(Icons.bookmark_rounded, color: Color(0xFF6366F1)),
-              title: Text('Meal Prep Savings Plan (\$80/mo)', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text('Meal Prep Savings Plan (₹800/mo)', style: TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text('Saved on July 20, 2026'),
             ),
           ),

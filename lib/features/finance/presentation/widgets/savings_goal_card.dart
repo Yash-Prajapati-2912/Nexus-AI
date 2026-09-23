@@ -73,11 +73,11 @@ class SavingsGoalCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Saved: \$${goal.currentAmount.toStringAsFixed(0)}',
+                    'Saved: ₹${goal.currentAmount.toStringAsFixed(0)}',
                     style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Goal: \$${goal.targetAmount.toStringAsFixed(0)}',
+                    'Goal: ₹${goal.targetAmount.toStringAsFixed(0)}',
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],

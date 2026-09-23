@@ -47,7 +47,7 @@ class ReportCard extends StatelessWidget {
                 Expanded(
                   child: _SummaryBox(
                     title: 'Total Income',
-                    value: '\$${report.totalIncome.toStringAsFixed(2)}',
+                    value: '₹${report.totalIncome.toStringAsFixed(2)}',
                     color: const Color(0xFF10B981),
                   ),
                 ),
@@ -55,7 +55,7 @@ class ReportCard extends StatelessWidget {
                 Expanded(
                   child: _SummaryBox(
                     title: 'Total Expense',
-                    value: '\$${report.totalExpense.toStringAsFixed(2)}',
+                    value: '₹${report.totalExpense.toStringAsFixed(2)}',
                     color: Colors.redAccent,
                   ),
                 ),
@@ -63,7 +63,7 @@ class ReportCard extends StatelessWidget {
                 Expanded(
                   child: _SummaryBox(
                     title: 'Net Savings',
-                    value: '\$${report.netSavings.toStringAsFixed(2)}',
+                    value: '₹${report.netSavings.toStringAsFixed(2)}',
                     color: theme.colorScheme.primary,
                   ),
                 ),

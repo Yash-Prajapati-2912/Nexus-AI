@@ -28,7 +28,7 @@ class UnusualSpendingDetectionPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('\$145.50 at University Bookstore on July 24', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('₹1,450.00 at University Bookstore on July 24', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
                   Text('AI Explanation: This single transaction is 4.5x higher than your average daily transaction amount. Categorized as Education/Required.', style: theme.textTheme.bodySmall),
                 ],

@@ -21,11 +21,11 @@ class MonthlySummaryPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _RowItem(label: 'Total Earned', value: '+\$3,291.25', color: const Color(0xFF10B981)),
+                    const _RowItem(label: 'Total Earned', value: '+₹3,291.25', color: Color(0xFF10B981)),
                     const Divider(),
-                    _RowItem(label: 'Total Spent', value: '-\$840.50', color: Colors.redAccent),
+                    const _RowItem(label: 'Total Spent', value: '-₹840.50', color: Colors.redAccent),
                     const Divider(),
-                    _RowItem(label: 'Net Monthly Savings', value: '+\$2,450.75', color: theme.colorScheme.primary),
+                    _RowItem(label: 'Net Monthly Savings', value: '+₹2,450.75', color: theme.colorScheme.primary),
                   ],
                 ),
               ),

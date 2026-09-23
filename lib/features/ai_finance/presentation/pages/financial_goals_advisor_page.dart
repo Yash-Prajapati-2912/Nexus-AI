@@ -15,7 +15,7 @@ class FinancialGoalsAdvisorPage extends StatelessWidget {
         riskLevel: 'LOW',
         predictedCompletionDate: DateTime.now().add(const Duration(days: 60)),
         recommendedMonthlyContribution: 100,
-        aiOptimizationTip: 'On schedule! Maintain current \$100 monthly contributions.',
+        aiOptimizationTip: 'On schedule! Maintain current ₹1,000 monthly contributions.',
       ),
       GoalAnalysis(
         goalId: 'g2',
@@ -24,7 +24,7 @@ class FinancialGoalsAdvisorPage extends StatelessWidget {
         riskLevel: 'MODERATE',
         predictedCompletionDate: DateTime.now().add(const Duration(days: 90)),
         recommendedMonthlyContribution: 150,
-        aiOptimizationTip: 'Increase monthly contribution by \$25 to meet October target.',
+        aiOptimizationTip: 'Increase monthly contribution by ₹250 to meet October target.',
       ),
     ];
 

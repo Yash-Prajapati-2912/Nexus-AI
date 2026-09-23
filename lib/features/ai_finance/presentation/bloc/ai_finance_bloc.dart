@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexus_ai/core/error/failures.dart';
 import 'package:nexus_ai/core/usecases/usecase.dart';
 import '../../domain/entities/budget_recommendation.dart';
-import '../../domain/entities/financial_health.dart';
 import '../../domain/entities/forecast.dart';
 import '../../domain/entities/savings_recommendation.dart';
 import '../../domain/entities/spending_insight.dart';

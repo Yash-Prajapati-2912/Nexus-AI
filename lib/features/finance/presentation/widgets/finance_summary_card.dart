@@ -6,12 +6,14 @@ class FinanceSummaryCard extends StatelessWidget {
   final double totalBalance;
   final double incomeTotal;
   final double expenseTotal;
+  final String currencySymbol;
 
   const FinanceSummaryCard({
     super.key,
     required this.totalBalance,
     required this.incomeTotal,
     required this.expenseTotal,
+    this.currencySymbol = '₹',
   });
 
   @override
@@ -36,7 +38,7 @@ class FinanceSummaryCard extends StatelessWidget {
           ShaderMask(
             shaderCallback: (bounds) => primaryGradient.createShader(bounds),
             child: Text(
-              '\$${totalBalance.toStringAsFixed(2)}',
+              '$currencySymbol${totalBalance.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -49,7 +51,7 @@ class FinanceSummaryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withOpacity(0.04) : Colors.indigo.withOpacity(0.03),
+              color: isDark ? Colors.white.withAlpha(10) : Colors.indigo.withAlpha(8),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight,
@@ -61,7 +63,7 @@ class FinanceSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _MetricItem(
                     label: 'Monthly Income',
-                    value: '+\$${incomeTotal.toStringAsFixed(2)}',
+                    value: '+$currencySymbol${incomeTotal.toStringAsFixed(2)}',
                     icon: Icons.arrow_upward_rounded,
                     color: const Color(0xFF10B981),
                     isDark: isDark,
@@ -75,7 +77,7 @@ class FinanceSummaryCard extends StatelessWidget {
                 Expanded(
                   child: _MetricItem(
                     label: 'Monthly Expense',
-                    value: '-\$${expenseTotal.toStringAsFixed(2)}',
+                    value: '-$currencySymbol${expenseTotal.toStringAsFixed(2)}',
                     icon: Icons.arrow_downward_rounded,
                     color: Colors.redAccent,
                     isDark: isDark,

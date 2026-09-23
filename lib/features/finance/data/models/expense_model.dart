@@ -57,8 +57,49 @@ class ExpenseModel extends Expense {
       'recurringPeriod': recurringPeriod,
       'tags': tags,
       'status': status,
-      'paymentMethod': paymentMethod,
+      'paymentMethod': _normalizePaymentMethod(paymentMethod),
     };
+  }
+
+  Map<String, dynamic> toCreateJson() {
+    final map = <String, dynamic>{
+      'title': title.trim(),
+      'amount': amount,
+      'categoryId': categoryId,
+      'expenseDate': date.toIso8601String(),
+      'paymentMethod': _normalizePaymentMethod(paymentMethod),
+      'isRecurring': isRecurring,
+    };
+    if (note != null && note!.trim().isNotEmpty) {
+      map['notes'] = note!.trim();
+      map['description'] = note!.trim();
+    }
+    if (receiptUrl != null && receiptUrl!.trim().isNotEmpty) {
+      map['receiptUrl'] = receiptUrl;
+    }
+    if (tags.isNotEmpty) {
+      map['tags'] = tags;
+    }
+    return map;
+  }
+
+  static String _normalizePaymentMethod(String pm) {
+    switch (pm.toUpperCase()) {
+      case 'CARD':
+      case 'CREDIT_CARD':
+        return 'CREDIT_CARD';
+      case 'DEBIT_CARD':
+        return 'DEBIT_CARD';
+      case 'CASH':
+        return 'CASH';
+      case 'UPI':
+        return 'UPI';
+      case 'BANK_TRANSFER':
+        return 'BANK_TRANSFER';
+      case 'OTHER':
+      default:
+        return 'DEBIT_CARD';
+    }
   }
 
   factory ExpenseModel.fromEntity(Expense entity) {

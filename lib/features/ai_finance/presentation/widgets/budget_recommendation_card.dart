@@ -32,7 +32,7 @@ class BudgetRecommendationCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  '\$${recommendation.safeDailySpendingLimit.toStringAsFixed(2)}/day',
+                  '₹${recommendation.safeDailySpendingLimit.toStringAsFixed(2)}/day',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,

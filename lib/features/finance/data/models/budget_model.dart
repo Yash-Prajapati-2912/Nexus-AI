@@ -17,12 +17,22 @@ class BudgetModel extends Budget {
   factory BudgetModel.fromJson(Map<String, dynamic> json) {
     return BudgetModel(
       id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? json['title'] as String? ?? 'Monthly Budget',
-      totalLimit: (json['totalLimit'] as num?)?.toDouble() ?? (json['amount'] as num?)?.toDouble() ?? 0.0,
-      currentSpent: (json['currentSpent'] as num?)?.toDouble() ?? (json['spent'] as num?)?.toDouble() ?? 0.0,
+      name: json['name'] as String? ?? json['notes'] as String? ?? json['title'] as String? ?? 'Monthly Budget',
+      totalLimit: (json['plannedAmount'] as num?)?.toDouble() ??
+          (json['totalLimit'] as num?)?.toDouble() ??
+          (json['amount'] as num?)?.toDouble() ??
+          0.0,
+      currentSpent: (json['spentAmount'] as num?)?.toDouble() ??
+          (json['currentSpent'] as num?)?.toDouble() ??
+          (json['spent'] as num?)?.toDouble() ??
+          0.0,
       period: json['period'] as String? ?? 'MONTHLY',
-      startDate: json['startDate'] != null ? DateTime.parse(json['startDate'] as String) : DateTime.now(),
-      endDate: json['endDate'] != null ? DateTime.parse(json['endDate'] as String) : DateTime.now().add(const Duration(days: 30)),
+      startDate: json['startDate'] != null
+          ? DateTime.parse(json['startDate'] as String)
+          : DateTime(json['year'] as int? ?? DateTime.now().year, json['month'] as int? ?? DateTime.now().month, 1),
+      endDate: json['endDate'] != null
+          ? DateTime.parse(json['endDate'] as String)
+          : DateTime(json['year'] as int? ?? DateTime.now().year, (json['month'] as int? ?? DateTime.now().month) + 1, 0),
       categoryId: json['categoryId'] as String?,
       alertOn80Percent: json['alertOn80Percent'] as bool? ?? true,
       alertOn100Percent: json['alertOn100Percent'] as bool? ?? true,
@@ -41,6 +51,16 @@ class BudgetModel extends Budget {
       'categoryId': categoryId,
       'alertOn80Percent': alertOn80Percent,
       'alertOn100Percent': alertOn100Percent,
+    };
+  }
+
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'month': startDate.month,
+      'year': startDate.year,
+      'plannedAmount': totalLimit,
+      'currency': 'INR',
+      if (name.isNotEmpty) 'notes': name,
     };
   }
 

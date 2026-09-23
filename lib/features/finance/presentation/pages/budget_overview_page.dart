@@ -21,14 +21,30 @@ class _BudgetOverviewPageState extends State<BudgetOverviewPage> {
   @override
   void initState() {
     super.initState();
+    _loadBudgets();
+  }
+
+  void _loadBudgets() {
     context.read<BudgetBloc>().add(const LoadBudgetsEvent());
+  }
+
+  Future<void> _openCreateBudget() async {
+    await context.push(RouteNames.financeCreateBudget);
+    if (mounted) {
+      _loadBudgets();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
       appBar: AppBar(
-        title: const Text('Budget Management'),
+        title: const Text('Budget Management', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openCreateBudget,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Set Budget'),
       ),
       body: BlocBuilder<BudgetBloc, BudgetState>(
         builder: (context, state) {
@@ -41,7 +57,34 @@ class _BudgetOverviewPageState extends State<BudgetOverviewPage> {
 
           if (state is BudgetLoadedState) {
             if (state.budgets.isEmpty) {
-              return const Center(child: Text('No active budgets set.'));
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.pie_chart_outline_rounded, size: 64, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No active budgets set for this month',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Establish a monthly spending limit to track expenses and prevent overspending.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: _openCreateBudget,
+                        icon: const Icon(Icons.add_rounded),
+                        label: const Text('Set Monthly Budget'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             }
             return ListView.builder(
               padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
@@ -56,7 +99,13 @@ class _BudgetOverviewPageState extends State<BudgetOverviewPage> {
             );
           }
 
-          return const Center(child: Text('Pull to load budgets.'));
+          return Center(
+            child: ElevatedButton.icon(
+              onPressed: _openCreateBudget,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Set Monthly Budget'),
+            ),
+          );
         },
       ),
     );

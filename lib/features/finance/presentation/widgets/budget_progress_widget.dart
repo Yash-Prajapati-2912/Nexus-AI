@@ -28,7 +28,7 @@ class BudgetProgressWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Spent: \$${budget.currentSpent.toStringAsFixed(0)} / \$${budget.totalLimit.toStringAsFixed(0)}',
+              'Spent: ₹${budget.currentSpent.toStringAsFixed(0)} / ₹${budget.totalLimit.toStringAsFixed(0)}',
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
