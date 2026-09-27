@@ -1,33 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/snackbar_manager.dart';
 
 abstract class AppSnackBar {
   static void showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_outline_rounded, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.green,
-      ),
-    );
+    SnackBarManager.showSuccess(context, message);
   }
 
   static void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red,
-      ),
-    );
+    SnackBarManager.showError(context, message);
+  }
+
+  static void showInfo(BuildContext context, String message) {
+    SnackBarManager.showInfo(context, message);
+  }
+
+  static void showWarning(BuildContext context, String message) {
+    SnackBarManager.showWarning(context, message);
   }
 }

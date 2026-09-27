@@ -11,7 +11,7 @@ class AppEmailField extends StatelessWidget {
     return AppTextField(
       controller: controller,
       label: 'Email',
-      hint: 'student@university.edu',
+      hint: 'you@domain.com',
       keyboardType: TextInputType.emailAddress,
       prefixIcon: const Icon(Icons.email_outlined),
     );

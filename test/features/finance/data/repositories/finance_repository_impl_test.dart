@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:nexus_ai/features/finance/data/datasources/finance_remote_data_source.dart';
 import 'package:nexus_ai/features/finance/data/models/expense_model.dart';

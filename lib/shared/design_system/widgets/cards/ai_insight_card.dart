@@ -22,7 +22,12 @@ class AiInsightCard extends StatelessWidget {
             children: [
               const Icon(Icons.auto_awesome_rounded, color: SemanticColors.aiAccent),
               const SizedBox(width: 8),
-              Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),

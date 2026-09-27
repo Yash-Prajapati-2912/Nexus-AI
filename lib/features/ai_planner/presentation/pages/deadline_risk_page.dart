@@ -62,7 +62,7 @@ class _DeadlineRiskPageState extends State<DeadlineRiskPage> {
                       warningMessage: 'Dependencies pending group member contribution.',
                     ),
                   ],
-                  warningCards: [
+                  warningCards: const [
                     'High submission volume due on Thursday.',
                     'Consider rescheduling low-priority tasks to weekend.',
                   ],

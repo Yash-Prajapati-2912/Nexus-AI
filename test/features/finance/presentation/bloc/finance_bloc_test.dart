@@ -15,10 +15,13 @@ import 'package:nexus_ai/features/finance/presentation/bloc/finance_bloc.dart';
 import 'package:nexus_ai/features/finance/presentation/bloc/finance_event.dart';
 import 'package:nexus_ai/features/finance/presentation/bloc/finance_state.dart';
 
+import 'package:nexus_ai/features/finance/domain/repositories/i_finance_repository.dart';
+
 class MockGetExpensesUseCase extends Mock implements GetExpensesUseCase {}
 class MockGetIncomeUseCase extends Mock implements GetIncomeUseCase {}
 class MockGetBudgetUseCase extends Mock implements GetBudgetUseCase {}
 class MockGetSavingsGoalsUseCase extends Mock implements GetSavingsGoalsUseCase {}
+class MockIFinanceRepository extends Mock implements IFinanceRepository {}
 
 void main() {
   late FinanceBloc financeBloc;
@@ -26,6 +29,7 @@ void main() {
   late MockGetIncomeUseCase mockGetIncomeUseCase;
   late MockGetBudgetUseCase mockGetBudgetUseCase;
   late MockGetSavingsGoalsUseCase mockGetSavingsGoalsUseCase;
+  late MockIFinanceRepository mockIFinanceRepository;
 
   setUpAll(() {
     registerFallbackValue(const GetExpensesParams());
@@ -38,12 +42,14 @@ void main() {
     mockGetIncomeUseCase = MockGetIncomeUseCase();
     mockGetBudgetUseCase = MockGetBudgetUseCase();
     mockGetSavingsGoalsUseCase = MockGetSavingsGoalsUseCase();
+    mockIFinanceRepository = MockIFinanceRepository();
 
     financeBloc = FinanceBloc(
       getExpensesUseCase: mockGetExpensesUseCase,
       getIncomeUseCase: mockGetIncomeUseCase,
       getBudgetUseCase: mockGetBudgetUseCase,
       getSavingsGoalsUseCase: mockGetSavingsGoalsUseCase,
+      repository: mockIFinanceRepository,
     );
   });
 
@@ -98,6 +104,7 @@ void main() {
       when(() => mockGetIncomeUseCase(any())).thenAnswer((_) async => Right([tIncome]));
       when(() => mockGetBudgetUseCase(any())).thenAnswer((_) async => Right([tBudget]));
       when(() => mockGetSavingsGoalsUseCase(any())).thenAnswer((_) async => Right([tGoal]));
+      when(() => mockIFinanceRepository.getInvestments()).thenAnswer((_) async => const Right([]));
       return financeBloc;
     },
     act: (bloc) => bloc.add(const LoadFinanceDashboardEvent()),

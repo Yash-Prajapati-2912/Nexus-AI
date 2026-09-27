@@ -50,23 +50,23 @@ class MonthlyPlanningPage extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _MilestoneItem(
+            const _MilestoneItem(
               title: 'Midterm Exam: Data Structures',
               date: 'July 28, 2026',
               risk: 'HIGH',
               color: Colors.redAccent,
             ),
-            _MilestoneItem(
+            const _MilestoneItem(
               title: 'Linear Algebra Term Paper Submission',
               date: 'August 02, 2026',
               risk: 'MEDIUM',
               color: Colors.orangeAccent,
             ),
-            _MilestoneItem(
+            const _MilestoneItem(
               title: 'Software Design Presentation',
               date: 'August 10, 2026',
               risk: 'LOW',
-              color: const Color(0xFF10B981),
+              color: Color(0xFF10B981),
             ),
 
           ],

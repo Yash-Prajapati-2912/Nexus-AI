@@ -25,6 +25,6 @@ void main() {
 
     expect(find.text('Textbook Purchase'), findsOneWidget);
     expect(find.textContaining('Education'), findsOneWidget);
-    expect(find.text('-\$75.00'), findsOneWidget);
+    expect(find.text('-₹75.00'), findsOneWidget);
   });
 }

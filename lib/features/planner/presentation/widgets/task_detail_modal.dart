@@ -57,9 +57,21 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
   @override
   void initState() {
     super.initState();
-    _subtasks = _getTaskSubtasks();
+    _initTaskData();
+  }
+
+  @override
+  void didUpdateWidget(covariant TaskDetailModal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.task.id != widget.task.id) {
+      _initTaskData();
+    }
+  }
+
+  void _initTaskData() {
+    _subtasks = widget.task.subtasks ?? [];
     _subtaskChecked = List<bool>.filled(_subtasks.length, false);
-    _requirements = _getTaskRequirements();
+    _requirements = widget.task.requirements ?? [];
 
     _titleController = TextEditingController(text: widget.task.title);
     _descController = TextEditingController(text: widget.task.description ?? '');
@@ -75,63 +87,23 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
     super.dispose();
   }
 
-  List<String> _getTaskSubtasks() {
-    if (widget.task.subtasks != null && widget.task.subtasks!.isNotEmpty) {
-      return widget.task.subtasks!;
-    }
-    final docType = widget.task.documentType.toUpperCase();
-    final title = widget.task.title;
+  String _formatDueDate(DateTime dueDate) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final due = DateTime(dueDate.year, dueDate.month, dueDate.day);
+    final diff = due.difference(today).inDays;
 
-    if (docType == 'SYLLABUS') {
-      return [
-        '1. Review Unit 1-2 topics and core learning outcomes',
-        '2. Review Unit 3-5 topics, teaching scheme, and evaluation criteria',
-        '3. Map textbook reading schedule and exam preparation checklist',
-      ];
-    } else if (docType == 'QUESTION_BANK') {
-      return [
-        '1. Solve theoretical questions for Units 1–2',
-        '2. Solve numerical practice problems for Units 3–5',
-        '3. Self-assess solutions against reference study material',
-      ];
-    } else if (docType == 'NOTES') {
-      return [
-        '1. Read theoretical lecture material and highlight core definitions',
-        '2. Summarize key formulas, block diagrams, and principles',
-        '3. Test recall by reviewing unit concept summaries',
-      ];
-    }
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final monthName = months[dueDate.month - 1];
+    final dateStr = '$monthName ${dueDate.day}, ${dueDate.year}';
 
-    return [
-      '1. Review requirements & gather references for "$title"',
-      '2. Complete core problem deliverables for "$title"',
-      '3. Proofread, format submission, and verify task guidelines',
-    ];
-  }
-
-  List<String> _getTaskRequirements() {
-    if (widget.task.requirements != null && widget.task.requirements!.isNotEmpty) {
-      return widget.task.requirements!;
+    if (diff == 0) {
+      return '$dateStr (Due Today)';
+    } else if (diff > 0) {
+      return '$dateStr ($diff ${diff == 1 ? "day" : "days"} remaining)';
+    } else {
+      return '$dateStr (Overdue by ${diff.abs()} ${diff.abs() == 1 ? "day" : "days"})';
     }
-    final docType = widget.task.documentType.toUpperCase();
-    if (docType == 'SYLLABUS') {
-      return [
-        '📓 Course Syllabus Outline',
-        '📚 Recommended Textbooks & Reference List',
-        '📅 Semester Exam Schedule',
-      ];
-    } else if (docType == 'QUESTION_BANK') {
-      return [
-        '📋 Question Bank Document',
-        '📓 Lecture Notes & Study Guides',
-        '🖊️ Practice Worksheet',
-      ];
-    }
-    return [
-      '📓 Course Notes & Task Guidelines',
-      '💻 Laptop / Workspace Environment',
-      '📋 Submission Checklist',
-    ];
   }
 
   void _saveEditedTask() {
@@ -162,7 +134,7 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
       _isEditing = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✨ Task Details Updated & Saved Successfully!')),
+      const SnackBar(content: Text('✨ Task Details Updated & Saved!')),
     );
   }
 
@@ -174,11 +146,9 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
     final docType = widget.task.documentType;
     final topCat = widget.task.topLevelCategory;
     final subject = widget.task.subject;
-    final subCat = widget.task.subCategory;
-    final whatWeAreGoingToDo = widget.task.whatWeAreGoingToDo ?? widget.task.description ?? 'Complete task deliverables.';
-    final whyThisTaskExists = widget.task.whyThisTaskExists ?? widget.task.priorityReasoning ?? 'Academic course evaluation.';
-    final deliverables = widget.task.deliverables;
-    final sourceFileName = widget.task.sourceFileName;
+    final descriptionText = widget.task.description ?? widget.task.whatWeAreGoingToDo;
+    final priorityReason = widget.task.priorityReasoning ?? widget.task.whyThisTaskExists;
+    final timeEstimate = widget.task.timeAllocationHint;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -198,7 +168,7 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
+            // Drag handle
             Center(
               child: Container(
                 width: 40,
@@ -211,7 +181,7 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
             ),
             const SizedBox(height: 16),
 
-            // Top Row: Category Tag & Badges & Edit Button
+            // Category & Priority / Status Row
             Row(
               children: [
                 Container(
@@ -222,11 +192,12 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
                     border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.3)),
                   ),
                   child: Text(
-                    '$subCat • $docType',
+                    '$topCat • $docType',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Colors.indigoAccent,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                 ),
@@ -236,21 +207,24 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
                 StatusBadge(status: widget.task.status),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.indigoAccent),
-                  tooltip: 'Manual Edit / Override',
+                  tooltip: 'Edit Task',
                   onPressed: () => setState(() => _isEditing = true),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
-            // Subject Pill
+            // Subject & Title
             Text(
-              'Subject: $subject | Category: $topCat',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+              'Subject: $subject',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.indigoAccent.shade100 : Colors.indigo.shade700,
+                fontFamily: 'Poppins',
+              ),
             ),
-            const SizedBox(height: 12),
-
-            // Task Title
+            const SizedBox(height: 4),
             Text(
               widget.task.title,
               style: TextStyle(
@@ -258,239 +232,234 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
                 fontWeight: FontWeight.bold,
                 decoration: isCompleted ? TextDecoration.lineThrough : null,
                 color: isDark ? Colors.white : Colors.black87,
+                fontFamily: 'Poppins',
               ),
             ),
-            const SizedBox(height: 16),
-
-            // AI Priority & Executive Study Plan Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.indigo.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.indigoAccent.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: Colors.amber, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        'AI Academic Insights',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.amber),
-                      ),
-                    ],
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.calendar_month_rounded, size: 14, color: Colors.indigoAccent),
+                const SizedBox(width: 6),
+                Text(
+                  _formatDueDate(widget.task.dueDate),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                    fontFamily: 'Poppins',
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.task.timeAllocationHint ?? '⏱️ Workload: Standard Coursework Task',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    whyThisTaskExists,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white70 : Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
-            // WHAT WE ARE GOING TO DO
-            Text(
-              'What We Are Going To Do',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white70 : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 6),
-            // DOCUMENT FACTS vs AI RECOMMENDATIONS
-            Text(
-              'Document Facts (Official Requirements)',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white70 : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 6),
+            // 1. ABOUT THIS TASK
+            _buildSectionHeader('ABOUT THIS TASK', isDark),
+            const SizedBox(height: 8),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
+                color: isDark ? const Color(0xFF1E293B) : Colors.grey.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Objective: $whatWeAreGoingToDo', style: const TextStyle(fontSize: 13, height: 1.3)),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Deadline: ${widget.task.dueDate.toIso8601String().substring(0, 10)}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigoAccent),
-                  ),
-                  if (widget.task.taskEvidence.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text('Direct Evidence Quote: "${widget.task.taskEvidence.first}"', style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.grey)),
-                  ],
-                ],
+              child: Text(
+                (descriptionText != null && descriptionText.trim().isNotEmpty)
+                    ? descriptionText
+                    : 'Not enough information to generate a detailed description.',
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: isDark ? Colors.white70 : Colors.black87,
+                  fontFamily: 'Poppins',
+                ),
               ),
             ),
             const SizedBox(height: 20),
 
-            if (widget.task.aiRecommendations.isNotEmpty) ...[
-              Text(
-                'AI Recommendations & Study Strategy',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white70 : Colors.black87,
+            // 2. WHAT YOU NEED
+            _buildSectionHeader('WHAT YOU NEED', isDark),
+            const SizedBox(height: 8),
+            if (_requirements.isEmpty && widget.task.deliverables.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.grey.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: const Text(
+                  'No specific prerequisites specified.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: 'Poppins'),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  ..._requirements.map((req) => _buildCheckRow(req, isDark)),
+                  ...widget.task.deliverables.map((del) => _buildCheckRow('Deliverable: $del', isDark)),
+                ],
               ),
-              const SizedBox(height: 8),
-              ...widget.task.aiRecommendations.map((rec) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome, size: 14, color: Colors.amber),
-                    const SizedBox(width: 6),
-                    Expanded(child: Text(rec, style: const TextStyle(fontSize: 12))),
-                  ],
-                ),
-              )),
-              const SizedBox(height: 20),
-            ],
+            const SizedBox(height: 20),
 
-            // WHAT WILL BE REQUIRED (Prerequisites)
-            Text(
-              'Prerequisites / What Will Be Required',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white70 : Colors.black87,
+            // 3. HOW TO COMPLETE IT
+            _buildSectionHeader('HOW TO COMPLETE IT', isDark),
+            const SizedBox(height: 8),
+            if (_subtasks.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.grey.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'No step-by-step breakdown provided.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: 'Poppins'),
+                ),
+              )
+            else
+              Column(
+                children: List.generate(_subtasks.length, (idx) {
+                  final st = _subtasks[idx];
+                  return CheckboxListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      st,
+                      style: TextStyle(
+                        fontSize: 13,
+                        decoration: _subtaskChecked[idx] ? TextDecoration.lineThrough : null,
+                        color: _subtaskChecked[idx] ? Colors.grey : (isDark ? Colors.white70 : Colors.black87),
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    value: _subtaskChecked[idx],
+                    onChanged: (val) {
+                      setState(() {
+                        _subtaskChecked[idx] = val ?? false;
+                      });
+                    },
+                  );
+                }),
               ),
-            ),
+            const SizedBox(height: 20),
+
+            // 4. WHY THIS PRIORITY?
+            _buildSectionHeader('WHY THIS PRIORITY?', isDark),
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.blueGrey.withValues(alpha: 0.05),
+                color: isDark ? const Color(0xFF1E293B) : Colors.amber.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blueGrey.withValues(alpha: 0.2)),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
               ),
-              child: Column(
-                children: _requirements.map((req) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle_outline, size: 16, color: Colors.indigoAccent),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          req,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, color: Colors.amber, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      (priorityReason != null && priorityReason.trim().isNotEmpty)
+                          ? priorityReason
+                          : 'Priority set to ${widget.task.priority.name.toUpperCase()} based on deadline and academic workload requirements.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                        fontFamily: 'Poppins',
                       ),
-                    ],
+                    ),
                   ),
-                )).toList(),
+                ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // DELIVERABLES (If present)
-            if (deliverables.isNotEmpty) ...[
-              Text(
-                'Deliverables',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white70 : Colors.black87,
-                ),
+            // 5. TIME ESTIMATE
+            _buildSectionHeader('TIME ESTIMATE', isDark),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.indigo.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
               ),
-              const SizedBox(height: 8),
-              ...deliverables.map((deliv) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.folder_zip_outlined, size: 16, color: Colors.amber),
-                    const SizedBox(width: 6),
-                    Text(deliv, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              )),
-              const SizedBox(height: 20),
-            ],
-
-            // SOURCE FILE NAME (If present)
-            if (sourceFileName != null && sourceFileName.isNotEmpty) ...[
-              Row(
+              child: Row(
                 children: [
-                  const Icon(Icons.attach_file, size: 16, color: Colors.indigoAccent),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Source Document: $sourceFileName',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigoAccent),
+                  const Icon(Icons.timer_outlined, color: Colors.indigoAccent, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      (timeEstimate != null && timeEstimate.trim().isNotEmpty)
+                          ? timeEstimate
+                          : 'Estimated effort: ~1h 30m based on standard task complexity.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 20),
+
+            // 6. RESOURCES (Optional)
+            if (widget.task.suggestedResources.isNotEmpty) ...[
+              _buildSectionHeader('RESOURCES', isDark),
+              const SizedBox(height: 8),
+              ...widget.task.suggestedResources.map((res) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.link_rounded, size: 16, color: Colors.indigoAccent),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            res,
+                            style: const TextStyle(fontSize: 12, color: Colors.indigoAccent, fontFamily: 'Poppins'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
               const SizedBox(height: 20),
             ],
 
-            // ACTION STEPS & MILESTONES
-            Text(
-              'Action Steps & Milestones',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white70 : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...List.generate(
-              _subtasks.length,
-              (index) => _buildSubtaskTile(_subtasks[index], index),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Action Buttons
+            // Bottom Actions: Toggle Completion & Delete
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: AppPrimaryButton(
-                    label: isCompleted ? 'Mark Incomplete' : '✓ Complete Task',
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       widget.onToggleCompletion();
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
                     },
+                    icon: Icon(isCompleted ? Icons.undo_rounded : Icons.check_circle_rounded),
+                    label: Text(isCompleted ? 'Mark Pending' : 'Mark Completed'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCompleted ? Colors.amber.shade700 : const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 28),
-                  tooltip: 'Delete Task',
                   onPressed: () {
                     widget.onDelete();
-                    Navigator.of(context).pop();
+                    Navigator.pop(context);
                   },
+                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                  tooltip: 'Delete Task',
                 ),
               ],
             ),
@@ -500,20 +469,48 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
     );
   }
 
+  Widget _buildSectionHeader(String title, bool isDark) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.5,
+        color: isDark ? Colors.white54 : Colors.black54,
+        fontFamily: 'Poppins',
+      ),
+    );
+  }
+
+  Widget _buildCheckRow(String text, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_outline, size: 16, color: Colors.indigoAccent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87, fontFamily: 'Poppins'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEditForm(BuildContext context, bool isDark) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Manual Override & Edit Task',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const Spacer(),
+            const Text('Edit Task Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded),
               onPressed: () => setState(() => _isEditing = false),
             ),
           ],
@@ -526,52 +523,35 @@ class _TaskDetailModalState extends State<TaskDetailModal> {
         const SizedBox(height: 12),
         AppTextField(
           controller: _subjectController,
-          label: 'Subject (e.g. ICD, MCWN, Employability)',
+          label: 'Subject',
         ),
         const SizedBox(height: 12),
         AppTextField(
           controller: _descController,
-          label: 'Task Description / Action Details',
+          label: 'Description / AI Objective',
           maxLines: 3,
         ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<TaskPriority>(
-          value: _priority,
-          decoration: const InputDecoration(labelText: 'Priority'),
-          items: TaskPriority.values
-              .map((p) => DropdownMenuItem(value: p, child: Text(p.name.toUpperCase())))
-              .toList(),
-          onChanged: (val) {
-            if (val != null) setState(() => _priority = val);
-          },
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            const Text('Priority: ', style: TextStyle(fontWeight: FontWeight.bold)),
+            DropdownButton<TaskPriority>(
+              value: _priority,
+              items: TaskPriority.values.map((p) {
+                return DropdownMenuItem(value: p, child: Text(p.name.toUpperCase()));
+              }).toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _priority = val);
+              },
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         AppPrimaryButton(
           label: 'Save Changes',
           onPressed: _saveEditedTask,
         ),
       ],
-    );
-  }
-
-  Widget _buildSubtaskTile(String label, int index) {
-    return CheckboxListTile(
-      value: _subtaskChecked[index],
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      activeColor: Colors.indigoAccent,
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          decoration: _subtaskChecked[index] ? TextDecoration.lineThrough : null,
-        ),
-      ),
-      onChanged: (val) {
-        setState(() {
-          _subtaskChecked[index] = val ?? false;
-        });
-      },
     );
   }
 }

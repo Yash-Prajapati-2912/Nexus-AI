@@ -24,7 +24,7 @@ class PriorityMatrixWidget extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 1.3,
+          childAspectRatio: 1.15,
           children: [
             _buildQuadrant(
               context: context,
@@ -88,12 +88,16 @@ class PriorityMatrixWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: borderColor,
+              Expanded(
+                child: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: borderColor,
+                  ),
                 ),
               ),
               CircleAvatar(

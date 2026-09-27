@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../router/route_names.dart';
-import '../../../../shared/design_system/widgets/cards/app_card.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../theme/design_tokens/colors.dart';
 import '../../../planner/domain/entities/task_entity.dart';
 
 class PlannerSummaryWidget extends StatelessWidget {
@@ -13,20 +14,12 @@ class PlannerSummaryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
+    // A task is upcoming/active if it is not completed
+    final activeTasks = tasks.where((t) => t.status != TaskStatus.completed).toList();
+    activeTasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
 
-    final upcomingTasks = tasks.where((task) {
-      if (task.status == TaskStatus.completed) return false;
-      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-      return !taskDate.isBefore(todayStart);
-    }).toList();
-
-    upcomingTasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
-
-    final hasTasks = upcomingTasks.isNotEmpty;
-    final nearestTask = hasTasks ? upcomingTasks.first : null;
-    final secondaryTasks = hasTasks ? upcomingTasks.skip(1).take(2).toList() : <TaskEntity>[];
+    final hasTasks = activeTasks.isNotEmpty;
+    final displayTasks = activeTasks.take(4).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,34 +27,48 @@ class PlannerSummaryWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Text(
-                  'Smart Planner Summary',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                if (hasTasks) ...[
+            Expanded(
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.task_alt_rounded,
+                    size: 20,
+                    color: DesignColors.primaryDark,
+                  ),
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.indigo.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  Expanded(
                     child: Text(
-                      '${upcomingTasks.length} remaining',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.indigoAccent,
-                      ),
+                      "What's Next • Smart Planner",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (hasTasks) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: DesignColors.primaryDark.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${activeTasks.length} active',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: DesignColors.primaryDark,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
+            const SizedBox(width: 8),
             TextButton(
               onPressed: () => context.push(RouteNames.planner),
               style: TextButton.styleFrom(
@@ -72,14 +79,15 @@ class PlannerSummaryWidget extends StatelessWidget {
               child: const Row(
                 children: [
                   Text(
-                    'View Planner',
+                    'View All',
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigoAccent,
+                      fontWeight: FontWeight.w600,
+                      color: DesignColors.primaryDark,
+                      fontFamily: 'Poppins',
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, size: 16, color: Colors.indigoAccent),
+                  Icon(Icons.chevron_right_rounded, size: 16, color: DesignColors.primaryDark),
                 ],
               ),
             ),
@@ -87,112 +95,135 @@ class PlannerSummaryWidget extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (!hasTasks)
-          Container(
-            width: double.infinity,
+          GlassCard(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.white10 : Colors.black12,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.event_note_rounded, color: Colors.indigoAccent, size: 22),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'No Upcoming Tasks',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrow = constraints.maxWidth < 360;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: DesignColors.primaryDark.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.event_available_rounded, color: DesignColors.primaryDark, size: 22),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Add tasks to your planner to stay on schedule!',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'No Upcoming Tasks',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'You are all caught up! Add tasks in Planner to stay on schedule.',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!isNarrow) ...[
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: DesignColors.primaryDark,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () => context.push(RouteNames.planner),
+                            child: const Text(
+                              'Add Task',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (isNarrow) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: DesignColors.primaryDark,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () => context.push(RouteNames.planner),
+                          child: const Text(
+                            'Add Task',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () => context.push(RouteNames.planner),
-                  child: const Text('Add Task', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           )
         else
-          AppCard(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPrimaryTaskItem(context, nearestTask!, isDark: isDark),
-                  if (secondaryTasks.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
-                    const SizedBox(height: 12),
-                    ...secondaryTasks.map(
-                      (task) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: _buildSecondaryTaskItem(context, task, isDark: isDark),
-                      ),
-                    ),
-                  ],
-                ],
+          GlassCard(
+            padding: const EdgeInsets.all(16),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: displayTasks.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 16,
+                thickness: 1,
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
               ),
+              itemBuilder: (context, index) {
+                final task = displayTasks[index];
+                return _buildTaskTile(context, task, isDark: isDark);
+              },
             ),
           ),
       ],
     );
   }
 
-  Widget _buildPrimaryTaskItem(BuildContext context, TaskEntity task, {required bool isDark}) {
+  Widget _buildTaskTile(BuildContext context, TaskEntity task, {required bool isDark}) {
     final priorityColor = _getPriorityColor(task.priority);
     final dueString = _formatDueDate(task.dueDate);
-    final subject = task.subject;
+    final subject = task.subject.isNotEmpty ? task.subject : 'Academic';
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 3.0),
-          child: Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: priorityColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: priorityColor.withOpacity(0.4),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: priorityColor,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: priorityColor.withValues(alpha: 0.4),
+                blurRadius: 6,
+                spreadRadius: 1,
+              ),
+            ],
           ),
         ),
         const SizedBox(width: 12),
@@ -204,58 +235,46 @@ class PlannerSummaryWidget extends StatelessWidget {
                 task.title,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+                  fontFamily: 'Poppins',
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
               Row(
                 children: [
                   Text(
                     subject,
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: const TextStyle(
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Colors.indigoAccent,
+                      color: DesignColors.secondaryDark,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                   Text(
                     ' • ',
                     style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white38 : Colors.black38,
+                      fontSize: 11,
+                      color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(
-                      color: priorityColor.withOpacity(0.12),
+                      color: priorityColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       task.priority.name.toUpperCase(),
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
                         color: priorityColor,
+                        fontFamily: 'Poppins',
                       ),
-                    ),
-                  ),
-                  Text(
-                    ' • ',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDark ? Colors.white38 : Colors.black38,
-                    ),
-                  ),
-                  Text(
-                    dueString,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white70 : Colors.black54,
                     ),
                   ),
                 ],
@@ -263,43 +282,25 @@ class PlannerSummaryWidget extends StatelessWidget {
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildSecondaryTaskItem(BuildContext context, TaskEntity task, {required bool isDark}) {
-    final priorityColor = _getPriorityColor(task.priority);
-    final dueString = _formatDueDate(task.dueDate);
-
-    return Row(
-      children: [
+        const SizedBox(width: 12),
         Container(
-          width: 6,
-          height: 6,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: priorityColor,
-            shape: BoxShape.circle,
+            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(8),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
           child: Text(
-            task.title,
+            dueString,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: dueString.contains('overdue')
+                  ? DesignColors.errorDark
+                  : isDark
+                      ? DesignColors.textSecondaryDark
+                      : DesignColors.textSecondaryLight,
+              fontFamily: 'Poppins',
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          dueString,
-          style: TextStyle(
-            fontSize: 11,
-            color: isDark ? Colors.white38 : Colors.black45,
           ),
         ),
       ],
@@ -310,11 +311,11 @@ class PlannerSummaryWidget extends StatelessWidget {
     switch (priority) {
       case TaskPriority.urgent:
       case TaskPriority.high:
-        return const Color(0xFFEF4444);
+        return DesignColors.errorDark;
       case TaskPriority.medium:
         return const Color(0xFFF59E0B);
       case TaskPriority.low:
-        return const Color(0xFF3B82F6);
+        return DesignColors.secondaryDark;
     }
   }
 

@@ -5,6 +5,7 @@ class FloatingQuickActionsBar extends StatelessWidget {
   final VoidCallback onAddIncome;
   final VoidCallback onBudgets;
   final VoidCallback onSavings;
+  final VoidCallback onInvestments;
   final VoidCallback onAnalytics;
 
   const FloatingQuickActionsBar({
@@ -13,6 +14,7 @@ class FloatingQuickActionsBar extends StatelessWidget {
     required this.onAddIncome,
     required this.onBudgets,
     required this.onSavings,
+    required this.onInvestments,
     required this.onAnalytics,
   });
 
@@ -30,7 +32,7 @@ class FloatingQuickActionsBar extends StatelessWidget {
               icon: Icons.add_circle_outline_rounded,
               label: '+ Expense',
               gradientColors: const [Color(0xFFEF4444), Color(0xFFDC2626)],
-              shadowColor: const Color(0xFFEF4444).withAlpha(100),
+              shadowColor: const Color(0xFFEF4444).withValues(alpha: 0.35),
               onTap: onAddExpense,
             ),
             const SizedBox(width: 10),
@@ -40,7 +42,7 @@ class FloatingQuickActionsBar extends StatelessWidget {
               icon: Icons.account_balance_wallet_rounded,
               label: '+ Income',
               gradientColors: const [Color(0xFF10B981), Color(0xFF059669)],
-              shadowColor: const Color(0xFF10B981).withAlpha(100),
+              shadowColor: const Color(0xFF10B981).withValues(alpha: 0.35),
               onTap: onAddIncome,
             ),
             const SizedBox(width: 10),
@@ -50,8 +52,8 @@ class FloatingQuickActionsBar extends StatelessWidget {
               icon: Icons.pie_chart_rounded,
               label: 'Budget',
               accentColor: const Color(0xFFA78BFA),
-              bgColor: const Color(0xFF8B5CF6).withAlpha(35),
-              borderColor: const Color(0xFF8B5CF6).withAlpha(120),
+              bgColor: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+              borderColor: const Color(0xFF8B5CF6).withValues(alpha: 0.4),
               onTap: onBudgets,
             ),
             const SizedBox(width: 10),
@@ -61,9 +63,20 @@ class FloatingQuickActionsBar extends StatelessWidget {
               icon: Icons.savings_rounded,
               label: 'Savings',
               accentColor: const Color(0xFFFBBF24),
-              bgColor: const Color(0xFFF59E0B).withAlpha(35),
-              borderColor: const Color(0xFFF59E0B).withAlpha(120),
+              bgColor: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+              borderColor: const Color(0xFFF59E0B).withValues(alpha: 0.4),
               onTap: onSavings,
+            ),
+            const SizedBox(width: 10),
+
+            // Quick Nav Chip — Investments
+            _GlassActionChip(
+              icon: Icons.show_chart_rounded,
+              label: 'Investments',
+              accentColor: const Color(0xFF38BDF8),
+              bgColor: const Color(0xFF0284C7).withValues(alpha: 0.15),
+              borderColor: const Color(0xFF0284C7).withValues(alpha: 0.4),
+              onTap: onInvestments,
             ),
             const SizedBox(width: 10),
 
@@ -72,8 +85,8 @@ class FloatingQuickActionsBar extends StatelessWidget {
               icon: Icons.insights_rounded,
               label: 'Analytics',
               accentColor: const Color(0xFF22D3EE),
-              bgColor: const Color(0xFF06B6D4).withAlpha(35),
-              borderColor: const Color(0xFF06B6D4).withAlpha(120),
+              bgColor: const Color(0xFF06B6D4).withValues(alpha: 0.15),
+              borderColor: const Color(0xFF06B6D4).withValues(alpha: 0.4),
               onTap: onAnalytics,
             ),
           ],
@@ -117,7 +130,7 @@ class _PrimaryActionChip extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(30),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: gradientColors,
@@ -129,15 +142,15 @@ class _PrimaryActionChip extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
+                Icon(icon, color: Colors.white, size: 18),
+                const SizedBox(width: 6),
                 Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
-                    letterSpacing: 0.3,
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ],
@@ -174,7 +187,7 @@ class _GlassActionChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(30),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(30),
@@ -183,15 +196,15 @@ class _GlassActionChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: accentColor, size: 18),
-              const SizedBox(width: 7),
+              Icon(icon, color: accentColor, size: 17),
+              const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                   color: accentColor,
-                  letterSpacing: 0.2,
+                  fontFamily: 'Poppins',
                 ),
               ),
             ],

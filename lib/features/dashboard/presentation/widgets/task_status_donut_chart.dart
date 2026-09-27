@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../shared/design_system/widgets/cards/app_card.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../theme/design_tokens/colors.dart';
 import '../../../planner/domain/entities/task_entity.dart';
 
 class TaskStatusDonutChart extends StatefulWidget {
@@ -29,143 +30,154 @@ class _TaskStatusDonutChartState extends State<TaskStatusDonutChart> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Task Overview',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Row(
+              children: [
+                const Icon(
+                  Icons.donut_large_rounded,
+                  size: 20,
+                  color: DesignColors.primaryDark,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Task Distribution',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                ),
+              ],
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
               decoration: BoxDecoration(
-                color: Colors.indigo.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
+                color: DesignColors.primaryDark.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 'Total: $total',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Colors.indigoAccent,
+                  color: DesignColors.primaryDark,
+                  fontFamily: 'Poppins',
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: SizedBox(
-                    height: 140,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (total == 0)
-                          PieChart(
-                            PieChartData(
-                              sectionsSpace: 0,
-                              centerSpaceRadius: 36,
-                              sections: [
-                                PieChartSectionData(
-                                  color: isDark ? Colors.white10 : Colors.black12,
-                                  value: 1,
-                                  title: '',
-                                  radius: 26,
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          PieChart(
-                            PieChartData(
-                              pieTouchData: PieTouchData(
-                                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                                  setState(() {
-                                    if (!event.isInterestedForInteractions ||
-                                        pieTouchResponse == null ||
-                                        pieTouchResponse.touchedSection == null) {
-                                      touchedIndex = -1;
-                                      return;
-                                    }
-                                    touchedIndex = pieTouchResponse
-                                        .touchedSection!.touchedSectionIndex;
-                                  });
-                                },
+        GlassCard(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: SizedBox(
+                  height: 130,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (total == 0)
+                        PieChart(
+                          PieChartData(
+                            sectionsSpace: 0,
+                            centerSpaceRadius: 36,
+                            sections: [
+                              PieChartSectionData(
+                                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
+                                value: 1,
+                                title: '',
+                                radius: 24,
                               ),
-                              borderData: FlBorderData(show: false),
-                              sectionsSpace: 4,
-                              centerSpaceRadius: 36,
-                              sections: _buildSections(completed, inProgress, pending),
+                            ],
+                          ),
+                        )
+                      else
+                        PieChart(
+                          PieChartData(
+                            pieTouchData: PieTouchData(
+                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      pieTouchResponse == null ||
+                                      pieTouchResponse.touchedSection == null) {
+                                    touchedIndex = -1;
+                                    return;
+                                  }
+                                  touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                });
+                              },
+                            ),
+                            borderData: FlBorderData(show: false),
+                            sectionsSpace: 4,
+                            centerSpaceRadius: 34,
+                            sections: _buildSections(completed, inProgress, pending),
+                          ),
+                        ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$total',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+                              fontFamily: 'Poppins',
                             ),
                           ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$total',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
+                          Text(
+                            'Tasks',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                              fontFamily: 'Poppins',
                             ),
-                            Text(
-                              'Total',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: isDark ? Colors.white60 : Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 6,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLegendItem(
-                        context,
-                        color: const Color(0xFF10B981),
-                        label: 'Completed',
-                        count: completed,
-                        total: total,
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 10),
-                      _buildLegendItem(
-                        context,
-                        color: const Color(0xFF3B82F6),
-                        label: 'In Progress',
-                        count: inProgress,
-                        total: total,
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 10),
-                      _buildLegendItem(
-                        context,
-                        color: const Color(0xFFF59E0B),
-                        label: 'Pending',
-                        count: pending,
-                        total: total,
-                        isDark: isDark,
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLegendItem(
+                      context,
+                      color: DesignColors.positiveGreenDark,
+                      label: 'Completed',
+                      count: completed,
+                      total: total,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildLegendItem(
+                      context,
+                      color: DesignColors.primaryDark,
+                      label: 'In Progress',
+                      count: inProgress,
+                      total: total,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildLegendItem(
+                      context,
+                      color: const Color(0xFFF59E0B),
+                      label: 'Pending',
+                      count: pending,
+                      total: total,
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -179,14 +191,15 @@ class _TaskStatusDonutChartState extends State<TaskStatusDonutChart> {
     if (completed > 0) {
       sections.add(
         PieChartSectionData(
-          color: const Color(0xFF10B981),
+          color: DesignColors.positiveGreenDark,
           value: completed.toDouble(),
           title: '$completed',
-          radius: touchedIndex == sectionIndex ? 30 : 24,
+          radius: touchedIndex == sectionIndex ? 28 : 22,
           titleStyle: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontFamily: 'Poppins',
           ),
         ),
       );
@@ -196,14 +209,15 @@ class _TaskStatusDonutChartState extends State<TaskStatusDonutChart> {
     if (inProgress > 0) {
       sections.add(
         PieChartSectionData(
-          color: const Color(0xFF3B82F6),
+          color: DesignColors.primaryDark,
           value: inProgress.toDouble(),
           title: '$inProgress',
-          radius: touchedIndex == sectionIndex ? 30 : 24,
+          radius: touchedIndex == sectionIndex ? 28 : 22,
           titleStyle: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontFamily: 'Poppins',
           ),
         ),
       );
@@ -216,11 +230,12 @@ class _TaskStatusDonutChartState extends State<TaskStatusDonutChart> {
           color: const Color(0xFFF59E0B),
           value: pending.toDouble(),
           title: '$pending',
-          radius: touchedIndex == sectionIndex ? 30 : 24,
+          radius: touchedIndex == sectionIndex ? 28 : 22,
           titleStyle: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontFamily: 'Poppins',
           ),
         ),
       );
@@ -242,38 +257,38 @@ class _TaskStatusDonutChartState extends State<TaskStatusDonutChart> {
     return Row(
       children: [
         Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: isDark ? Colors.white70 : DesignColors.textPrimaryLight,
+              fontFamily: 'Poppins',
             ),
           ),
         ),
         Text(
           '$count',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+            fontFamily: 'Poppins',
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         Text(
           '($percentage%)',
           style: TextStyle(
-            fontSize: 11,
-            color: isDark ? Colors.white38 : Colors.black38,
+            fontSize: 10,
+            color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+            fontFamily: 'Poppins',
           ),
         ),
       ],

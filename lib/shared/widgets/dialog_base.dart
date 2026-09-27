@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
@@ -12,7 +13,7 @@ abstract class DialogBase {
     String cancelLabel = 'Cancel',
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? DesignColors.surfaceDark : DesignColors.surfaceLight;
+    final backgroundColor = isDark ? DesignColors.surfaceElevatedDark : DesignColors.surfaceElevatedLight;
     final titleColor = isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight;
     final bodyColor = isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight;
     final primaryColor = isDark ? DesignColors.primaryDark : DesignColors.primaryLight;
@@ -23,26 +24,26 @@ abstract class DialogBase {
         return AlertDialog(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: DesignRadius.xl,
+            borderRadius: DesignRadius.lg,
             side: BorderSide(
               color: isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight,
-              width: 1.2,
+              width: 1.0,
             ),
           ),
           title: Text(
             title,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
               color: titleColor,
-              letterSpacing: -0.3,
             ),
           ),
           content: Text(
             message,
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 14,
-              height: 1.4,
+              height: 1.45,
+              fontWeight: FontWeight.w400,
               color: bodyColor,
             ),
           ),
@@ -51,7 +52,7 @@ abstract class DialogBase {
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
                 cancelLabel,
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   color: bodyColor,
                   fontWeight: FontWeight.w600,
                 ),
@@ -61,9 +62,12 @@ abstract class DialogBase {
               onPressed: () => Navigator.of(context).pop(true),
               style: FilledButton.styleFrom(
                 backgroundColor: primaryColor,
-                shape: const RoundedRectangleBorder(borderRadius: DesignRadius.lg),
+                shape: const RoundedRectangleBorder(borderRadius: DesignRadius.md),
               ),
-              child: Text(confirmLabel),
+              child: Text(
+                confirmLabel,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         );
@@ -71,4 +75,5 @@ abstract class DialogBase {
     );
   }
 }
+
 

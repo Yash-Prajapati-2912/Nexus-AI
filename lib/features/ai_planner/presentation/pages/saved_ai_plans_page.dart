@@ -27,7 +27,7 @@ class SavedAIPlansPage extends StatelessWidget {
                     title: 'Midterm Crunch 7-Day Plan',
                     summary: 'Intensive focus allocation for CS & Math exams.',
                     timeframe: 'weekly',
-                    reasoning: ['Exams scheduled in 7 days.'],
+                    reasoning: const ['Exams scheduled in 7 days.'],
                     actionItems: const [],
                     warnings: const [],
                     confidenceScore: 0.96,

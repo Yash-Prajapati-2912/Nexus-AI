@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
+import 'nexus_loading_widget.dart';
 
-/// Reusable Loading Widget indicator.
+/// 2026 Contextual Loading Widget with subtle Nexus AI visual identity.
 class LoadingWidget extends StatelessWidget {
   final String? message;
+  final bool isAiLoading;
 
-  const LoadingWidget({super.key, this.message});
+  const LoadingWidget({
+    super.key,
+    this.message,
+    this.isAiLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          if (message != null) ...[
-            const SizedBox(height: 16),
-            Text(message!, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ],
-      ),
+    return NexusLoadingWidget(
+      message: message ?? 'Loading...',
     );
   }
 }

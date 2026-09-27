@@ -13,18 +13,22 @@ class StudentWellnessModel extends StudentWellness {
     required super.keyRecommendations,
   });
 
-  factory StudentWellnessModel.fromJson(Map<String, dynamic> json) {
+  factory StudentWellnessModel.fromJson(Map<String, dynamic> rawJson) {
+    final Map<String, dynamic> json = (rawJson['data'] is Map<String, dynamic>)
+        ? rawJson['data'] as Map<String, dynamic>
+        : rawJson;
+
     final rawRecs = json['keyRecommendations'] as List<dynamic>? ?? [];
     final recs = rawRecs.map((e) => e.toString()).toList();
 
     return StudentWellnessModel(
-      overallWellnessScore: json['overallWellnessScore'] as int? ?? json['wellnessScore'] as int? ?? 86,
-      academicPerformanceScore: json['academicPerformanceScore'] as int? ?? 82,
-      financialWellnessScore: json['financialWellnessScore'] as int? ?? 84,
-      productivityScore: json['productivityScore'] as int? ?? 88,
-      careerReadinessScore: json['careerReadinessScore'] as int? ?? 78,
-      goalProgressScore: json['goalProgressScore'] as int? ?? 85,
-      habitConsistencyScore: json['habitConsistencyScore'] as int? ?? 89,
+      overallWellnessScore: (json['overallWellnessScore'] as num?)?.round() ?? (json['wellnessScore'] as num?)?.round() ?? 86,
+      academicPerformanceScore: (json['academicPerformanceScore'] as num?)?.round() ?? 82,
+      financialWellnessScore: (json['financialWellnessScore'] as num?)?.round() ?? 84,
+      productivityScore: (json['productivityScore'] as num?)?.round() ?? 88,
+      careerReadinessScore: (json['careerReadinessScore'] as num?)?.round() ?? 78,
+      goalProgressScore: (json['goalProgressScore'] as num?)?.round() ?? 85,
+      habitConsistencyScore: (json['habitConsistencyScore'] as num?)?.round() ?? 89,
       wellnessLevel: json['wellnessLevel'] as String? ?? 'BALANCED',
       keyRecommendations: recs.isNotEmpty
           ? recs

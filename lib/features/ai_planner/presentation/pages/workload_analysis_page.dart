@@ -76,7 +76,7 @@ class _WorkloadAnalysisPageState extends State<WorkloadAnalysisPage> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.5,
+                  childAspectRatio: 1.2,
                   children: [
                     _MetricCard(
                       title: 'Workload Hours',

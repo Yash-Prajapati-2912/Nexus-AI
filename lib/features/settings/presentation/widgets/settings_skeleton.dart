@@ -6,7 +6,7 @@ class SettingsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = theme.colorScheme.surfaceVariant.withOpacity(0.5);
+    final baseColor = theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
 
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),

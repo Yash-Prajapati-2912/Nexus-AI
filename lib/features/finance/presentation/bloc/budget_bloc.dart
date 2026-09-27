@@ -29,10 +29,26 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
   ) async {
     emit(const BudgetLoadingState());
     final result = await getBudgetUseCase(const NoParams());
+    final expensesResult = await repository.getExpenses();
+
+    final expenses = expensesResult.getOrElse((_) => []);
 
     result.fold(
       (Failure f) => emit(BudgetFailureState(message: f.message)),
-      (budgets) => emit(BudgetLoadedState(budgets: budgets)),
+      (budgets) {
+        final updatedBudgets = budgets.map((b) {
+          final spentInPeriod = expenses.where((e) {
+            return e.date.isAfter(b.startDate.subtract(const Duration(seconds: 1))) &&
+                e.date.isBefore(b.endDate.add(const Duration(days: 1)));
+          }).fold(0.0, (sum, e) => sum + e.amount);
+
+          return b.copyWith(
+            currentSpent: spentInPeriod > 0 ? spentInPeriod : b.currentSpent,
+          );
+        }).toList();
+
+        emit(BudgetLoadedState(budgets: updatedBudgets));
+      },
     );
   }
 

@@ -19,7 +19,7 @@ class AIMentorProfilePage extends StatelessWidget {
               child: Icon(Icons.auto_awesome, size: 44, color: Colors.white),
             ),
             const SizedBox(height: 16),
-            Text('Nexus AI Student Mentor', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Nexus AI Mentor Agent', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             Text('Persona: Supportive, Academic & Financial Coach', style: theme.textTheme.bodyMedium),
             const SizedBox(height: 20),

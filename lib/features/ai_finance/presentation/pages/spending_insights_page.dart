@@ -20,7 +20,7 @@ class SpendingInsightsPage extends StatelessWidget {
             CategorySpendingShare(categoryName: 'Food & Dining', amount: 420, percentage: 30, trendDirection: 'DECREASING'),
             CategorySpendingShare(categoryName: 'Transportation', amount: 250, percentage: 18, trendDirection: 'STABLE'),
           ],
-          lifestyleAnalysis: 'Your lifestyle spending is well aligned with average university student benchmarks.',
+          lifestyleAnalysis: 'Your lifestyle spending is well aligned with your monthly budget targets.',
           detectedAnomalies: ['Unusual ₹1,450 textbook purchase on Monday'],
           confidenceScore: 0.94,
         );

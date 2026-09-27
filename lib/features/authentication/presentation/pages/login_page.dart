@@ -114,9 +114,10 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (val) => Validators.required(val, message: 'Password is required'),
                         ),
                         const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          runSpacing: 4,
                           children: [
                             RememberMeCheckbox(
                               value: _rememberMe,

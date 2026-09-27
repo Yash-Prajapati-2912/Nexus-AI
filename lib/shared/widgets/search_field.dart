@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
@@ -22,8 +23,8 @@ class SearchField extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final fillColor = isDark
-        ? DesignColors.glassSurfaceDark
-        : DesignColors.glassSurfaceLight;
+        ? DesignColors.surfaceInputDark
+        : DesignColors.surfaceInputLight;
 
     final borderColor = isDark
         ? DesignColors.glassBorderDark
@@ -42,25 +43,26 @@ class SearchField extends StatelessWidget {
         borderRadius: DesignRadius.full,
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black.withOpacity(0.15) : Colors.indigo.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: isDark ? Colors.black.withValues(alpha: 0.12) : Colors.indigo.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: TextStyle(
+        style: GoogleFonts.poppins(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           color: isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight,
         ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(
+          hintStyle: GoogleFonts.poppins(
             color: isDark ? Colors.white38 : Colors.black38,
             fontSize: 14,
+            fontWeight: FontWeight.w400,
           ),
           prefixIcon: Icon(Icons.search_rounded, color: iconColor, size: 20),
           suffixIcon: controller != null && controller!.text.isNotEmpty
@@ -77,19 +79,20 @@ class SearchField extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           border: OutlineInputBorder(
             borderRadius: DesignRadius.full,
-            borderSide: BorderSide(color: borderColor, width: 1.2),
+            borderSide: BorderSide(color: borderColor, width: 1.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: DesignRadius.full,
-            borderSide: BorderSide(color: borderColor, width: 1.2),
+            borderSide: BorderSide(color: borderColor, width: 1.0),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: DesignRadius.full,
-            borderSide: BorderSide(color: focusColor, width: 2.0),
+            borderSide: BorderSide(color: focusColor, width: 1.8),
           ),
         ),
       ),
     );
   }
 }
+
 

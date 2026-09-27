@@ -78,35 +78,40 @@ class _TransparentFinancialHealthCardState extends State<TransparentFinancialHea
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: scoreColor.withAlpha(30),
-                          shape: BoxShape.circle,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: scoreColor.withAlpha(30),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.health_and_safety_rounded, color: scoreColor, size: 24),
                         ),
-                        child: Icon(Icons.health_and_safety_rounded, color: scoreColor, size: 24),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Financial Health Score', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text('Transparent adherence calculation', style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant)),
-                        ],
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Financial Health Score', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15), overflow: TextOverflow.ellipsis),
+                              Text('Transparent adherence calculation', style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: scoreColor.withAlpha(35),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '$overallScore / 100 • $rating',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: scoreColor, fontSize: 13),
+                      '$overallScore/100 • $rating',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: scoreColor, fontSize: 12),
                     ),
                   ),
                 ],
@@ -153,7 +158,8 @@ class _ScoreFactorRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Expanded(child: Text(label, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+        const SizedBox(width: 8),
         Text(
           '${points.round()} / ${maxPoints.toInt()} pts',
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),

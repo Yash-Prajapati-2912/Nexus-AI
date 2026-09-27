@@ -47,8 +47,8 @@ class ModernBottomNavbar extends StatelessWidget {
     ),
     ModernNavbarItem(
       label: 'Agent',
-      icon: Icons.auto_awesome_outlined,
-      activeIcon: Icons.auto_awesome_rounded,
+      icon: Icons.smart_toy_outlined,
+      activeIcon: Icons.smart_toy_rounded,
       route: RouteNames.aiMentorHome,
     ),
     ModernNavbarItem(

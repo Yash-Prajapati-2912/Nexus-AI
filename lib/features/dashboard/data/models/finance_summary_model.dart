@@ -17,13 +17,20 @@ class FinanceSummaryModel {
     this.aiFinancialTip,
   });
 
+  static double _parseDouble(dynamic val) {
+    if (val == null) return 0.0;
+    if (val is num) return val.toDouble();
+    if (val is String) return double.tryParse(val) ?? 0.0;
+    return 0.0;
+  }
+
   factory FinanceSummaryModel.fromJson(Map<String, dynamic> json) {
     return FinanceSummaryModel(
-      monthlyBudget: (json['monthlyBudget'] as num?)?.toDouble() ?? 0.0,
-      spentThisMonth: (json['spentThisMonth'] as num?)?.toDouble() ?? 0.0,
-      remainingBudget: (json['remainingBudget'] as num?)?.toDouble() ?? 0.0,
-      todayExpenses: (json['todayExpenses'] as num?)?.toDouble() ?? 0.0,
-      savingsGoalProgress: (json['savingsGoalProgress'] as num?)?.toDouble() ?? 0.0,
+      monthlyBudget: _parseDouble(json['monthlyBudget'] ?? json['monthlyBudgetPlanned'] ?? json['budget']),
+      spentThisMonth: _parseDouble(json['spentThisMonth'] ?? json['totalSpentMonth'] ?? json['spent'] ?? json['totalExpenses']),
+      remainingBudget: _parseDouble(json['remainingBudget'] ?? json['remaining']),
+      todayExpenses: _parseDouble(json['todayExpenses'] ?? json['todaysSpending'] ?? json['todaySpent']),
+      savingsGoalProgress: _parseDouble(json['savingsGoalProgress'] ?? json['savingsProgressPercentage']),
       aiFinancialTip: json['aiFinancialTip'] as String?,
     );
   }

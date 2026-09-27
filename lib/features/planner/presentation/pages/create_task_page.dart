@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../di/injection_container.dart';
 import '../../../../shared/design_system/widgets/buttons/app_primary_button.dart';
 import '../../../../shared/design_system/widgets/inputs/app_text_field.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/services/academic_document_classifier.dart';
 import '../bloc/planner_bloc.dart';
@@ -25,7 +26,10 @@ class _CreateTaskPageState extends State<CreateTaskPage>
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
+  final _subjectController = TextEditingController(text: 'General Academic');
+  String _selectedCategory = 'Assignments & Coursework';
   TaskPriority _priority = TaskPriority.medium;
+  DateTime _selectedDueDate = DateTime.now().add(const Duration(days: 2));
 
   // Auto-Detect Controllers & State
   final _documentTextController = TextEditingController();
@@ -34,6 +38,15 @@ class _CreateTaskPageState extends State<CreateTaskPage>
   String? _extractionError;
   ClassifiedDocumentResult? _classifiedResult;
   PdfExtractionQualityResult? _pdfQualityResult;
+
+  final List<String> _categoryOptions = [
+    'Assignments & Coursework',
+    'Exam Preparation',
+    'Study Materials',
+    'Projects',
+    'Practical & Lab',
+    'Other',
+  ];
 
   PlannerBloc _getPlannerBloc() {
     try {
@@ -54,6 +67,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
     _tabController.dispose();
     _titleController.dispose();
     _descController.dispose();
+    _subjectController.dispose();
     _documentTextController.dispose();
     super.dispose();
   }
@@ -91,7 +105,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
             isValid: false,
             isScanned: true,
             extractionStatus: 'UNREADABLE PDF',
-            failureReason: 'Could not extract readable text from this PDF.',
+            failureReason: 'We couldn\'t understand this document. Please try another readable document.',
           );
         }
 
@@ -105,14 +119,14 @@ class _CreateTaskPageState extends State<CreateTaskPage>
         } else {
           _documentTextController.clear();
           setState(() {
-            _extractionError = qualityResult.failureReason ?? 'Could not extract readable text from this PDF.';
+            _extractionError = 'We couldn\'t understand this document. Please try another readable document.';
           });
         }
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _extractionError = 'Could not extract readable text from this PDF.';
+        _extractionError = 'We couldn\'t understand this document. Please try another readable document.';
       });
     }
   }
@@ -131,7 +145,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
 
     if (_pdfQualityResult != null && !_pdfQualityResult!.isValid) {
       setState(() {
-        _extractionError = _pdfQualityResult!.failureReason ?? 'Could not extract readable text from this PDF.';
+        _extractionError = 'We couldn\'t understand this document. Please try another readable document.';
         _classifiedResult = null;
       });
       return;
@@ -156,15 +170,24 @@ class _CreateTaskPageState extends State<CreateTaskPage>
     });
   }
 
+  bool _isSaving = false;
+
   void _saveManualTask() {
+    if (_isSaving) return;
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isSaving = true);
       final newTask = TaskEntity(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text.trim(),
-        description: _descController.text.trim(),
-        dueDate: DateTime.now().add(const Duration(days: 1)),
+        description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
+        dueDate: _selectedDueDate,
         priority: _priority,
         status: TaskStatus.pending,
+        category: _selectedCategory,
+        metadata: {
+          'subject': _subjectController.text.trim().isNotEmpty ? _subjectController.text.trim() : 'General Academic',
+          'topLevelCategory': _selectedCategory,
+        },
       );
       _getPlannerBloc().add(CreateTaskEvent(newTask));
       Navigator.of(context).pop();
@@ -172,7 +195,9 @@ class _CreateTaskPageState extends State<CreateTaskPage>
   }
 
   void _saveAiTask() {
+    if (_isSaving) return;
     if (_classifiedResult == null || _classifiedResult!.tasks.isEmpty) return;
+    setState(() => _isSaving = true);
     final res = _classifiedResult!;
     final bloc = _getPlannerBloc();
 
@@ -205,7 +230,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
     }
 
     final message = res.tasks.length > 1
-        ? '✨ ${res.tasks.length} Individual Tasks Created Successfully!'
+        ? '✨ ${res.tasks.length} Tasks Created Successfully!'
         : '✨ Task Created Successfully under "${res.classification.subject}"!';
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -214,27 +239,39 @@ class _CreateTaskPageState extends State<CreateTaskPage>
     Navigator.of(context).pop();
   }
 
+  Future<void> _selectDueDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDueDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      setState(() => _selectedDueDate = picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
-        title: const Text('Create Task', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Create Academic Task', style: TextStyle(fontWeight: FontWeight.bold)),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.indigoAccent,
           labelColor: Colors.indigoAccent,
           unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Poppins'),
           tabs: const [
             Tab(
-              icon: Icon(Icons.auto_awesome_rounded, size: 20),
-              text: 'Auto Detect (AI)',
+              icon: Icon(Icons.auto_awesome_rounded, size: 18),
+              text: 'Analyze Document',
             ),
             Tab(
-              icon: Icon(Icons.edit_note_rounded, size: 20),
-              text: 'Create Manually',
+              icon: Icon(Icons.add_task_rounded, size: 18),
+              text: 'Add Manually',
             ),
           ],
         ),
@@ -242,7 +279,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // TAB 1: AUTO DETECT (AI)
+          // FLOW A: ANALYZE DOCUMENT WITH AI
           SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -257,26 +294,28 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.psychology_rounded, color: Colors.indigoAccent, size: 28),
+                      const Icon(Icons.auto_awesome_rounded, color: Colors.indigoAccent, size: 28),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Gemini AI Task Extractor',
+                              'AI Academic Document Analyzer',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                                fontSize: 14,
                                 color: isDark ? Colors.white : Colors.indigo[900],
+                                fontFamily: 'Poppins',
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Upload a document, PDF, or paste text to auto-detect priority & details.',
+                              'Upload your assignment, syllabus, or notes PDF to auto-detect tasks, due dates, and study priorities.',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? Colors.white70 : Colors.black54,
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ],
@@ -286,33 +325,40 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                   ),
                 ),
                 const SizedBox(height: 20),
-                // File Upload Section
+
+                // Upload Dropzone
                 GestureDetector(
                   onTap: _pickFile,
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.02),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? Colors.white24 : Colors.black12,
-                        style: BorderStyle.solid,
+                        color: isDark ? Colors.indigoAccent.withValues(alpha: 0.4) : Colors.indigo.withValues(alpha: 0.3),
+                        width: 1.5,
                       ),
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.cloud_upload_outlined, color: Colors.indigoAccent, size: 36),
-                        const SizedBox(height: 8),
+                        const Icon(Icons.cloud_upload_outlined, color: Colors.indigoAccent, size: 40),
+                        const SizedBox(height: 10),
                         Text(
                           _selectedFileName != null
                               ? '📄 Selected File: $_selectedFileName'
-                              : 'Tap to upload Document / PDF / Syllabus file',
+                              : 'Tap to upload Document or PDF',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
                             color: isDark ? Colors.white : Colors.black87,
+                            fontFamily: 'Poppins',
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Supports PDF, DOCX, TXT',
+                          style: TextStyle(fontSize: 11, color: Colors.grey, fontFamily: 'Poppins'),
                         ),
                       ],
                     ),
@@ -325,13 +371,13 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                 const SizedBox(height: 12),
                 AppTextField(
                   controller: _documentTextController,
-                  label: 'Syllabus, Notes or Assignment Details',
-                  hint: 'Paste task details or exam dates here...',
+                  label: 'Document Content / Assignment Details',
+                  hint: 'Paste task details or syllabus dates here...',
                   maxLines: 4,
                 ),
                 const SizedBox(height: 20),
                 AppPrimaryButton(
-                  label: _isAnalyzing ? 'Analyzing Document with Gemini AI...' : '⚡ Analyze Document Content',
+                  label: _isAnalyzing ? 'Analyzing Document...' : '⚡ Analyze Document',
                   onPressed: _isAnalyzing ? null : () => _analyzeDocumentWithAi(),
                 ),
 
@@ -389,48 +435,25 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                             Icon(Icons.check_circle_rounded, color: Colors.green, size: 22),
                             SizedBox(width: 8),
                             Text(
-                              'Analysis completed ✓',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green),
+                              'Analysis Completed',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green, fontFamily: 'Poppins'),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'File: ${_selectedFileName ?? "Uploaded Document"}',
-                          style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87),
+                          'Detected Subject: ${_classifiedResult!.classification.subject}',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87, fontFamily: 'Poppins'),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.indigoAccent.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _classifiedResult!.classification.subject,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.indigoAccent),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.indigo.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                DocumentClassification.topLevelCategoryToString(_classifiedResult!.classification.topLevelCategory),
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: isDark ? Colors.white70 : Colors.indigo[900]),
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        Text(
+                          'Category: ${DocumentClassification.topLevelCategoryToString(_classifiedResult!.classification.topLevelCategory)}',
+                          style: const TextStyle(fontSize: 12, color: Colors.indigoAccent, fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           '${_classifiedResult!.taskCount} task${_classifiedResult!.taskCount == 1 ? "" : "s"} detected:',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Poppins'),
                         ),
                         const SizedBox(height: 10),
                         ..._classifiedResult!.tasks.map((t) => Padding(
@@ -442,7 +465,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                               Expanded(
                                 child: Text(
                                   t.title,
-                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, fontFamily: 'Poppins'),
                                 ),
                               ),
                             ],
@@ -463,9 +486,9 @@ class _CreateTaskPageState extends State<CreateTaskPage>
             ),
           ),
 
-          // TAB 2: MANUAL ENTRY
+          // FLOW B: ADD MANUALLY
           SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(20.0),
             child: Form(
               key: _formKey,
               child: Column(
@@ -474,18 +497,28 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                   AppTextField(
                     controller: _titleController,
                     label: 'Task Title',
-                    validator: (val) => val == null || val.isEmpty ? 'Title is required' : null,
+                    hint: 'e.g. EEJS Assignment 1 Presentation',
+                    validator: (val) => val == null || val.trim().isEmpty ? 'Please enter task title' : null,
                   ),
                   const SizedBox(height: 16),
                   AppTextField(
-                    controller: _descController,
-                    label: 'Description (Optional)',
-                    maxLines: 3,
+                    controller: _subjectController,
+                    label: 'Subject / Course Code',
+                    hint: 'e.g. EEJS, Data Structures',
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
+                    items: _categoryOptions.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedCategory = val);
+                    },
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<TaskPriority>(
                     value: _priority,
-                    decoration: const InputDecoration(labelText: 'Priority'),
+                    decoration: const InputDecoration(labelText: 'Priority', border: OutlineInputBorder()),
                     items: TaskPriority.values
                         .map((p) => DropdownMenuItem(value: p, child: Text(p.name.toUpperCase())))
                         .toList(),
@@ -493,7 +526,30 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                       if (val != null) setState(() => _priority = val);
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: _selectDueDate,
+                    borderRadius: BorderRadius.circular(8),
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Due Date',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.calendar_month_rounded, color: Colors.indigoAccent),
+                      ),
+                      child: Text(
+                        '${_selectedDueDate.day}/${_selectedDueDate.month}/${_selectedDueDate.year}',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  AppTextField(
+                    controller: _descController,
+                    label: 'Description / Task Objectives (Optional)',
+                    hint: 'Enter specific task requirements or instructions...',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 28),
                   AppPrimaryButton(
                     label: 'Create Task',
                     onPressed: _saveManualTask,

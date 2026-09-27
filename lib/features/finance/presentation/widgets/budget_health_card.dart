@@ -24,37 +24,65 @@ class BudgetHealthCard extends StatelessWidget {
       return Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withAlpha(30),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.pie_chart_outline_rounded, color: theme.colorScheme.primary, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('No Active Budget Set', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Set a monthly limit to enable daily safe spending caps & overflow alerts.',
-                      style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
+          padding: const EdgeInsets.all(18),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 360;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withAlpha(30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.pie_chart_outline_rounded, color: theme.colorScheme.primary, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('No Active Budget Set', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Set a monthly limit to enable daily safe spending caps & overflow alerts.',
+                              style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!isNarrow) ...[
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: onSetBudgetTap,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          child: const Text('Set Budget', style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (isNarrow) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: onSetBudgetTap,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: const Text('Set Budget', style: TextStyle(fontSize: 12)),
+                      ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: onSetBudgetTap,
-                child: const Text('Set Budget'),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ),
       );
@@ -73,7 +101,7 @@ class BudgetHealthCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           gradient: LinearGradient(
@@ -92,28 +120,30 @@ class BudgetHealthCard extends StatelessWidget {
               children: [
                 const Text(
                   'Budget Health',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 TextButton.icon(
                   onPressed: onSetBudgetTap,
-                  icon: const Icon(Icons.edit_rounded, size: 16),
-                  label: const Text('Edit Budget'),
+                  icon: const Icon(Icons.edit_rounded, size: 15),
+                  label: const Text('Edit Budget', style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                RadialBudgetWidget(
-                  plannedAmount: plannedAmount,
-                  currentSpent: currentSpent,
-                  currencySymbol: currencySymbol,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrow = constraints.maxWidth < 340;
+                if (isNarrow) {
+                  return Column(
                     children: [
+                      Center(
+                        child: RadialBudgetWidget(
+                          plannedAmount: plannedAmount,
+                          currentSpent: currentSpent,
+                          currencySymbol: currencySymbol,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       _HealthMetricItem(
                         icon: Icons.calendar_today_rounded,
                         label: 'Days Remaining',
@@ -138,9 +168,49 @@ class BudgetHealthCard extends StatelessWidget {
                             : 'On track to save $currencySymbol${(plannedAmount - projectedMonthEnd).toStringAsFixed(0)}',
                       ),
                     ],
-                  ),
-                ),
-              ],
+                  );
+                }
+                return Row(
+                  children: [
+                    RadialBudgetWidget(
+                      plannedAmount: plannedAmount,
+                      currentSpent: currentSpent,
+                      currencySymbol: currencySymbol,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _HealthMetricItem(
+                            icon: Icons.calendar_today_rounded,
+                            label: 'Days Remaining',
+                            value: '$daysRemaining days',
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 10),
+                          _HealthMetricItem(
+                            icon: Icons.account_balance_wallet_rounded,
+                            label: 'Daily Safe Limit',
+                            value: '$currencySymbol${dailySafeSpending.toStringAsFixed(0)}/day',
+                            color: const Color(0xFF10B981),
+                          ),
+                          const SizedBox(height: 10),
+                          _HealthMetricItem(
+                            icon: Icons.auto_graph_rounded,
+                            label: 'Projected Month-End',
+                            value: '$currencySymbol${projectedMonthEnd.toStringAsFixed(0)}',
+                            color: isProjectedOver ? Colors.redAccent : Colors.indigoAccent,
+                            subText: isProjectedOver
+                                ? 'Over budget by $currencySymbol${(projectedMonthEnd - plannedAmount).toStringAsFixed(0)}'
+                                : 'On track to save $currencySymbol${(plannedAmount - projectedMonthEnd).toStringAsFixed(0)}',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

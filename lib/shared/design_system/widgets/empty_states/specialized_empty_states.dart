@@ -9,11 +9,65 @@ class NoTasksEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppEmptyState(
-      title: 'No Tasks Scheduled',
-      description: 'Your schedule is currently clear. Add a task to get started.',
+      title: 'Your planner is clear',
+      description: 'You have no upcoming tasks or assignments. Create a task to stay organized.',
       icon: Icons.task_alt_rounded,
       action: onAddTask != null
-          ? ElevatedButton(onPressed: onAddTask, child: const Text('Add Task'))
+          ? ElevatedButton(onPressed: onAddTask, child: const Text('Create Task'))
+          : null,
+    );
+  }
+}
+
+class NoExpensesEmptyState extends StatelessWidget {
+  final VoidCallback? onAddExpense;
+
+  const NoExpensesEmptyState({super.key, this.onAddExpense});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppEmptyState(
+      title: 'No expenses recorded this month',
+      description: 'Track your spending habits by logging your first expense or transaction.',
+      icon: Icons.account_balance_wallet_outlined,
+      action: onAddExpense != null
+          ? ElevatedButton(onPressed: onAddExpense, child: const Text('Add Expense'))
+          : null,
+    );
+  }
+}
+
+class NoConversationsEmptyState extends StatelessWidget {
+  final VoidCallback? onStartChat;
+
+  const NoConversationsEmptyState({super.key, this.onStartChat});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppEmptyState(
+      title: 'Start a conversation with Nexus AI',
+      description: 'Ask for academic guidance, study planning, or instant problem solving.',
+      icon: Icons.auto_awesome_rounded,
+      action: onStartChat != null
+          ? ElevatedButton(onPressed: onStartChat, child: const Text('New Chat'))
+          : null,
+    );
+  }
+}
+
+class NoSavingsGoalsEmptyState extends StatelessWidget {
+  final VoidCallback? onCreateGoal;
+
+  const NoSavingsGoalsEmptyState({super.key, this.onCreateGoal});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppEmptyState(
+      title: 'Create your first savings goal',
+      description: 'Set financial targets for tuition, tech upgrades, or emergency funds.',
+      icon: Icons.savings_outlined,
+      action: onCreateGoal != null
+          ? ElevatedButton(onPressed: onCreateGoal, child: const Text('Create Goal'))
           : null,
     );
   }

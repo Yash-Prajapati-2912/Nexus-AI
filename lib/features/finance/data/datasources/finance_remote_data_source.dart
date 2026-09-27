@@ -3,6 +3,7 @@ import '../models/budget_model.dart';
 import '../models/expense_model.dart';
 import '../models/finance_category_model.dart';
 import '../models/income_model.dart';
+import '../models/investment_model.dart';
 import '../models/report_model.dart';
 import '../models/savings_goal_model.dart';
 import '../models/transaction_model.dart';
@@ -39,6 +40,12 @@ abstract class IFinanceRemoteDataSource {
   Future<SavingsGoalModel> addContribution(String goalId, double amount, String? note);
   Future<void> deleteSavingsGoal(String id);
 
+  // Investments
+  Future<List<InvestmentModel>> getInvestments();
+  Future<InvestmentModel> createInvestment(InvestmentModel investment);
+  Future<InvestmentModel> updateInvestment(InvestmentModel investment);
+  Future<void> deleteInvestment(String id);
+
   // Categories & Transactions & Reports
   Future<List<FinanceCategoryModel>> getCategories();
   Future<FinanceCategoryModel> createCategory(FinanceCategoryModel category);
@@ -48,6 +55,7 @@ abstract class IFinanceRemoteDataSource {
 
 class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   final ApiClient _apiClient;
+  final List<InvestmentModel> _localInvestmentsCache = [];
 
   FinanceRemoteDataSourceImpl(this._apiClient);
 
@@ -194,6 +202,61 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   @override
   Future<void> deleteSavingsGoal(String id) async {
     await _apiClient.delete('/finance/savings-goals/$id');
+  }
+
+  @override
+  Future<List<InvestmentModel>> getInvestments() async {
+    try {
+      final response = await _apiClient.get('/finance/investments');
+      final list = _extractList(response.data);
+      final remote = list.map((e) => InvestmentModel.fromJson(e as Map<String, dynamic>)).toList();
+      _localInvestmentsCache.clear();
+      _localInvestmentsCache.addAll(remote);
+      return remote;
+    } catch (_) {
+      return List.unmodifiable(_localInvestmentsCache);
+    }
+  }
+
+  @override
+  Future<InvestmentModel> createInvestment(InvestmentModel investment) async {
+    try {
+      final response = await _apiClient.post('/finance/investments', data: investment.toJson());
+      final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+          ? response.data['data']
+          : response.data;
+      final created = InvestmentModel.fromJson(data as Map<String, dynamic>);
+      _localInvestmentsCache.add(created);
+      return created;
+    } catch (_) {
+      _localInvestmentsCache.removeWhere((i) => i.id == investment.id);
+      _localInvestmentsCache.add(investment);
+      return investment;
+    }
+  }
+
+  @override
+  Future<InvestmentModel> updateInvestment(InvestmentModel investment) async {
+    try {
+      final response = await _apiClient.patch('/finance/investments/${investment.id}', data: investment.toJson());
+      final data = response.data as Map<String, dynamic>;
+      final updated = InvestmentModel.fromJson(data);
+      final idx = _localInvestmentsCache.indexWhere((i) => i.id == investment.id);
+      if (idx != -1) _localInvestmentsCache[idx] = updated;
+      return updated;
+    } catch (_) {
+      final idx = _localInvestmentsCache.indexWhere((i) => i.id == investment.id);
+      if (idx != -1) _localInvestmentsCache[idx] = investment;
+      return investment;
+    }
+  }
+
+  @override
+  Future<void> deleteInvestment(String id) async {
+    try {
+      await _apiClient.delete('/finance/investments/$id');
+    } catch (_) {}
+    _localInvestmentsCache.removeWhere((i) => i.id == id);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
@@ -36,32 +37,32 @@ class EmptyStateWidget extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: primaryColor.withOpacity(0.12),
+                color: primaryColor.withValues(alpha: 0.12),
                 border: Border.all(
-                  color: primaryColor.withOpacity(0.25),
+                  color: primaryColor.withValues(alpha: 0.25),
                   width: 1.5,
                 ),
               ),
-              child: Icon(icon, size: 56, color: primaryColor),
+              child: Icon(icon, size: 48, color: primaryColor),
             ),
             const SizedBox(height: 20),
             Text(
               title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
                 color: titleColor,
-                letterSpacing: -0.3,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               description,
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: bodyColor,
-                height: 1.4,
+                fontWeight: FontWeight.w400,
+                height: 1.45,
               ),
               textAlign: TextAlign.center,
             ),
@@ -71,12 +72,12 @@ class EmptyStateWidget extends StatelessWidget {
                 onPressed: onAction,
                 style: FilledButton.styleFrom(
                   backgroundColor: primaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: const RoundedRectangleBorder(borderRadius: DesignRadius.full),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: const RoundedRectangleBorder(borderRadius: DesignRadius.md),
                 ),
                 child: Text(
                   actionLabel!,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -86,4 +87,5 @@ class EmptyStateWidget extends StatelessWidget {
     );
   }
 }
+
 

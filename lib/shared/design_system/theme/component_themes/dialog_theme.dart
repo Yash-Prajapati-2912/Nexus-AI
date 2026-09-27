@@ -4,7 +4,7 @@ import '../../tokens/radius/app_radius.dart';
 abstract class AppDialogTheme {
   static DialogThemeData dialogTheme(ColorScheme colors) {
     return DialogThemeData(
-      shape: RoundedRectangleBorder(borderRadius: DesignRadiusTokens.lg),
+      shape: const RoundedRectangleBorder(borderRadius: DesignRadiusTokens.lg),
       backgroundColor: colors.surface,
     );
   }

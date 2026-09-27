@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/budget.dart';
 import '../../domain/entities/expense.dart';
 import '../../domain/entities/income.dart';
+import '../../domain/entities/investment.dart';
 import '../../domain/entities/savings_goal.dart';
 
 abstract class FinanceState extends Equatable {
@@ -36,6 +37,7 @@ class FinanceLoadedState extends FinanceState {
   final List<Income> recentIncomes;
   final List<Budget> activeBudgets;
   final List<SavingsGoal> activeGoals;
+  final List<Investment> investments;
 
   const FinanceLoadedState({
     required this.totalBalance,
@@ -45,7 +47,19 @@ class FinanceLoadedState extends FinanceState {
     required this.recentIncomes,
     required this.activeBudgets,
     required this.activeGoals,
+    this.investments = const [],
   });
+
+  double get totalInvested =>
+      investments.fold(0.0, (sum, item) => sum + item.investedAmount);
+
+  double get totalInvestmentValue =>
+      investments.fold(0.0, (sum, item) => sum + item.currentValue);
+
+  double get investmentGainLoss => totalInvestmentValue - totalInvested;
+
+  double get investmentGainLossPct =>
+      totalInvested > 0 ? (investmentGainLoss / totalInvested) * 100 : 0.0;
 
   @override
   List<Object?> get props => [
@@ -56,5 +70,6 @@ class FinanceLoadedState extends FinanceState {
         recentIncomes,
         activeBudgets,
         activeGoals,
+        investments,
       ];
 }

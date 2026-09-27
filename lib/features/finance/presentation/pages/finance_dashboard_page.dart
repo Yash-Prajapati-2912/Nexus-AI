@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../router/route_names.dart';
+import '../../../../shared/branding/nexus_logo.dart';
 import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/budget.dart';
 import '../../domain/entities/expense.dart';
@@ -150,14 +151,13 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Smart Finance', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const Text('Finance Studio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, fontFamily: 'Poppins')),
                 const SizedBox(width: 6),
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Color(0xFF8B5CF6), Color(0xFF06B6D4)],
-                  ).createShader(bounds),
-                  child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+                NexusLogoMark(
+                  size: 18,
+                  isDark: Theme.of(context).brightness == Brightness.dark,
                 ),
               ],
             ),
@@ -184,7 +184,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
       ),
       body: BlocBuilder<FinanceBloc, FinanceState>(
         builder: (context, state) {
-          if (state is FinanceLoadingState) {
+          if (state is FinanceLoadingState || state is FinanceInitialState) {
             return const Padding(
               padding: EdgeInsets.all(16),
               child: Column(
@@ -199,9 +199,34 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
             );
           }
 
+          if (state is FinanceFailureState) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
+                    const SizedBox(height: 16),
+                    const Text('Unable to load Finance Studio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    Text(state.message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _loadDashboard,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final totalBalance = (state is FinanceLoadedState) ? state.totalBalance : 0.0;
           final monthlyExpense = (state is FinanceLoadedState) ? state.monthlyExpenseTotal : 0.0;
           final monthlyIncome = (state is FinanceLoadedState) ? state.monthlyIncomeTotal : 0.0;
+          final totalInvested = (state is FinanceLoadedState) ? state.totalInvested : 0.0;
           final List<Expense> recentExpenses = (state is FinanceLoadedState) ? state.recentExpenses : const [];
           final List<Budget> activeBudgets = (state is FinanceLoadedState) ? state.activeBudgets : const [];
           final List<SavingsGoal> activeGoals = (state is FinanceLoadedState) ? state.activeGoals : const [];
@@ -228,6 +253,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                     onAddIncome: () => _navigateTo(RouteNames.financeAddIncome),
                     onBudgets: () => _navigateTo(RouteNames.financeBudgets),
                     onSavings: () => _navigateTo(RouteNames.financeSavings),
+                    onInvestments: () => _navigateTo(RouteNames.financeInvestments),
                     onAnalytics: () => _navigateTo(RouteNames.financeReports),
                   ),
 
@@ -238,6 +264,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                     availableBalance: totalBalance,
                     monthlyIncome: monthlyIncome,
                     monthlyExpense: monthlyExpense,
+                    totalInvested: totalInvested,
                   ),
 
                   const SizedBox(height: 20),
@@ -260,22 +287,23 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                               style: TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => _navigateTo(RouteNames.financeAddExpense),
-                                  icon: const Icon(Icons.add_rounded, size: 18),
-                                  label: const Text('Add Expense'),
-                                ),
-                                const SizedBox(width: 12),
-                                OutlinedButton.icon(
-                                  onPressed: () => _navigateTo(RouteNames.financeCreateBudget),
-                                  icon: const Icon(Icons.pie_chart_rounded, size: 18),
-                                  label: const Text('Set Budget'),
-                                ),
-                              ],
-                            ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => _navigateTo(RouteNames.financeAddExpense),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Add Expense'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _navigateTo(RouteNames.financeCreateBudget),
+                  icon: const Icon(Icons.pie_chart_rounded, size: 18),
+                  label: const Text('Set Budget'),
+                ),
+              ],
+            ),
                           ],
                         ),
                       ),

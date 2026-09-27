@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
-/// Ultra-modern 2026 Glassmorphic Card Container.
-/// Supports both Light and Dark mode translucent styles with soft Gaussian blur.
-class GlassCard extends StatelessWidget {
+enum CardSurfaceLevel { primary, secondary, outlined }
+
+/// 2026 Modern Refined Surface Card Container.
+/// Supports Light/Dark modes, surface hierarchy, and web hover microinteractions.
+class GlassCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final BorderRadius? borderRadius;
   final double blur;
   final VoidCallback? onTap;
+  final CardSurfaceLevel surfaceLevel;
 
   const GlassCard({
     super.key,
@@ -19,81 +22,107 @@ class GlassCard extends StatelessWidget {
     this.padding,
     this.margin,
     this.borderRadius,
-    this.blur = 16.0,
+    this.blur = 12.0,
     this.onTap,
+    this.surfaceLevel = CardSurfaceLevel.primary,
   });
+
+  @override
+  State<GlassCard> createState() => _GlassCardState();
+}
+
+class _GlassCardState extends State<GlassCard> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveRadius = borderRadius ?? DesignRadius.xl;
+    final effectiveRadius = widget.borderRadius ?? DesignRadius.lg;
 
-    final backgroundColor = isDark
-        ? DesignColors.glassSurfaceDark
-        : Colors.white;
+    Color backgroundColor;
+    switch (widget.surfaceLevel) {
+      case CardSurfaceLevel.primary:
+        backgroundColor = isDark ? DesignColors.surfaceDark : DesignColors.surfaceLight;
+        break;
+      case CardSurfaceLevel.secondary:
+        backgroundColor = isDark ? DesignColors.surfaceElevatedDark : DesignColors.surfaceElevatedLight;
+        break;
+      case CardSurfaceLevel.outlined:
+        backgroundColor = Colors.transparent;
+        break;
+    }
 
-    final borderColor = isDark
-        ? DesignColors.glassBorderDark
-        : const Color(0xFFE2E8F0);
+    if (_isHovered && widget.onTap != null) {
+      backgroundColor = isDark
+          ? backgroundColor.withValues(alpha: 0.95)
+          : backgroundColor.withValues(alpha: 0.95);
+    }
+
+    final borderColor = _isHovered && widget.onTap != null
+        ? (isDark ? DesignColors.primaryDark.withValues(alpha: 0.4) : DesignColors.primaryLight.withValues(alpha: 0.3))
+        : (isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight);
 
     final shadows = isDark
         ? [
             BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 24,
-              spreadRadius: -4,
-              offset: const Offset(0, 12),
+              color: Colors.black.withValues(alpha: _isHovered && widget.onTap != null ? 0.35 : 0.22),
+              blurRadius: _isHovered && widget.onTap != null ? 20 : 14,
+              spreadRadius: -2,
+              offset: const Offset(0, 4),
             ),
           ]
         : [
             BoxShadow(
-              color: const Color(0x0E0F172A),
-              blurRadius: 18,
+              color: const Color(0x0A0F172A),
+              blurRadius: _isHovered && widget.onTap != null ? 16 : 10,
               spreadRadius: 0,
-              offset: const Offset(0, 6),
-            ),
-            BoxShadow(
-              color: const Color(0x086366F1),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 4),
             ),
           ];
 
-    Widget content = Container(
-      padding: padding ?? const EdgeInsets.all(24.0),
+    Widget content = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      padding: widget.padding ?? const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: effectiveRadius,
-        border: Border.all(color: borderColor, width: 1.2),
+        border: Border.all(color: borderColor, width: 1.0),
         boxShadow: shadows,
       ),
-      child: child,
+      child: widget.child,
     );
 
-    if (onTap != null) {
-      content = Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: effectiveRadius,
+    if (widget.onTap != null) {
+      content = MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        cursor: SystemMouseCursors.click,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: effectiveRadius,
+            child: content,
+          ),
+        ),
+      );
+    }
+
+    if (widget.blur > 0) {
+      content = ClipRRect(
+        borderRadius: effectiveRadius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
           child: content,
         ),
       );
     }
 
-    content = ClipRRect(
-      borderRadius: effectiveRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: content,
-      ),
-    );
-
-    if (margin != null) {
-      content = Padding(padding: margin!, child: content);
+    if (widget.margin != null) {
+      content = Padding(padding: widget.margin!, child: content);
     }
 
     return content;
   }
 }
+

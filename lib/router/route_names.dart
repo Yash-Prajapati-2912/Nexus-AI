@@ -11,6 +11,7 @@ abstract class RouteNames {
   static const String sessionExpired = '/session-expired';
   static const String dashboard = '/dashboard';
   static const String planner = '/planner';
+  static const String plannerTaskDetail = '/planner/task-detail';
   static const String finance = '/finance';
   static const String aiMentor = '/ai-mentor';
   static const String profile = '/profile';
@@ -40,6 +41,7 @@ abstract class RouteNames {
   static const String financeBudgetDetails = '/finance/budget-details';
   static const String financeSavings = '/finance/savings';
   static const String financeCreateSavingsGoal = '/finance/create-savings-goal';
+  static const String financeInvestments = '/finance/investments';
   static const String financeTransactions = '/finance/transactions';
   static const String financeCategories = '/finance/categories';
   static const String financeReports = '/finance/reports';

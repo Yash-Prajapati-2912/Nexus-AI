@@ -26,7 +26,7 @@ class WellnessScoreCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Student Wellness Score',
+                        'Productivity Wellness Score',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

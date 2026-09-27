@@ -38,18 +38,19 @@ class _CashFlowChartWidgetState extends State<CashFlowChartWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmall = constraints.maxWidth < 440;
+                final titleColumn = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Cash Flow Trend', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
                     Text('Income vs. Expenses', style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant)),
                   ],
-                ),
-                SegmentedButton<String>(
+                );
+
+                final selector = SegmentedButton<String>(
                   segments: const [
                     ButtonSegment(value: '7D', label: Text('7D', style: TextStyle(fontSize: 11))),
                     ButtonSegment(value: '1M', label: Text('1M', style: TextStyle(fontSize: 11))),
@@ -63,8 +64,49 @@ class _CashFlowChartWidgetState extends State<CashFlowChartWidget> {
                       widget.onTimeframeChanged!(set.first);
                     }
                   },
-                ),
-              ],
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return const Color(0xFF6366F1);
+                      }
+                      return isDark ? const Color(0xFF1E293B) : Colors.grey.shade200;
+                    }),
+                    foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.white;
+                      }
+                      return isDark ? Colors.white70 : Colors.black87;
+                    }),
+                    side: WidgetStateProperty.all(
+                      BorderSide(
+                        color: isDark ? Colors.white10 : Colors.black12,
+                      ),
+                    ),
+                  ),
+                );
+
+                if (isSmall) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleColumn,
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: selector,
+                      ),
+                    ],
+                  );
+                }
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    titleColumn,
+                    selector,
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 20),
             if (!hasData)

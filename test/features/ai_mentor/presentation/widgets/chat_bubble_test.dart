@@ -21,7 +21,7 @@ void main() {
       ),
     );
 
-    expect(find.text('AI Mentor'), findsOneWidget);
+    expect(find.text('Nexus AI'), findsOneWidget);
     expect(find.text('Hello! Welcome to AI Mentor.'), findsOneWidget);
   });
 }

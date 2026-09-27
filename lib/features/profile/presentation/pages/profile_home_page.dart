@@ -7,8 +7,6 @@ import '../../../../router/route_names.dart';
 import '../../../../shared/design_system/widgets/error_states/app_error_card.dart';
 import '../../../../shared/widgets/base_scaffold.dart';
 import '../../../../theme/design_tokens/colors.dart';
-import '../../domain/entities/academic_profile.dart';
-import '../../domain/entities/user_profile.dart';
 import '../bloc/profile_bloc.dart';
 
 import '../widgets/profile_card.dart';
@@ -106,11 +104,15 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             final user = state.profile;
             final acad = state.academic;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 100),
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-              child: Column(
-                children: [
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 100),
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  child: Column(
+                    children: [
                   // User Header Card
                   ProfileHeader(
                     profile: user,
@@ -181,7 +183,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                                 Icon(
                                   Icons.school_outlined,
                                   size: 42,
-                                  color: subtitleColor.withOpacity(0.6),
+                                  color: subtitleColor.withValues(alpha: 0.6),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -205,7 +207,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                                 OutlinedButton.icon(
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: primaryColor,
-                                    side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                                    side: BorderSide(color: primaryColor.withValues(alpha: 0.5)),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
                                   onPressed: () => context.push(RouteNames.profileAcademic).then((_) {
@@ -238,7 +240,9 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                                 ),
                               ],
                               const SizedBox(height: 10),
-                              Row(
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
                                 children: [
                                   if (acad.cgpa > 0)
                                     _buildInfoBadge(
@@ -246,14 +250,12 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                                       label: 'CGPA: ${acad.cgpa}',
                                       color: const Color(0xFF10B981),
                                     ),
-                                  if (acad.resolvedCurrentYear > 0 || acad.semester > 0) ...[
-                                    if (acad.cgpa > 0) const SizedBox(width: 8),
+                                  if (acad.resolvedCurrentYear > 0 || acad.semester > 0)
                                     _buildInfoBadge(
                                       context,
                                       label: 'Year ${acad.resolvedCurrentYear} (Sem ${acad.semester})',
                                       color: primaryColor,
                                     ),
-                                  ],
                                 ],
                               ),
                             ],
@@ -353,7 +355,9 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                   const SizedBox(height: 24),
                 ],
               ),
-            );
+            ),
+          ),
+        );
           },
         ),
       ),
@@ -373,7 +377,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight,
@@ -403,9 +407,9 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
@@ -431,10 +435,15 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
           label,
           style: TextStyle(fontSize: 13, color: subtitleColor, fontWeight: FontWeight.w500),
         ),
-        const Spacer(),
-        Text(
-          value,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: titleColor),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: titleColor),
+          ),
         ),
       ],
     );

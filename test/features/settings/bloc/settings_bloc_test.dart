@@ -21,7 +21,7 @@ void main() {
   late SettingsEntity tSettings;
 
   setUpAll(() {
-    registerFallbackValue(NoParams());
+    registerFallbackValue(const NoParams());
   });
 
   setUp(() {

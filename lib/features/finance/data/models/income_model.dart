@@ -13,12 +13,13 @@ class IncomeModel extends Income {
   });
 
   factory IncomeModel.fromJson(Map<String, dynamic> json) {
+    final rawDate = json['date'] ?? json['incomeDate'] ?? json['createdAt'];
     return IncomeModel(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? json['description'] as String? ?? 'Income',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       sourceCategory: json['sourceCategory'] as String? ?? json['category'] as String? ?? 'SALARY',
-      date: json['date'] != null ? DateTime.parse(json['date'] as String) : DateTime.now(),
+      date: rawDate != null ? (DateTime.tryParse(rawDate.toString()) ?? DateTime.now()) : DateTime.now(),
       note: json['note'] as String? ?? json['description'] as String?,
       isRecurring: json['isRecurring'] as bool? ?? false,
       recurringPeriod: json['recurringPeriod'] as String?,

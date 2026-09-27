@@ -15,6 +15,9 @@ class BudgetModel extends Budget {
   });
 
   factory BudgetModel.fromJson(Map<String, dynamic> json) {
+    final rawStart = json['startDate'];
+    final rawEnd = json['endDate'];
+
     return BudgetModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? json['notes'] as String? ?? json['title'] as String? ?? 'Monthly Budget',
@@ -27,11 +30,11 @@ class BudgetModel extends Budget {
           (json['spent'] as num?)?.toDouble() ??
           0.0,
       period: json['period'] as String? ?? 'MONTHLY',
-      startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'] as String)
+      startDate: rawStart != null
+          ? (DateTime.tryParse(rawStart.toString()) ?? DateTime(json['year'] as int? ?? DateTime.now().year, json['month'] as int? ?? DateTime.now().month, 1))
           : DateTime(json['year'] as int? ?? DateTime.now().year, json['month'] as int? ?? DateTime.now().month, 1),
-      endDate: json['endDate'] != null
-          ? DateTime.parse(json['endDate'] as String)
+      endDate: rawEnd != null
+          ? (DateTime.tryParse(rawEnd.toString()) ?? DateTime(json['year'] as int? ?? DateTime.now().year, (json['month'] as int? ?? DateTime.now().month) + 1, 0))
           : DateTime(json['year'] as int? ?? DateTime.now().year, (json['month'] as int? ?? DateTime.now().month) + 1, 0),
       categoryId: json['categoryId'] as String?,
       alertOn80Percent: json['alertOn80Percent'] as bool? ?? true,

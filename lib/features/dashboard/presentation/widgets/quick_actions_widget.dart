@@ -30,6 +30,7 @@ class QuickActionsWidget extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: titleColor,
+            fontFamily: 'Poppins',
             letterSpacing: -0.3,
           ),
         ),
@@ -49,7 +50,7 @@ class QuickActionsWidget extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: primaryColor.withOpacity(0.12),
+                          color: primaryColor.withValues(alpha: 0.12),
                         ),
                         child: Icon(
                           item['icon'] as IconData,
@@ -64,6 +65,7 @@ class QuickActionsWidget extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: labelColor,
+                          fontFamily: 'Poppins',
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 1,
@@ -80,4 +82,3 @@ class QuickActionsWidget extends StatelessWidget {
     );
   }
 }
-

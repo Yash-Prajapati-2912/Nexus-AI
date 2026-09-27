@@ -33,7 +33,7 @@ class ThemeSwitchCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.12),
+                      color: primaryColor.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -81,7 +81,7 @@ class ThemeSwitchCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.black.withOpacity(0.25) : Colors.black.withOpacity(0.04),
+                  color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight,
@@ -144,7 +144,7 @@ class ThemeSwitchCard extends StatelessWidget {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: (isDark ? DesignColors.accentPurpleDark : DesignColors.primaryLight).withOpacity(0.3),
+                      color: (isDark ? DesignColors.accentPurpleDark : DesignColors.primaryLight).withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

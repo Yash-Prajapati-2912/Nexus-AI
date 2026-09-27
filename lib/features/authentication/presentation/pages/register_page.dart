@@ -81,7 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
                 const AuthHeader(
                   title: 'Create Account',
-                  subtitle: 'Join Nexus AI Student Life OS today',
+                  subtitle: 'Join Nexus AI OS today',
                 ),
                 const SizedBox(height: 24),
                 AuthCard(

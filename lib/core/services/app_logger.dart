@@ -13,7 +13,7 @@ class AppLogger {
   );
 
   static void verbose(String message) {
-    _logger.v(message);
+    _logger.t(message);
   }
 
   static void debug(String message) {

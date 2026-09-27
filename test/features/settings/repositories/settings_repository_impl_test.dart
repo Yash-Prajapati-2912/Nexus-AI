@@ -23,7 +23,7 @@ void main() {
   });
 
   test('getSettings returns remote settings and caches them locally', () async {
-    final tModel = SettingsModel.fromJson({});
+    final tModel = SettingsModel.fromJson(const {});
     when(() => mockLocalDataSource.getCachedSettings()).thenAnswer((_) async => null);
     when(() => mockRemoteDataSource.getSettings()).thenAnswer((_) async => tModel);
     when(() => mockLocalDataSource.cacheSettings(tModel)).thenAnswer((_) async {});

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/savings_goal.dart';
 import '../bloc/savings_bloc.dart';
 import '../bloc/savings_event.dart';
@@ -19,6 +20,15 @@ class _CreateSavingsGoalPageState extends State<CreateSavingsGoalPage> {
   final TextEditingController _initialAmountController = TextEditingController();
 
   final DateTime _targetDate = DateTime.now().add(const Duration(days: 180));
+
+  final List<Map<String, String>> _presets = [
+    {'name': 'Emergency Fund', 'icon': 'shield'},
+    {'name': 'Laptop', 'icon': 'laptop'},
+    {'name': 'Phone', 'icon': 'phone'},
+    {'name': 'Travel', 'icon': 'flight'},
+    {'name': 'Education', 'icon': 'school'},
+    {'name': 'Custom Goal', 'icon': 'savings'},
+  ];
 
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
@@ -50,7 +60,7 @@ class _CreateSavingsGoalPageState extends State<CreateSavingsGoalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(title: const Text('New Savings Goal')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -59,9 +69,28 @@ class _CreateSavingsGoalPageState extends State<CreateSavingsGoalPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text('Goal Preset Suggestions', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _presets.map((p) {
+                  return ActionChip(
+                    label: Text(p['name']!),
+                    onPressed: () {
+                      if (p['name'] != 'Custom Goal') {
+                        _titleController.text = p['name']!;
+                      } else {
+                        _titleController.clear();
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Goal Title (e.g. New Laptop)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'Goal Title (e.g. Emergency Fund)', border: OutlineInputBorder()),
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter goal title' : null,
               ),
               const SizedBox(height: 16),

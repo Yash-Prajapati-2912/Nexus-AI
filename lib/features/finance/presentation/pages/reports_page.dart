@@ -8,6 +8,8 @@ import '../widgets/finance_charts.dart';
 import '../widgets/finance_skeleton.dart';
 import '../widgets/report_card.dart';
 
+import '../../../../shared/widgets/base_scaffold.dart';
+
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
 
@@ -31,7 +33,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BaseScaffold(
       appBar: AppBar(
         title: const Text('Financial Analytics & Reports'),
       ),
@@ -48,6 +50,31 @@ class _ReportsPageState extends State<ReportsPage> {
               ],
               selected: {_selectedTimeframe},
               onSelectionChanged: (set) => _onTimeframeChanged(set.first),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const Color(0xFF6366F1);
+                  }
+                  return Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF1E293B)
+                      : Colors.grey.shade200;
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.white;
+                  }
+                  return Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : Colors.black87;
+                }),
+                side: WidgetStateProperty.all(
+                  BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white10
+                        : Colors.black12,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             BlocBuilder<ReportBloc, ReportState>(

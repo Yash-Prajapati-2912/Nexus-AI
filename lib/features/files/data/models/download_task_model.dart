@@ -18,8 +18,8 @@ class DownloadTaskModel extends DownloadTask {
       fileName: json['fileName'] as String? ?? '',
       progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
       status: DownloadStatus.values.firstWhere(
-        (e) => e.name == (json['status'] as String? ?? 'PENDING'),
-        orElse: () => DownloadStatus.PENDING,
+        (e) => e.name.toLowerCase() == (json['status'] as String? ?? 'pending').toLowerCase(),
+        orElse: () => DownloadStatus.pending,
       ),
       localSavePath: json['localSavePath'] as String?,
       errorMessage: json['errorMessage'] as String?,

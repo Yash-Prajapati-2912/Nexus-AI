@@ -20,7 +20,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   Future<void> _onLoadSettings(LoadSettingsEvent event, Emitter<SettingsState> emit) async {
     emit(SettingsLoading());
-    final result = await getSettingsUseCase(NoParams());
+    final result = await getSettingsUseCase(const NoParams());
     result.fold(
       (failure) => emit(SettingsError(failure.message)),
       (settings) => emit(SettingsLoaded(settings)),

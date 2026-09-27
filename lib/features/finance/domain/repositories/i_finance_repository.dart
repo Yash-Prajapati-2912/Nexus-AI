@@ -5,6 +5,7 @@ import '../entities/expense.dart';
 import '../entities/finance_category.dart';
 import '../entities/financial_report.dart';
 import '../entities/income.dart';
+import '../entities/investment.dart';
 import '../entities/savings_goal.dart';
 import '../entities/transaction.dart';
 
@@ -39,6 +40,12 @@ abstract class IFinanceRepository {
   Future<Either<Failure, SavingsGoal>> updateSavingsGoal(SavingsGoal goal);
   Future<Either<Failure, SavingsGoal>> addContribution(String goalId, double amount, String? note);
   Future<Either<Failure, Unit>> deleteSavingsGoal(String id);
+
+  // Investments
+  Future<Either<Failure, List<Investment>>> getInvestments();
+  Future<Either<Failure, Investment>> createInvestment(Investment investment);
+  Future<Either<Failure, Investment>> updateInvestment(Investment investment);
+  Future<Either<Failure, Unit>> deleteInvestment(String id);
 
   // Categories, Transactions & Reports
   Future<Either<Failure, List<FinanceCategory>>> getCategories();

@@ -108,8 +108,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'dateOfBirth': _selectedDateOfBirth!.toIso8601String().split('T').first,
     };
 
-    bool isUpdating = false;
-
     context.read<ProfileBloc>().add(UpdateUserProfileEvent(payload));
   }
 

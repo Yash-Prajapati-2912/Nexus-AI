@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/design_system/widgets/cards/app_card.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../theme/design_tokens/colors.dart';
 
 class TaskPriorityChartWidget extends StatelessWidget {
   final int highPriorityCount;
@@ -23,46 +24,55 @@ class TaskPriorityChartWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Task Priority',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+        Row(
+          children: [
+            const Icon(
+              Icons.bar_chart_rounded,
+              size: 20,
+              color: DesignColors.primaryDark,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Workload Priority Breakdown',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildPriorityBar(
-                  context,
-                  label: 'HIGH',
-                  count: highPriorityCount,
-                  maxScale: maxScale,
-                  color: const Color(0xFFEF4444),
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildPriorityBar(
-                  context,
-                  label: 'MEDIUM',
-                  count: mediumPriorityCount,
-                  maxScale: maxScale,
-                  color: const Color(0xFFF59E0B),
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildPriorityBar(
-                  context,
-                  label: 'LOW',
-                  count: lowPriorityCount,
-                  maxScale: maxScale,
-                  color: const Color(0xFF3B82F6),
-                  isDark: isDark,
-                ),
-              ],
-            ),
+        GlassCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _buildPriorityBar(
+                context,
+                label: 'URGENT / HIGH',
+                count: highPriorityCount,
+                maxScale: maxScale,
+                color: DesignColors.errorDark,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 12),
+              _buildPriorityBar(
+                context,
+                label: 'MEDIUM',
+                count: mediumPriorityCount,
+                maxScale: maxScale,
+                color: const Color(0xFFF59E0B),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 12),
+              _buildPriorityBar(
+                context,
+                label: 'LOW',
+                count: lowPriorityCount,
+                maxScale: maxScale,
+                color: DesignColors.secondaryDark,
+                isDark: isDark,
+              ),
+            ],
           ),
         ),
       ],
@@ -82,14 +92,15 @@ class TaskPriorityChartWidget extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 70,
+          width: 95,
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white70 : Colors.black87,
-              letterSpacing: 0.5,
+              color: isDark ? Colors.white70 : DesignColors.textPrimaryLight,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.3,
             ),
           ),
         ),
@@ -101,9 +112,9 @@ class TaskPriorityChartWidget extends StatelessWidget {
               return Stack(
                 children: [
                   Container(
-                    height: 18,
+                    height: 16,
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+                      color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
@@ -111,13 +122,13 @@ class TaskPriorityChartWidget extends StatelessWidget {
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       width: barWidth < 12 ? 12 : barWidth,
-                      height: 18,
+                      height: 16,
                       decoration: BoxDecoration(
                         color: color,
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.3),
+                            color: color.withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -136,9 +147,10 @@ class TaskPriorityChartWidget extends StatelessWidget {
             '$count',
             textAlign: TextAlign.end,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+              fontFamily: 'Poppins',
             ),
           ),
         ),

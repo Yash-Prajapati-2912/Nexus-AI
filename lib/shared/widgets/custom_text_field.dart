@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
-/// 2026 Reusable Frosted Custom Form TextField with Glow & Dual-Theme support.
+/// 2026 Reusable Modern Form TextField with Dual-Theme support.
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String label;
@@ -36,8 +37,8 @@ class CustomTextField extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final fillColor = isDark
-        ? DesignColors.glassSurfaceDark
-        : DesignColors.glassSurfaceLight;
+        ? DesignColors.surfaceInputDark
+        : DesignColors.surfaceInputLight;
 
     final borderColor = isDark
         ? DesignColors.glassBorderDark
@@ -56,22 +57,21 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
-            letterSpacing: 0.2,
           ),
         ),
         const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
-            borderRadius: DesignRadius.lg,
+            borderRadius: DesignRadius.md,
             boxShadow: [
               BoxShadow(
-                color: isDark ? Colors.black.withOpacity(0.15) : Colors.indigo.withOpacity(0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: isDark ? Colors.black.withValues(alpha: 0.12) : Colors.indigo.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -82,16 +82,17 @@ class CustomTextField extends StatelessWidget {
             validator: validator,
             onChanged: onChanged,
             enabled: enabled,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
               color: isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight,
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(
+              hintStyle: GoogleFonts.poppins(
                 color: isDark ? Colors.white38 : Colors.black38,
                 fontSize: 14,
+                fontWeight: FontWeight.w400,
               ),
               errorText: errorText,
               prefixIcon: prefixIcon != null
@@ -108,22 +109,22 @@ class CustomTextField extends StatelessWidget {
                   : null,
               filled: true,
               fillColor: fillColor,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(
-                borderRadius: DesignRadius.lg,
-                borderSide: BorderSide(color: borderColor, width: 1.2),
+                borderRadius: DesignRadius.md,
+                borderSide: BorderSide(color: borderColor, width: 1.0),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: DesignRadius.lg,
-                borderSide: BorderSide(color: borderColor, width: 1.2),
+                borderRadius: DesignRadius.md,
+                borderSide: BorderSide(color: borderColor, width: 1.0),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: DesignRadius.lg,
-                borderSide: BorderSide(color: focusColor, width: 2.0),
+                borderRadius: DesignRadius.md,
+                borderSide: BorderSide(color: focusColor, width: 1.8),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: DesignRadius.lg,
-                borderSide: BorderSide(color: isDark ? DesignColors.errorDark : DesignColors.errorLight, width: 1.2),
+                borderRadius: DesignRadius.md,
+                borderSide: BorderSide(color: isDark ? DesignColors.errorDark : DesignColors.errorLight, width: 1.0),
               ),
             ),
           ),
@@ -132,4 +133,5 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
+
 

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum DownloadStatus { PENDING, DOWNLOADING, SUCCESS, FAILED }
+enum DownloadStatus { pending, downloading, success, failed }
 
 /// Domain entity representing a download task in progress or completed.
 class DownloadTask extends Equatable {

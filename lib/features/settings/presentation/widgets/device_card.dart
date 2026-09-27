@@ -25,7 +25,7 @@ class DeviceCard extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: isCurrentDevice
-            ? theme.colorScheme.primaryContainer.withOpacity(0.2)
+            ? theme.colorScheme.primaryContainer.withValues(alpha: 0.2)
             : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(

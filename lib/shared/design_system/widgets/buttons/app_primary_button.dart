@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../tokens/radius/app_radius.dart';
 
 class AppPrimaryButton extends StatelessWidget {
@@ -33,8 +34,8 @@ class AppPrimaryButton extends StatelessWidget {
         ),
         child: isLoading
             ? SizedBox(
-                width: 24,
-                height: 24,
+                width: 20,
+                height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -49,7 +50,10 @@ class AppPrimaryButton extends StatelessWidget {
                   if (leadingIcon != null) ...[leadingIcon!, const SizedBox(width: 8)],
                   Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
                   ),
                   if (trailingIcon != null) ...[const SizedBox(width: 8), trailingIcon!],
                 ],

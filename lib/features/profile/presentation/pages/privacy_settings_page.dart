@@ -23,7 +23,7 @@ class _PrivacySettingsPageState extends State<PrivacySettingsPage> {
         children: [
           PreferenceTile(
             title: 'Public Profile Visibility',
-            subtitle: 'Allow other students to view your public badges & CGPA milestone achievements',
+            subtitle: 'Allow other users to view your public badges & CGPA milestone achievements',
             value: _publicProfile,
             onChanged: (val) => setState(() => _publicProfile = val),
           ),

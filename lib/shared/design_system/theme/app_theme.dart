@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../tokens/colors/app_colors.dart';
 import '../tokens/colors/semantic_colors.dart';
 import '../tokens/typography/app_typography.dart';
@@ -38,11 +39,14 @@ abstract class DesignAppTheme {
       outlineVariant: DesignAppColors.outlineVariantLight,
     );
 
+    final baseTextTheme = ThemeData.light().textTheme;
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colors,
       scaffoldBackgroundColor: DesignAppColors.backgroundLight,
       fontFamily: DesignTypographyTokens.fontFamily,
+      textTheme: GoogleFonts.poppinsTextTheme(baseTextTheme),
       filledButtonTheme: AppButtonTheme.filledButtonTheme(colors),
       outlinedButtonTheme: AppButtonTheme.outlinedButtonTheme(colors),
       inputDecorationTheme: AppInputTheme.inputDecorationTheme(colors),
@@ -86,11 +90,14 @@ abstract class DesignAppTheme {
       outlineVariant: DesignAppColors.outlineVariantDark,
     );
 
+    final baseTextTheme = ThemeData.dark().textTheme;
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colors,
       scaffoldBackgroundColor: DesignAppColors.backgroundDark,
       fontFamily: DesignTypographyTokens.fontFamily,
+      textTheme: GoogleFonts.poppinsTextTheme(baseTextTheme),
       filledButtonTheme: AppButtonTheme.filledButtonTheme(colors),
       outlinedButtonTheme: AppButtonTheme.outlinedButtonTheme(colors),
       inputDecorationTheme: AppInputTheme.inputDecorationTheme(colors),
@@ -107,3 +114,4 @@ abstract class DesignAppTheme {
     );
   }
 }
+

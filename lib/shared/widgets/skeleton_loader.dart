@@ -16,7 +16,7 @@ class SkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06);
+    final color = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06);
 
     return Container(
       width: width,
@@ -28,4 +28,5 @@ class SkeletonLoader extends StatelessWidget {
     );
   }
 }
+
 

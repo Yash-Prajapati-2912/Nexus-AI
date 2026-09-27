@@ -65,6 +65,31 @@ class _TransactionsPageState extends State<TransactionsPage> {
               onSelectionChanged: (set) {
                 setState(() => _selectedFilter = set.first);
               },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const Color(0xFF6366F1);
+                  }
+                  return Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF1E293B)
+                      : Colors.grey.shade200;
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.white;
+                  }
+                  return Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : Colors.black87;
+                }),
+                side: WidgetStateProperty.all(
+                  BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white10
+                        : Colors.black12,
+                  ),
+                ),
+              ),
             ),
           ),
           Expanded(

@@ -23,6 +23,7 @@ class ExpenseModel extends Expense {
     final tags = rawTags.map((e) => e.toString()).toList();
 
     final categoryObj = json['category'] as Map<String, dynamic>?;
+    final rawDate = json['date'] ?? json['expenseDate'] ?? json['createdAt'];
 
     return ExpenseModel(
       id: json['id'] as String? ?? '',
@@ -31,7 +32,7 @@ class ExpenseModel extends Expense {
       categoryId: json['categoryId'] as String? ?? categoryObj?['id'] as String? ?? '',
       categoryName: json['categoryName'] as String? ?? categoryObj?['name'] as String? ?? 'General',
       categoryIcon: json['categoryIcon'] as String? ?? categoryObj?['iconName'] as String? ?? 'receipt',
-      date: json['date'] != null ? DateTime.parse(json['date'] as String) : DateTime.now(),
+      date: rawDate != null ? (DateTime.tryParse(rawDate.toString()) ?? DateTime.now()) : DateTime.now(),
       note: json['note'] as String? ?? json['description'] as String?,
       receiptUrl: json['receiptUrl'] as String?,
       isRecurring: json['isRecurring'] as bool? ?? false,

@@ -66,7 +66,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
         filePath: event.filePath,
         fileName: event.filePath.split('/').last,
         progress: 0.5,
-        status: UploadStatus.UPLOADING,
+        status: UploadStatus.uploading,
       )));
 
       final res = await uploadFileUseCase(UploadFileParams(

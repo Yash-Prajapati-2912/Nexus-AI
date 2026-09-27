@@ -16,7 +16,7 @@ class AccessibilityPreviewWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: accessibility.highContrastEnabled
             ? Colors.black
-            : theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
           color: accessibility.highContrastEnabled ? Colors.white : theme.colorScheme.outlineVariant,

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UploadStatus { PENDING, UPLOADING, SUCCESS, FAILED }
+enum UploadStatus { pending, uploading, success, failed }
 
 /// Domain entity representing an in-flight upload task in the upload queue.
 class UploadTask extends Equatable {

@@ -15,7 +15,9 @@ import '../features/authentication/presentation/pages/verify_email_page.dart';
 import '../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../features/planner/presentation/bloc/planner_bloc.dart';
+import '../features/planner/presentation/bloc/planner_event.dart';
 import '../features/planner/presentation/pages/planner_home_page.dart';
+import '../features/planner/presentation/pages/task_detail_page.dart';
 import '../features/ai_planner/presentation/bloc/ai_planner_bloc.dart';
 import '../features/ai_planner/presentation/pages/ai_planner_home_page.dart';
 import '../features/ai_planner/presentation/pages/generate_study_plan_page.dart';
@@ -33,6 +35,7 @@ import '../features/ai_planner/presentation/pages/saved_ai_plans_page.dart';
 import '../features/ai_planner/presentation/pages/ai_planner_settings_page.dart';
 import '../features/ai_planner/domain/entities/study_plan.dart';
 import '../features/finance/presentation/bloc/finance_bloc.dart';
+import '../features/finance/presentation/bloc/finance_event.dart';
 import '../features/finance/presentation/bloc/expense_bloc.dart';
 import '../features/finance/presentation/bloc/income_bloc.dart';
 import '../features/finance/presentation/bloc/budget_bloc.dart';
@@ -50,6 +53,7 @@ import '../features/finance/presentation/pages/create_budget_page.dart';
 import '../features/finance/presentation/pages/budget_details_page.dart';
 import '../features/finance/presentation/pages/savings_goals_page.dart';
 import '../features/finance/presentation/pages/create_savings_goal_page.dart';
+import '../features/finance/presentation/pages/investments_page.dart';
 import '../features/finance/presentation/pages/transactions_page.dart';
 import '../features/finance/presentation/pages/categories_page.dart';
 import '../features/finance/presentation/pages/reports_page.dart';
@@ -172,6 +176,36 @@ import 'route_names.dart';
 
 /// App GoRouter Configuration factory.
 abstract class AppRouter {
+  static CustomTransitionPage<void> buildPageTransition({
+    required BuildContext context,
+    required GoRouterState state,
+    required Widget child,
+  }) {
+    return CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 220),
+      reverseTransitionDuration: const Duration(milliseconds: 180),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final curveAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curveAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.015, 0.0),
+              end: Offset.zero,
+            ).animate(curveAnimation),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
   static GoRouter createRouter(
     SessionManager sessionManager,
     GlobalKey<NavigatorState> navigatorKey,
@@ -229,17 +263,35 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.dashboard,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<DashboardBloc>(),
-            child: const DashboardPage(),
+          pageBuilder: (context, state) => buildPageTransition(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<DashboardBloc>(),
+              child: const DashboardPage(),
+            ),
           ),
         ),
         GoRoute(
           path: RouteNames.planner,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<PlannerBloc>(),
-            child: const PlannerHomePage(),
+          pageBuilder: (context, state) => buildPageTransition(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<PlannerBloc>(),
+              child: const PlannerHomePage(),
+            ),
           ),
+        ),
+        GoRoute(
+          path: RouteNames.plannerTaskDetail,
+          builder: (context, state) {
+            final taskId = state.uri.queryParameters['id'] ?? (state.extra as String?);
+            return BlocProvider.value(
+              value: getIt<PlannerBloc>()..add(LoadPlannerEvent()),
+              child: TaskDetailPage(taskId: taskId),
+            );
+          },
         ),
         GoRoute(
           path: RouteNames.aiPlannerHome,
@@ -335,9 +387,13 @@ abstract class AppRouter {
         // Finance Routes
         GoRoute(
           path: RouteNames.finance,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<FinanceBloc>(),
-            child: const FinanceDashboardPage(),
+          pageBuilder: (context, state) => buildPageTransition(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<FinanceBloc>()..add(const LoadFinanceDashboardEvent()),
+              child: const FinanceDashboardPage(),
+            ),
           ),
         ),
         GoRoute(
@@ -412,6 +468,13 @@ abstract class AppRouter {
           builder: (context, state) => BlocProvider(
             create: (_) => getIt<SavingsBloc>(),
             child: const CreateSavingsGoalPage(),
+          ),
+        ),
+        GoRoute(
+          path: RouteNames.financeInvestments,
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<FinanceBloc>(),
+            child: const InvestmentsPage(),
           ),
         ),
         GoRoute(
@@ -532,9 +595,13 @@ abstract class AppRouter {
         // AI Mentor Routes
         GoRoute(
           path: RouteNames.aiMentorHome,
-          builder: (context, state) => BlocProvider(
-            create: (_) => getIt<AIMentorBloc>(),
-            child: const AIMentorHomePage(),
+          pageBuilder: (context, state) => buildPageTransition(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<AIMentorBloc>(),
+              child: const AIMentorHomePage(),
+            ),
           ),
         ),
         GoRoute(
@@ -543,8 +610,11 @@ abstract class AppRouter {
             final id = state.uri.queryParameters['id'];
             final prompt = state.uri.queryParameters['prompt'];
             final topic = state.uri.queryParameters['topic'];
-            return BlocProvider(
-              create: (_) => getIt<ConversationBloc>(),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => getIt<ConversationBloc>()),
+                BlocProvider(create: (_) => getIt<AIMentorBloc>()..add(const LoadAIMentorDashboardEvent())),
+              ],
               child: ConversationScreen(
                 conversationId: id,
                 initialPrompt: prompt,
@@ -555,7 +625,10 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiMentorHistory,
-          builder: (context, state) => const ConversationHistoryPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIMentorBloc>()..add(const LoadAIMentorDashboardEvent()),
+            child: const ConversationHistoryPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiMentorConversationDetails,
@@ -571,7 +644,10 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiMentorSearch,
-          builder: (context, state) => const AIMentorSearchPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIMentorBloc>()..add(const LoadAIMentorDashboardEvent()),
+            child: const AIMentorSearchPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiMentorSuggestedPrompts,
@@ -596,9 +672,13 @@ abstract class AppRouter {
         // Profile & User Management Routes
         GoRoute(
           path: RouteNames.profileHome,
-          builder: (context, state) => BlocProvider.value(
-            value: getIt<ProfileBloc>(),
-            child: const ProfileHomePage(),
+          pageBuilder: (context, state) => buildPageTransition(
+            context: context,
+            state: state,
+            child: BlocProvider.value(
+              value: getIt<ProfileBloc>(),
+              child: const ProfileHomePage(),
+            ),
           ),
         ),
         GoRoute(

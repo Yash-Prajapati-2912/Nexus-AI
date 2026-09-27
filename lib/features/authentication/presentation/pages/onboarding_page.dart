@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../router/route_names.dart';
+import '../../../../shared/branding/nexus_feature_icon.dart';
+import '../../../../shared/branding/nexus_logo.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
 import '../widgets/auth_scaffold.dart';
@@ -8,12 +10,12 @@ import '../widgets/auth_scaffold.dart';
 class OnboardingSlide {
   final String title;
   final String description;
-  final IconData icon;
+  final NexusFeatureModule module;
 
   const OnboardingSlide({
     required this.title,
     required this.description,
-    required this.icon,
+    required this.module,
   });
 }
 
@@ -32,27 +34,37 @@ class _OnboardingPageState extends State<OnboardingPage> {
     OnboardingSlide(
       title: 'Smart Academic Planning',
       description: 'Synthesize your assignments, exam deadlines, and daily schedule automatically.',
-      icon: Icons.calendar_month_rounded,
+      module: NexusFeatureModule.academics,
     ),
     OnboardingSlide(
       title: 'AI Financial Advisor',
-      description: 'Keep your student budget on track with real-time financial health alerts.',
-      icon: Icons.account_balance_wallet_rounded,
+      description: 'Keep your personal budget on track with real-time financial health alerts.',
+      module: NexusFeatureModule.finance,
     ),
     OnboardingSlide(
       title: '24/7 AI Academic Mentor',
       description: 'Get instant tutoring, writing assistance, and study guidance whenever you need it.',
-      icon: Icons.psychology_rounded,
+      module: NexusFeatureModule.aiNexus,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AuthScaffold(
       child: Column(
         children: [
+          const SizedBox(height: 12),
+          // Top Nexus Ecosystem Logo
+          NexusLogo(
+            variant: LogoVariant.ecosystem,
+            markSize: 85,
+            logoTheme: isDark ? LogoTheme.dark : LogoTheme.light,
+          ),
+          const SizedBox(height: 24),
           SizedBox(
-            height: 350,
+            height: 320,
             child: PageView.builder(
               controller: _controller,
               itemCount: _slides.length,
@@ -62,17 +74,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        slide.icon,
-                        size: 80,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    NexusFeatureIcon(
+                      module: slide.module,
+                      size: 48,
+                      showContainer: true,
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -107,14 +112,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 height: 8,
                 decoration: BoxDecoration(
                   color: _currentIndex == index
-                      ? Theme.of(context).colorScheme.primary
+                      ? const Color(0xFF7C6CFF)
                       : Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
           PrimaryButton(
             label: 'Get Started',
             onPressed: () => context.go(RouteNames.register),

@@ -366,6 +366,7 @@ Future<void> configureDependencies(AppEnv env) async {
       getIncomeUseCase: getIt<GetIncomeUseCase>(),
       getBudgetUseCase: getIt<GetBudgetUseCase>(),
       getSavingsGoalsUseCase: getIt<GetSavingsGoalsUseCase>(),
+      repository: getIt<IFinanceRepository>(),
     ),
   );
   getIt.registerFactory(

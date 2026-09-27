@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import '../services/connectivity_service.dart';
 import '../services/app_logger.dart';
 import 'offline_queue_manager.dart';
@@ -43,13 +42,13 @@ class SyncManager {
     connectivityService.connectivityStream.listen((isConnected) {
       if (isConnected) {
         AppLogger.info('Network restored. Triggering automatic background synchronization.');
-        triggerSync();
+        unawaited(triggerSync());
       }
     });
 
     _periodicTimer = Timer.periodic(const Duration(minutes: 15), (_) async {
       if (await connectivityService.isConnected) {
-        triggerSync();
+        unawaited(triggerSync());
       }
     });
 

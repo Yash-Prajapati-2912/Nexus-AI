@@ -32,9 +32,9 @@ class AppEmptyState extends StatelessWidget {
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: primaryColor.withOpacity(0.12),
+                color: primaryColor.withValues(alpha: 0.12),
                 border: Border.all(
-                  color: primaryColor.withOpacity(0.25),
+                  color: primaryColor.withValues(alpha: 0.25),
                   width: 1.5,
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/budget.dart';
 import '../widgets/budget_progress_widget.dart';
 
@@ -10,18 +11,19 @@ class BudgetDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final item = budget ??
-        Budget(
-          id: 'b-1',
-          name: 'Monthly Dining & Food Limit',
-          totalLimit: 500.00,
-          currentSpent: 380.25,
-          period: 'MONTHLY',
-          startDate: DateTime.now(),
-          endDate: DateTime.now().add(const Duration(days: 30)),
-        );
 
-    return Scaffold(
+    if (budget == null) {
+      return BaseScaffold(
+        appBar: AppBar(title: const Text('Budget Details')),
+        body: const Center(
+          child: Text('No budget selected or found.'),
+        ),
+      );
+    }
+
+    final item = budget!;
+
+    return BaseScaffold(
       appBar: AppBar(title: const Text('Budget Details')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -76,8 +78,16 @@ class _RowItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodyMedium),
-          Text(value, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: color)),
+          Expanded(child: Text(label, style: theme.textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: color),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

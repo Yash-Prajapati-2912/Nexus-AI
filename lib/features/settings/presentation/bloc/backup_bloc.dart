@@ -17,7 +17,7 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
 
   Future<void> _onStartManualBackup(StartManualBackupEvent event, Emitter<BackupState> emit) async {
     emit(const BackupInProgress('Creating Cloud Backup...'));
-    final res = await backupDataUseCase(NoParams());
+    final res = await backupDataUseCase(const NoParams());
     res.fold(
       (failure) => emit(BackupFailureState(failure.message)),
       (backup) => emit(BackupSuccess(backup, 'Backup created successfully')),

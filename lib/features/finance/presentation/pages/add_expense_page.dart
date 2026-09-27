@@ -135,7 +135,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
+  bool _isSubmitting = false;
+
   void _onSave() {
+    if (_isSubmitting) return;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -143,6 +146,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       );
       return;
     }
+
+    setState(() => _isSubmitting = true);
 
     final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
     final tagsText = _tagsController.text.trim();

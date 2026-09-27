@@ -99,7 +99,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               CustomTextField(
                                 controller: _emailController,
                                 label: 'Email Address',
-                                hint: 'student@university.edu',
+                                hint: 'you@domain.com',
                                 keyboardType: TextInputType.emailAddress,
                                 prefixIcon: const Icon(Icons.email_outlined),
                                 validator: Validators.email,

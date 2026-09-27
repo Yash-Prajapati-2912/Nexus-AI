@@ -61,7 +61,10 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
   double get _unallocatedAmount => _totalBudget - _totalAllocated;
   bool get _isExceeded => _showCategoryAllocations && _totalAllocated > _totalBudget;
 
+  bool _isSubmitting = false;
+
   void _onSave() {
+    if (_isSubmitting) return;
     if (!_formKey.currentState!.validate()) return;
     if (_isExceeded) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -72,6 +75,8 @@ class _CreateBudgetPageState extends State<CreateBudgetPage> {
       );
       return;
     }
+
+    setState(() => _isSubmitting = true);
 
     final startDate = DateTime(_selectedYear, _selectedMonth, 1);
     final endDate = DateTime(_selectedYear, _selectedMonth + 1, 0);

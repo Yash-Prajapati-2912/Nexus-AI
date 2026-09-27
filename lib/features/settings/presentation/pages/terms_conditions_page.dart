@@ -16,7 +16,7 @@ class TermsConditionsPage extends StatelessWidget {
           AboutCard(
             title: '1. Acceptance of Terms',
             content:
-                'By accessing or using the Nexus AI Student Life Operating System, you agree to comply with and be bound by these Terms and Conditions. Please review them carefully.',
+                'By accessing or using the Nexus AI Operating System, you agree to comply with and be bound by these Terms and Conditions. Please review them carefully.',
           ),
           AboutCard(
             title: '2. User Accounts & Security',

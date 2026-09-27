@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/design_tokens/colors.dart';
+import 'app_sidebar.dart';
+import 'desktop_header.dart';
 import 'modern_bottom_navbar.dart';
 
 /// Custom FloatingActionButtonLocation positioning FABs cleanly above the floating navbar.
@@ -21,8 +23,11 @@ class FloatingWithNavbarLocation extends FloatingActionButtonLocation {
   }
 }
 
-/// 2026 Base Scaffold container with subtle ambient mesh backdrop and modern bottom navigation bar.
-class BaseScaffold extends StatelessWidget {
+/// 2026 Responsive Application Shell for Nexus AI.
+/// - Desktop (>= 1100px): Left SaaS Sidebar + Top Header + Max-width Content
+/// - Tablet (600px - 1099px): Compact Collapsible Navigation Rail + Top Header + Content
+/// - Mobile (< 600px): Top Header + Content + Floating Capsule Bottom Navbar
+class BaseScaffold extends StatefulWidget {
   final Widget body;
   final PreferredSizeWidget? appBar;
   final Widget? bottomNavigationBar;
@@ -31,6 +36,10 @@ class BaseScaffold extends StatelessWidget {
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Color? backgroundColor;
   final bool showAmbientMesh;
+  final bool constrainDesktopWidth;
+  final double maxDesktopWidth;
+  final String? title;
+  final String? subtitle;
 
   const BaseScaffold({
     super.key,
@@ -42,45 +51,124 @@ class BaseScaffold extends StatelessWidget {
     this.floatingActionButtonLocation,
     this.backgroundColor,
     this.showAmbientMesh = true,
+    this.constrainDesktopWidth = true,
+    this.maxDesktopWidth = 1240.0,
+    this.title,
+    this.subtitle,
   });
+
+  @override
+  State<BaseScaffold> createState() => _BaseScaffoldState();
+}
+
+class _BaseScaffoldState extends State<BaseScaffold> {
+  bool _isSidebarCollapsed = false;
+
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = backgroundColor ?? (isDark ? DesignColors.backgroundDark : DesignColors.backgroundLight);
+    final bg = widget.backgroundColor ?? (isDark ? DesignColors.backgroundDark : DesignColors.backgroundLight);
+    final width = MediaQuery.of(context).size.width;
+
+    final isDesktop = width >= 1100;
+    final isTablet = width >= 600 && width < 1100;
+    final isMobile = width < 600;
 
     final purpleMesh = isDark ? DesignColors.meshPurpleDark : DesignColors.meshPurpleLight;
     final cyanMesh = isDark ? DesignColors.meshCyanDark : DesignColors.meshCyanLight;
 
-    Widget? effectiveNavbar = bottomNavigationBar;
-    if (effectiveNavbar == null) {
-      try {
-        final currentPath = GoRouterState.of(context).uri.toString();
-        if (currentPath.startsWith('/dashboard') ||
-            currentPath.startsWith('/planner') ||
-            currentPath.startsWith('/ai-planner') ||
-            currentPath.startsWith('/finance') ||
-            currentPath.startsWith('/ai-finance') ||
-            currentPath.startsWith('/ai-mentor') ||
-            currentPath.startsWith('/profile')) {
-          effectiveNavbar = ModernBottomNavbar(currentRoute: currentPath);
-        }
-      } catch (_) {}
+    String currentPath = '/dashboard';
+    try {
+      currentPath = GoRouterState.of(context).uri.toString();
+    } catch (_) {}
+
+    Widget? effectiveNavbar = widget.bottomNavigationBar;
+    if (isMobile && effectiveNavbar == null) {
+      if (currentPath.startsWith('/dashboard') ||
+          currentPath.startsWith('/planner') ||
+          currentPath.startsWith('/ai-planner') ||
+          currentPath.startsWith('/finance') ||
+          currentPath.startsWith('/ai-finance') ||
+          currentPath.startsWith('/ai-mentor') ||
+          currentPath.startsWith('/profile')) {
+        effectiveNavbar = ModernBottomNavbar(currentRoute: currentPath);
+      }
     }
 
-    final FloatingActionButtonLocation? effectiveFabLocation = floatingActionButtonLocation ??
+    final FloatingActionButtonLocation? effectiveFabLocation = widget.floatingActionButtonLocation ??
         (effectiveNavbar != null ? const FloatingWithNavbarLocation() : null);
+
+    final PreferredSizeWidget? effectiveHeader = widget.appBar ??
+        ((isDesktop || isTablet)
+            ? DesktopHeader(
+                title: widget.title,
+                subtitle: widget.subtitle,
+              )
+            : null);
+
+    Widget mainContent = widget.body;
+    if ((isDesktop || isTablet) && widget.constrainDesktopWidth) {
+      mainContent = Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: widget.maxDesktopWidth),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: widget.body,
+          ),
+        ),
+      );
+    }
+
+    Widget bodyLayout;
+    if (isDesktop || isTablet) {
+      final collapsedState = isTablet ? true : _isSidebarCollapsed;
+      bodyLayout = Row(
+        children: [
+          AppSidebar(
+            currentRoute: currentPath,
+            isCollapsed: collapsedState,
+            onToggleCollapse: isDesktop ? _toggleSidebar : null,
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                if (effectiveHeader != null) effectiveHeader,
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      if (effectiveNavbar != null) {
+        bodyLayout = Padding(
+          padding: const EdgeInsets.only(bottom: 84.0),
+          child: mainContent,
+        );
+      } else {
+        bodyLayout = mainContent;
+      }
+    }
 
     return Scaffold(
       backgroundColor: bg,
       extendBody: true,
-      appBar: appBar,
-      drawer: drawer,
-      floatingActionButton: floatingActionButton,
+      appBar: isMobile ? widget.appBar : null,
+      drawer: widget.drawer,
+      floatingActionButton: widget.floatingActionButton,
       floatingActionButtonLocation: effectiveFabLocation,
       body: Stack(
         children: [
-          if (showAmbientMesh) ...[
+          if (widget.showAmbientMesh) ...[
             Positioned(
               top: -100,
               right: -100,
@@ -92,7 +180,7 @@ class BaseScaffold extends StatelessWidget {
                   gradient: RadialGradient(
                     colors: [
                       purpleMesh,
-                      purpleMesh.withOpacity(0.0),
+                      purpleMesh.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -109,7 +197,7 @@ class BaseScaffold extends StatelessWidget {
                   gradient: RadialGradient(
                     colors: [
                       cyanMesh,
-                      cyanMesh.withOpacity(0.0),
+                      cyanMesh.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -122,8 +210,8 @@ class BaseScaffold extends StatelessWidget {
               ),
             ),
           ],
-          SafeArea(bottom: false, child: body),
-          if (effectiveNavbar != null)
+          SafeArea(bottom: false, child: bodyLayout),
+          if (isMobile && effectiveNavbar != null)
             Positioned(
               left: 0,
               right: 0,
@@ -135,5 +223,7 @@ class BaseScaffold extends StatelessWidget {
     );
   }
 }
+
+
 
 

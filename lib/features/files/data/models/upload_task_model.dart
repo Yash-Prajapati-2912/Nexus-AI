@@ -17,8 +17,8 @@ class UploadTaskModel extends UploadTask {
       fileName: json['fileName'] as String? ?? '',
       progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
       status: UploadStatus.values.firstWhere(
-        (e) => e.name == (json['status'] as String? ?? 'PENDING'),
-        orElse: () => UploadStatus.PENDING,
+        (e) => e.name.toLowerCase() == (json['status'] as String? ?? 'pending').toLowerCase(),
+        orElse: () => UploadStatus.pending,
       ),
       errorMessage: json['errorMessage'] as String?,
     );

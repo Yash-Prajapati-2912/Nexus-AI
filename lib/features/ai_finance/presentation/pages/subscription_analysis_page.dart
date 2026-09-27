@@ -18,7 +18,7 @@ class SubscriptionAnalysisPage extends StatelessWidget {
           potentialMonthlySavingsFromCancellation: 14.99,
           subscriptions: [
             SubscriptionItem(id: 's1', name: 'Netflix Premium', cost: 19.99, billingPeriod: 'MONTHLY', isUnusedOrRedundant: false, nextRenewalDate: now.add(const Duration(days: 12)), category: 'Streaming'),
-            SubscriptionItem(id: 's2', name: 'Spotify Student', cost: 5.99, billingPeriod: 'MONTHLY', isUnusedOrRedundant: false, nextRenewalDate: now.add(const Duration(days: 18)), category: 'Music'),
+            SubscriptionItem(id: 's2', name: 'Spotify Premium', cost: 5.99, billingPeriod: 'MONTHLY', isUnusedOrRedundant: false, nextRenewalDate: now.add(const Duration(days: 18)), category: 'Music'),
             SubscriptionItem(id: 's3', name: 'Unused Cloud Storage', cost: 14.99, billingPeriod: 'MONTHLY', isUnusedOrRedundant: true, nextRenewalDate: now.add(const Duration(days: 4)), category: 'Tech'),
             SubscriptionItem(id: 's4', name: 'Gym Membership', cost: 9.02, billingPeriod: 'MONTHLY', isUnusedOrRedundant: false, nextRenewalDate: now.add(const Duration(days: 25)), category: 'Fitness'),
           ],

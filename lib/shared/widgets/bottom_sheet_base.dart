@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 
 /// 2026 Reusable Modal Bottom Sheet helper with Dual-Theme support.
@@ -9,7 +10,7 @@ abstract class BottomSheetBase {
     String? title,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? DesignColors.surfaceDark : DesignColors.surfaceLight;
+    final backgroundColor = isDark ? DesignColors.surfaceElevatedDark : DesignColors.surfaceElevatedLight;
     final handleColor = isDark ? Colors.white30 : Colors.black26;
     final titleColor = isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight;
 
@@ -19,7 +20,7 @@ abstract class BottomSheetBase {
       useSafeArea: true,
       backgroundColor: backgroundColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return Padding(
@@ -44,11 +45,10 @@ abstract class BottomSheetBase {
                 const SizedBox(height: 16),
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: titleColor,
-                    letterSpacing: -0.3,
                   ),
                 ),
               ],
@@ -62,4 +62,5 @@ abstract class BottomSheetBase {
     );
   }
 }
+
 

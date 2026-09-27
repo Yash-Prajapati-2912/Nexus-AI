@@ -59,7 +59,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         fileId: event.fileId,
         fileName: event.fileName,
         progress: 0.5,
-        status: DownloadStatus.DOWNLOADING,
+        status: DownloadStatus.downloading,
       )));
 
       final res = await downloadFileUseCase(event.fileId);

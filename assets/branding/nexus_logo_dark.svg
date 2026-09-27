@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="nexusGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C6CFF" />
+      <stop offset="50%" stop-color="#4F8CFF" />
+      <stop offset="100%" stop-color="#4FD1FF" />
+    </linearGradient>
+    <linearGradient id="orbitGradientDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C6CFF" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#4FD1FF" stop-opacity="0.6" />
+    </linearGradient>
+    <radialGradient id="coreGlowDark" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4FD1FF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#7C6CFF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Left N Mark (Scale down and translate to 80,80) -->
+  <g transform="translate(15, 15) scale(0.25)">
+    <!-- Orbit Ring -->
+    <ellipse cx="256" cy="256" rx="190" ry="75" 
+             transform="rotate(-22 256 256)" 
+             fill="none" 
+             stroke="url(#orbitGradientDark)" 
+             stroke-width="6" 
+             stroke-dasharray="14 10" 
+             opacity="0.7" />
+    <circle cx="118" cy="205" r="8" fill="#7C6CFF" />
+    <circle cx="394" cy="307" r="8" fill="#4FD1FF" />
+
+    <!-- N Stroke -->
+    <path d="M 140 370 L 140 142 L 372 370 L 372 142" 
+          fill="none" 
+          stroke="url(#nexusGradientDark)" 
+          stroke-width="48" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- Nodes -->
+    <circle cx="140" cy="370" r="16" fill="#0B0D12" stroke="#7C6CFF" stroke-width="6" />
+    <circle cx="140" cy="142" r="16" fill="#0B0D12" stroke="#7C6CFF" stroke-width="6" />
+    <circle cx="372" cy="370" r="16" fill="#0B0D12" stroke="#4FD1FF" stroke-width="6" />
+    <circle cx="372" cy="142" r="16" fill="#0B0D12" stroke="#4FD1FF" stroke-width="6" />
+
+    <!-- Core -->
+    <circle cx="256" cy="256" r="45" fill="url(#coreGlowDark)" />
+    <circle cx="256" cy="256" r="20" fill="#F5F7FA" stroke="#4F8CFF" stroke-width="5" />
+  </g>
+
+  <!-- Typography: NEXUS AI -->
+  <text x="165" y="98" font-family="'Poppins', 'Inter', sans-serif" font-size="52" font-weight="800" fill="#F5F7FA" letter-spacing="1">NEXUS</text>
+  <text x="375" y="98" font-family="'Poppins', 'Inter', sans-serif" font-size="52" font-weight="800" fill="url(#nexusGradientDark)" letter-spacing="1">AI</text>
+
+  <!-- Subtitle Tagline -->
+  <text x="167" y="128" font-family="'Poppins', 'Inter', sans-serif" font-size="16" font-weight="500" fill="#94A3B8" letter-spacing="0.5">Your life, intelligently connected.</text>
+</svg>

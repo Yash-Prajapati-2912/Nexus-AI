@@ -51,14 +51,14 @@ class BackupCard extends StatelessWidget {
           Text(
             'Last Backup: $lastBackupDate ($backupSize)',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Status: $status',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 16),

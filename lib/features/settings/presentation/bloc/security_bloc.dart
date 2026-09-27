@@ -59,7 +59,7 @@ class SecurityBloc extends Bloc<SecurityEvent, SecurityState> {
     if (state is SecurityLoaded) {
       final current = (state as SecurityLoaded).security;
       emit(SecurityLoading());
-      final res = await logoutOtherDevicesUseCase(NoParams());
+      final res = await logoutOtherDevicesUseCase(const NoParams());
       res.fold(
         (failure) => emit(SecurityError(failure.message)),
         (_) {

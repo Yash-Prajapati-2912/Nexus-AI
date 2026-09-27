@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'app_logger.dart';
 
 class HealthStatus {
   final double averageLatencyMs;

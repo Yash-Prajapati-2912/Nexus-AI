@@ -34,7 +34,7 @@ class SecurityService {
   Future<void> enableScreenshotProtection() async {
     if (_isScreenProtected) return;
     try {
-      SystemChannels.platform.invokeMethod('SystemChrome.setSystemUIOverlayStyle');
+      await SystemChannels.platform.invokeMethod('SystemChrome.setSystemUIOverlayStyle');
       _isScreenProtected = true;
       AppLogger.info('SecurityService: Screenshot and task switcher protection enabled.');
     } catch (e) {

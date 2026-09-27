@@ -28,7 +28,7 @@ class _StudyPlanDetailsPageState extends State<StudyPlanDetailsPage> {
           summary:
               'Balanced allocation focusing 60% time on high-pressure Computer Science assignments, with scheduled 15-minute Pomodoro breaks.',
           timeframe: 'weekly',
-          reasoning: [
+          reasoning: const [
             'CS assignment carries 30% of total grade.',
             'Best focus hours detected between 08:00 AM - 11:00 AM.',
             'Avoided overloading Wednesday due to 3 back-to-back lectures.',
@@ -56,7 +56,7 @@ class _StudyPlanDetailsPageState extends State<StudyPlanDetailsPage> {
               category: 'Physics',
             ),
           ],
-          warnings: ['High workload detected on Thursday.'],
+          warnings: const ['High workload detected on Thursday.'],
           confidenceScore: 0.94,
           providerName: 'GEMINI 1.5 PRO',
           createdAt: DateTime.now(),

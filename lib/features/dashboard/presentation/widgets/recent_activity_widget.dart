@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/design_system/widgets/lists/notification_list_tile.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../theme/design_tokens/colors.dart';
 import '../../domain/entities/notification_summary_entity.dart';
 
 class RecentActivityWidget extends StatelessWidget {
@@ -15,47 +16,117 @@ class RecentActivityWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Recent Notifications', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        hasNotifications
-            ? NotificationListTile(
-                title: notificationSummary.recentNotifications.first.title,
-                body: notificationSummary.recentNotifications.first.body,
-                time: '${notificationSummary.recentNotifications.first.createdAt.hour}:${notificationSummary.recentNotifications.first.createdAt.minute.toString().padLeft(2, '0')}',
-                isRead: false,
-                onTap: () {},
-              )
-            : Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: isDark ? Colors.white10 : Colors.black12,
+        Row(
+          children: [
+            const Icon(
+              Icons.notifications_active_rounded,
+              size: 20,
+              color: DesignColors.primaryDark,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Recent Notifications',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (!hasNotifications)
+          GlassCard(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.notifications_none_rounded,
+                  color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    "You're all caught up! No recent unread notifications.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.notifications_none_rounded,
-                      color: isDark ? Colors.white54 : Colors.black45,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "You're all caught up! No recent notifications.",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white60 : Colors.black54,
-                          fontWeight: FontWeight.w500,
+              ],
+            ),
+          )
+        else
+          GlassCard(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: notificationSummary.recentNotifications.take(3).map((notif) {
+                final timeStr =
+                    '${notif.createdAt.hour}:${notif.createdAt.minute.toString().padLeft(2, '0')}';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: DesignColors.primaryDark.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.notifications_rounded,
+                            size: 16, color: DesignColors.primaryDark),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              notif.title,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+                                fontFamily: 'Poppins',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              notif.body,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark
+                                    ? DesignColors.textSecondaryDark
+                                    : DesignColors.textSecondaryLight,
+                                fontFamily: 'Poppins',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                      const SizedBox(width: 8),
+                      Text(
+                        timeStr,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isDark
+                              ? DesignColors.textSecondaryDark
+                              : DesignColors.textSecondaryLight,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
       ],
     );
   }

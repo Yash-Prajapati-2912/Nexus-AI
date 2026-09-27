@@ -27,6 +27,12 @@ class DashboardHeaderWidget extends StatelessWidget {
         ? DesignColors.primaryGradientDark
         : DesignColors.primaryGradientLight;
 
+    final rawName = user.fullName.trim();
+    final isGeneric = rawName.isEmpty ||
+        ['user', 'student', 'guest', 'null', 'undefined'].contains(rawName.toLowerCase());
+    final firstName = isGeneric ? '' : rawName.split(' ').first;
+    final greetingDisplay = firstName.isNotEmpty ? '$greeting, $firstName 👋' : '$greeting 👋';
+
     return GlassCard(
       onTap: () => context.push(RouteNames.profile),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -44,7 +50,7 @@ class DashboardHeaderWidget extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? const Color(0xFF6366F1) : const Color(0xFF818CF8)).withOpacity(0.35),
+                  color: (isDark ? const Color(0xFF6366F1) : const Color(0xFF818CF8)).withValues(alpha: 0.35),
                   blurRadius: 8,
                   spreadRadius: 1,
                 ),
@@ -77,11 +83,12 @@ class DashboardHeaderWidget extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Text(
-                        '$greeting, ${user.fullName.trim().isNotEmpty ? user.fullName.trim().split(' ').first : 'User'}! 👋',
+                        greetingDisplay,
                         style: const TextStyle(
                           fontSize: 21,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
+                          fontFamily: 'Poppins',
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -90,38 +97,45 @@ class DashboardHeaderWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 11,
-                            color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            dateStr,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today_rounded,
+                              size: 11,
                               color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                dateStr,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                                  fontFamily: 'Poppins',
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: (isDark ? DesignColors.primaryDark : DesignColors.primaryLight).withOpacity(0.12),
+                        color: (isDark ? DesignColors.primaryDark : DesignColors.primaryLight).withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -133,6 +147,7 @@ class DashboardHeaderWidget extends StatelessWidget {
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: isDark ? DesignColors.primaryDark : DesignColors.primaryLight,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           const SizedBox(width: 2),
@@ -154,5 +169,3 @@ class DashboardHeaderWidget extends StatelessWidget {
     );
   }
 }
-
-

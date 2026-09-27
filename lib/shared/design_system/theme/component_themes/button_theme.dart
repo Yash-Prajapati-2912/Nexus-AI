@@ -6,7 +6,7 @@ abstract class AppButtonTheme {
     return FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        shape: RoundedRectangleBorder(borderRadius: DesignRadiusTokens.md),
+        shape: const RoundedRectangleBorder(borderRadius: DesignRadiusTokens.md),
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
       ),
@@ -17,7 +17,7 @@ abstract class AppButtonTheme {
     return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        shape: RoundedRectangleBorder(borderRadius: DesignRadiusTokens.md),
+        shape: const RoundedRectangleBorder(borderRadius: DesignRadiusTokens.md),
         side: BorderSide(color: colors.outline),
         foregroundColor: colors.primary,
       ),

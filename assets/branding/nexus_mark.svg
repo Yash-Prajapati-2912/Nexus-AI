@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Nexus Main Linear Gradient: Violet -> Blue -> Cyan -->
+    <linearGradient id="nexusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C6CFF" />
+      <stop offset="50%" stop-color="#4F8CFF" />
+      <stop offset="100%" stop-color="#4FD1FF" />
+    </linearGradient>
+
+    <!-- Subtle Orbit Gradient -->
+    <linearGradient id="orbitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C6CFF" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#4F8CFF" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#4FD1FF" stop-opacity="0.6" />
+    </linearGradient>
+
+    <!-- Central Core Radial Glow -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4FD1FF" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#4F8CFF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#7C6CFF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Core Glow Filter -->
+    <filter id="glowBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base Container (Optional visual container for standalone usage) -->
+  <rect width="512" height="512" rx="128" fill="#0B0D12" />
+
+  <!-- Subtle Orbital Ring (Horizontal Ellipse tilted slightly, centered at 256,256) -->
+  <ellipse cx="256" cy="256" rx="190" ry="75" 
+           transform="rotate(-22 256 256)" 
+           fill="none" 
+           stroke="url(#orbitGradient)" 
+           stroke-width="5" 
+           stroke-dasharray="14 10" 
+           opacity="0.7" />
+
+  <!-- Orbit Satellite Nodes -->
+  <circle cx="118" cy="205" r="7" fill="#7C6CFF" />
+  <circle cx="394" cy="307" r="7" fill="#4FD1FF" />
+
+  <!-- Primary "N" Symbol Path -->
+  <!-- Left vertical: (140, 370) to (140, 142) -->
+  <!-- Middle diagonal: (140, 142) to (372, 370) -->
+  <!-- Right vertical: (372, 370) to (372, 142) -->
+  <path d="M 140 370 L 140 142 L 372 370 L 372 142" 
+        fill="none" 
+        stroke="url(#nexusGradient)" 
+        stroke-width="44" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+
+  <!-- Outer Structural Endpoint Nodes -->
+  <!-- Bottom Left Node -->
+  <circle cx="140" cy="370" r="14" fill="#0B0D12" stroke="#7C6CFF" stroke-width="6" />
+  <!-- Top Left Node -->
+  <circle cx="140" cy="142" r="14" fill="#0B0D12" stroke="#7C6CFF" stroke-width="6" />
+  <!-- Bottom Right Node -->
+  <circle cx="372" cy="370" r="14" fill="#0B0D12" stroke="#4FD1FF" stroke-width="6" />
+  <!-- Top Right Node -->
+  <circle cx="372" cy="142" r="14" fill="#0B0D12" stroke="#4FD1FF" stroke-width="6" />
+
+  <!-- Central Intelligence Core Glowing Node (Center point 256, 256) -->
+  <circle cx="256" cy="256" r="42" fill="url(#coreGlow)" filter="url(#glowBlur)" />
+  <circle cx="256" cy="256" r="18" fill="#F5F7FA" stroke="#4F8CFF" stroke-width="5" />
+</svg>

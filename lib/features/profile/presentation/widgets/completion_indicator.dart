@@ -7,7 +7,6 @@ class CompletionIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final color = percentage >= 80 ? const Color(0xFF10B981) : Colors.orangeAccent;
 
     return Container(

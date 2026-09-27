@@ -25,7 +25,7 @@ class ThemeCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         decoration: BoxDecoration(
           color: isSelected
-              ? theme.colorScheme.primaryContainer.withOpacity(0.4)
+              ? theme.colorScheme.primaryContainer.withValues(alpha: 0.4)
               : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16.0),
           border: Border.all(

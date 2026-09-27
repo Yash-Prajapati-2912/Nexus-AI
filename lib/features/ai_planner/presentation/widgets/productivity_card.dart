@@ -23,7 +23,7 @@ class ProductivityCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.local_fire_department_rounded, color: Colors.orangeAccent, size: 24),
+                    const Icon(Icons.local_fire_department_rounded, color: Colors.orangeAccent, size: 24),
                     const SizedBox(width: 6),
                     Text(
                       '${insight.studyStreakDays} Day Streak!',

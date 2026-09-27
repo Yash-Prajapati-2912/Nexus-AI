@@ -6,16 +6,17 @@ import 'package:nexus_ai/features/finance/data/models/budget_model.dart';
 import 'package:nexus_ai/features/finance/data/models/expense_model.dart';
 import 'package:nexus_ai/features/finance/data/models/finance_category_model.dart';
 import 'package:nexus_ai/features/finance/data/models/income_model.dart';
+import 'package:nexus_ai/features/finance/data/models/investment_model.dart';
 import 'package:nexus_ai/features/finance/data/models/savings_goal_model.dart';
 import 'package:nexus_ai/features/finance/domain/entities/budget.dart';
 import 'package:nexus_ai/features/finance/domain/entities/expense.dart';
 import 'package:nexus_ai/features/finance/domain/entities/finance_category.dart';
 import 'package:nexus_ai/features/finance/domain/entities/financial_report.dart';
 import 'package:nexus_ai/features/finance/domain/entities/income.dart';
+import 'package:nexus_ai/features/finance/domain/entities/investment.dart';
 import 'package:nexus_ai/features/finance/domain/entities/savings_goal.dart';
 import 'package:nexus_ai/features/finance/domain/entities/transaction.dart';
 import 'package:nexus_ai/features/finance/domain/repositories/i_finance_repository.dart';
-
 
 class FinanceRepositoryImpl implements IFinanceRepository {
   final IFinanceRemoteDataSource remoteDataSource;
@@ -202,6 +203,48 @@ class FinanceRepositoryImpl implements IFinanceRepository {
   Future<Either<Failure, Unit>> deleteSavingsGoal(String id) async {
     try {
       await remoteDataSource.deleteSavingsGoal(id);
+      return const Right(unit);
+    } catch (e) {
+      return Left(_mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Investment>>> getInvestments() async {
+    try {
+      final models = await remoteDataSource.getInvestments();
+      return Right(models.map((m) => m.toDomain()).toList());
+    } catch (e) {
+      return Left(_mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Investment>> createInvestment(Investment investment) async {
+    try {
+      final model = InvestmentModel.fromDomain(investment);
+      final created = await remoteDataSource.createInvestment(model);
+      return Right(created.toDomain());
+    } catch (e) {
+      return Left(_mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Investment>> updateInvestment(Investment investment) async {
+    try {
+      final model = InvestmentModel.fromDomain(investment);
+      final updated = await remoteDataSource.updateInvestment(model);
+      return Right(updated.toDomain());
+    } catch (e) {
+      return Left(_mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteInvestment(String id) async {
+    try {
+      await remoteDataSource.deleteInvestment(id);
       return const Right(unit);
     } catch (e) {
       return Left(_mapExceptionToFailure(e));

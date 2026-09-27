@@ -17,7 +17,7 @@ class ProfileHeader extends StatelessWidget {
     final primaryGradient = isDark ? DesignColors.primaryGradientDark : DesignColors.primaryGradientLight;
     final titleColor = isDark ? DesignColors.textPrimaryDark : DesignColors.textPrimaryLight;
     final subtitleColor = isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight;
-    final glowColor = isDark ? DesignColors.accentPurpleDark.withOpacity(0.4) : DesignColors.primaryLight.withOpacity(0.25);
+    final glowColor = isDark ? DesignColors.accentPurpleDark.withValues(alpha: 0.4) : DesignColors.primaryLight.withValues(alpha: 0.25);
 
     return GlassCard(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -73,7 +73,7 @@ class ProfileHeader extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.06) : Colors.indigo.withOpacity(0.06),
+                color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.indigo.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isDark ? DesignColors.glassBorderDark : DesignColors.glassBorderLight,

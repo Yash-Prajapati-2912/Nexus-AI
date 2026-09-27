@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/design_tokens/colors.dart';
 import '../../theme/design_tokens/radius.dart';
 
@@ -29,23 +30,23 @@ class AppErrorWidget extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: errorColor.withOpacity(0.12),
+                color: errorColor.withValues(alpha: 0.12),
                 border: Border.all(
-                  color: errorColor.withOpacity(0.25),
+                  color: errorColor.withValues(alpha: 0.25),
                   width: 1.5,
                 ),
               ),
-              child: Icon(Icons.error_outline_rounded, size: 52, color: errorColor),
+              child: Icon(Icons.error_outline_rounded, size: 48, color: errorColor),
             ),
             const SizedBox(height: 20),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: textColor,
-                height: 1.4,
+                height: 1.45,
               ),
             ),
             if (onRetry != null) ...[
@@ -53,11 +54,11 @@ class AppErrorWidget extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Retry', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text('Retry', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
                 style: FilledButton.styleFrom(
                   backgroundColor: errorColor,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: const RoundedRectangleBorder(borderRadius: DesignRadius.full),
+                  shape: const RoundedRectangleBorder(borderRadius: DesignRadius.md),
                 ),
               ),
             ],
@@ -67,4 +68,5 @@ class AppErrorWidget extends StatelessWidget {
     );
   }
 }
+
 

@@ -46,7 +46,7 @@ class SettingsRemoteDataSourceImpl implements ISettingsRemoteDataSource {
     if (data is Map<String, dynamic>) {
       return SettingsModel.fromJson(data);
     }
-    return SettingsModel.fromJson({});
+    return SettingsModel.fromJson(const {});
   }
 
   @override
