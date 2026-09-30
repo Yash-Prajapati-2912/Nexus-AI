@@ -214,6 +214,9 @@ import { AINotificationListener } from './ai/listeners/ai-notification.listener'
   exports: [
     BudgetRepository,
     ExpenseRepository,
+    IncomeRepository,
+    SavingsGoalRepository,
+    AIFinancialAnalysisRepository,
     BudgetService,
     ExpenseCategoryService,
     ExpenseService,

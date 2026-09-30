@@ -55,7 +55,12 @@ export class FinancialReportController {
     @CurrentUser('id') userId: string,
     @Query('reportType') reportType?: ReportType,
   ): Promise<FinancialReportResponseDto[]> {
-    return this.reportGenerator.getUserReports(userId, reportType);
+    const reports = await this.reportGenerator.getUserReports(userId, reportType);
+    if (reports.length === 0 && reportType) {
+      const generated = await this.reportGenerator.generateReport(userId, { reportType });
+      return [generated];
+    }
+    return reports;
   }
 
   @Get('export')

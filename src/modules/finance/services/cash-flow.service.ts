@@ -8,6 +8,7 @@ import { CashFlowResponseDto } from '../dto/cash-flow-response.dto';
 import { AnalyticsDatePreset } from '../constants/analytics-enums.constants';
 import { ANALYTICS_EVENTS } from '../constants/analytics-events.constants';
 import { CashFlowUpdatedEvent } from '../events/cash-flow-updated.event';
+import { FinanceDateUtils } from '../utils/finance-date.utils';
 
 @Injectable()
 export class CashFlowService {
@@ -84,31 +85,33 @@ export class CashFlowService {
     const now = new Date();
     if (queryDto.startDate && queryDto.endDate) {
       return {
-        startDate: new Date(queryDto.startDate),
-        endDate: new Date(queryDto.endDate),
+        startDate: FinanceDateUtils.parseStartDate(queryDto.startDate),
+        endDate: FinanceDateUtils.parseEndDate(queryDto.endDate),
       };
     }
 
     const preset = queryDto.preset || AnalyticsDatePreset.THIS_MONTH;
     switch (preset) {
       case AnalyticsDatePreset.THIS_WEEK: {
-        const start = new Date(now.setDate(now.getDate() - now.getDay()));
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        end.setHours(23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        return {
+          startDate: FinanceDateUtils.getStartOfWeek(now),
+          endDate: FinanceDateUtils.getEndOfWeek(now),
+        };
       }
       case AnalyticsDatePreset.LAST_MONTH: {
-        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        const lastMonth = now.getMonth() === 0 ? 12 : now.getMonth();
+        const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        return {
+          startDate: FinanceDateUtils.getStartOfMonth(year, lastMonth),
+          endDate: FinanceDateUtils.getEndOfMonth(year, lastMonth),
+        };
       }
       case AnalyticsDatePreset.THIS_MONTH:
       default: {
-        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        return {
+          startDate: FinanceDateUtils.getStartOfMonth(now.getFullYear(), now.getMonth() + 1),
+          endDate: FinanceDateUtils.getEndOfMonth(now.getFullYear(), now.getMonth() + 1),
+        };
       }
     }
   }

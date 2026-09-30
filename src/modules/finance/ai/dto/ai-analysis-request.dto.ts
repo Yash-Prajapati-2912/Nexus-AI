@@ -12,4 +12,8 @@ export class AIAnalysisRequestDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional({ description: 'Bypass cache and force fresh analysis' })
+  @IsOptional()
+  forceRefresh?: boolean;
 }

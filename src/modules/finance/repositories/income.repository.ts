@@ -4,6 +4,7 @@ import { Repository, EntityManager } from 'typeorm';
 import { BaseRepository } from '../../../database/base.repository';
 import { Income } from '../entities/income.entity';
 import { QueryIncomeDto } from '../dto/query-income.dto';
+import { FinanceDateUtils } from '../utils/finance-date.utils';
 
 @Injectable()
 export class IncomeRepository extends BaseRepository<Income> {
@@ -39,14 +40,18 @@ export class IncomeRepository extends BaseRepository<Income> {
     }
 
     if (queryDto.startDate && queryDto.endDate) {
+      const startDate = FinanceDateUtils.parseStartDate(queryDto.startDate);
+      const endDate = FinanceDateUtils.parseEndDate(queryDto.endDate);
       qb.andWhere('income.receivedDate BETWEEN :startDate AND :endDate', {
-        startDate: new Date(queryDto.startDate),
-        endDate: new Date(queryDto.endDate),
+        startDate,
+        endDate,
       });
     } else if (queryDto.startDate) {
-      qb.andWhere('income.receivedDate >= :startDate', { startDate: new Date(queryDto.startDate) });
+      const startDate = FinanceDateUtils.parseStartDate(queryDto.startDate);
+      qb.andWhere('income.receivedDate >= :startDate', { startDate });
     } else if (queryDto.endDate) {
-      qb.andWhere('income.receivedDate <= :endDate', { endDate: new Date(queryDto.endDate) });
+      const endDate = FinanceDateUtils.parseEndDate(queryDto.endDate);
+      qb.andWhere('income.receivedDate <= :endDate', { endDate });
     }
 
     qb.orderBy('income.receivedDate', 'DESC');
@@ -66,8 +71,8 @@ export class IncomeRepository extends BaseRepository<Income> {
     entityManager?: EntityManager,
   ): Promise<number> {
     const repo = this.getRepo(entityManager);
-    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    const startDate = FinanceDateUtils.getStartOfMonth(year, month);
+    const endDate = FinanceDateUtils.getEndOfMonth(year, month);
 
     const result = await repo
       .createQueryBuilder('income')

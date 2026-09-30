@@ -10,6 +10,7 @@ import { AnalyticsMapper } from '../../mappers/analytics.mapper';
 import { ExportFormat, ReportType } from '../../constants/analytics-enums.constants';
 import { ANALYTICS_EVENTS } from '../../constants/analytics-events.constants';
 import { FinancialReportGeneratedEvent } from '../../events/financial-report-generated.event';
+import { FinanceDateUtils } from '../../utils/finance-date.utils';
 
 @Injectable()
 export class ReportGeneratorService {
@@ -31,7 +32,49 @@ export class ReportGeneratorService {
     const totalDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
 
     const spendingStats = SpendingCalculator.calculateStats(data.expenses, totalDays);
-    const cashFlowStats = CashFlowCalculator.calculateCashFlow(data.incomes, data.expenses, startDate, endDate);
+    const cashFlowStats = (queryDto.reportType === ReportType.YEARLY)
+      ? CashFlowCalculator.calculateYearlyCashFlow(data.incomes, data.expenses, startDate.getFullYear())
+      : CashFlowCalculator.calculateCashFlow(data.incomes, data.expenses, startDate, endDate);
+
+    const categoryTotals: Record<string, { name: string; colour: string; amount: number }> = {};
+    let totalExpenseAmount = 0;
+    for (const exp of data.expenses) {
+      const amt = Number(exp.amount);
+      totalExpenseAmount += amt;
+      const catId = exp.categoryId || (exp.category ? exp.category.id : 'general');
+      const catName = exp.category?.name || 'General';
+      const colour = exp.category?.colour || '#6366F1';
+      if (!categoryTotals[catId]) {
+        categoryTotals[catId] = { name: catName, colour, amount: 0 };
+      }
+      categoryTotals[catId].amount += amt;
+    }
+
+    const expenseBreakdown = Object.values(categoryTotals).map((c) => ({
+      categoryName: c.name,
+      amount: parseFloat(c.amount.toFixed(2)),
+      percentage: totalExpenseAmount > 0 ? parseFloat(((c.amount / totalExpenseAmount) * 100).toFixed(2)) : 0,
+      colorHex: c.colour,
+    }));
+
+    const incomeTotals: Record<string, { name: string; amount: number }> = {};
+    let totalIncomeAmount = 0;
+    for (const inc of data.incomes) {
+      const amt = Number(inc.amount);
+      totalIncomeAmount += amt;
+      const source = inc.source || 'General';
+      if (!incomeTotals[source]) {
+        incomeTotals[source] = { name: source, amount: 0 };
+      }
+      incomeTotals[source].amount += amt;
+    }
+
+    const incomeBreakdown = Object.values(incomeTotals).map((i) => ({
+      categoryName: i.name,
+      amount: parseFloat(i.amount.toFixed(2)),
+      percentage: totalIncomeAmount > 0 ? parseFloat(((i.amount / totalIncomeAmount) * 100).toFixed(2)) : 0,
+      colorHex: '#10B981',
+    }));
 
     const summaryData = {
       period: {
@@ -40,12 +83,15 @@ export class ReportGeneratorService {
         days: totalDays,
       },
       spending: spendingStats,
+      expenseBreakdown,
+      incomeBreakdown,
       cashFlow: {
         totalInflow: cashFlowStats.totalInflow,
         totalOutflow: cashFlowStats.totalOutflow,
         netCashFlow: cashFlowStats.netCashFlow,
         dailyAverageInflow: cashFlowStats.dailyAverageInflow,
         dailyAverageOutflow: cashFlowStats.dailyAverageOutflow,
+        dailyBreakdown: cashFlowStats.dailyBreakdown,
       },
       budget: data.budget
         ? {
@@ -96,41 +142,38 @@ export class ReportGeneratorService {
 
     if (queryDto.startDate && queryDto.endDate) {
       return {
-        startDate: new Date(queryDto.startDate),
-        endDate: new Date(queryDto.endDate),
+        startDate: FinanceDateUtils.parseStartDate(queryDto.startDate),
+        endDate: FinanceDateUtils.parseEndDate(queryDto.endDate),
         title: `Custom Financial Report (${queryDto.startDate} to ${queryDto.endDate})`,
       };
     }
 
     switch (type) {
       case ReportType.DAILY: {
-        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-        return { startDate: start, endDate: end, title: `Daily Financial Report - ${start.toISOString().split('T')[0]}` };
+        const start = FinanceDateUtils.getStartOfDay(now);
+        const end = FinanceDateUtils.getEndOfDay(now);
+        return { startDate: start, endDate: end, title: `Daily Financial Report - ${FinanceDateUtils.formatDate(start)}` };
       }
       case ReportType.WEEKLY: {
-        const start = new Date(now.setDate(now.getDate() - now.getDay()));
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        end.setHours(23, 59, 59, 999);
-        return { startDate: start, endDate: end, title: `Weekly Financial Report - Week of ${start.toISOString().split('T')[0]}` };
+        const start = FinanceDateUtils.getStartOfWeek(now);
+        const end = FinanceDateUtils.getEndOfWeek(now);
+        return { startDate: start, endDate: end, title: `Weekly Financial Report - Week of ${FinanceDateUtils.formatDate(start)}` };
       }
       case ReportType.QUARTERLY: {
         const currentQuarter = Math.floor(now.getMonth() / 3);
-        const start = new Date(now.getFullYear(), currentQuarter * 3, 1, 0, 0, 0);
+        const start = new Date(now.getFullYear(), currentQuarter * 3, 1, 0, 0, 0, 0);
         const end = new Date(now.getFullYear(), (currentQuarter + 1) * 3, 0, 23, 59, 59, 999);
         return { startDate: start, endDate: end, title: `Q${currentQuarter + 1} ${now.getFullYear()} Quarterly Report` };
       }
       case ReportType.YEARLY: {
-        const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        const start = FinanceDateUtils.getStartOfYear(now.getFullYear());
+        const end = FinanceDateUtils.getEndOfYear(now.getFullYear());
         return { startDate: start, endDate: end, title: `Annual Financial Report ${now.getFullYear()}` };
       }
       case ReportType.MONTHLY:
       default: {
-        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        const start = FinanceDateUtils.getStartOfMonth(now.getFullYear(), now.getMonth() + 1);
+        const end = FinanceDateUtils.getEndOfMonth(now.getFullYear(), now.getMonth() + 1);
         return { startDate: start, endDate: end, title: `Monthly Financial Report - ${now.toLocaleString('default', { month: 'long' })} ${now.getFullYear()}` };
       }
     }

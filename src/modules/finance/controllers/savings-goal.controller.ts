@@ -98,6 +98,21 @@ export class SavingsGoalController {
     return this.savingsGoalService.trackProgress(userId, id, dto);
   }
 
+  @Post(':id/contribute')
+  @ApiOperation({ summary: 'Add contribution toward savings goal (alias)' })
+  @ApiParam({ name: 'id', description: 'Savings Goal UUID' })
+  @ApiBody({ type: SavingsGoalProgressDto })
+  @ApiResponse({ status: 200, description: 'Savings Goal contribution added', type: SavingsGoalResponseDto })
+  @ApiResponse({ status: 400, description: 'Goal already completed' })
+  @ApiResponse({ status: 404, description: 'Goal not found' })
+  async contribute(
+    @CurrentUser('id') userId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: SavingsGoalProgressDto,
+  ): Promise<SavingsGoalResponseDto> {
+    return this.savingsGoalService.trackProgress(userId, id, dto);
+  }
+
   @Post(':id/complete')
   @ApiOperation({ summary: 'Mark savings goal as completed' })
   @ApiParam({ name: 'id', description: 'Savings Goal UUID' })

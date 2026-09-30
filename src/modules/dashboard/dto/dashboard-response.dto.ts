@@ -102,4 +102,7 @@ export class DashboardResponseDto {
 
   @ApiProperty({ description: 'Personalized user insights', type: [UserInsightItemDto] })
   insights: UserInsightItemDto[];
+
+  @ApiPropertyOptional({ description: 'Chart visualizations data' })
+  chartData?: Record<string, any>;
 }

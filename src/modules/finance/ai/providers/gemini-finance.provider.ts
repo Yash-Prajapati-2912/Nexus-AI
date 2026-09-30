@@ -32,22 +32,28 @@ export class GeminiFinanceProvider implements IAIFinanceProvider {
   ): Promise<IAIFinancialAnalysisResult> {
     const systemInstruction = `
 You are the AI Financial Intelligence Engine for Nexus AI (Student Life Operating System).
-Analyze student income, expenses, budgets, savings goals, and spending distribution.
+Analyze the student's actual confirmed financial data provided in the prompt.
+CRITICAL RULES:
+1. Ground your entire analysis strictly in the confirmed financial facts provided.
+2. DO NOT fabricate, hallucinate, or assume any transactions, amounts, balances, or merchants.
+3. Distinguish confirmed facts ("Your recorded expenses this month are...") from AI analysis/suggestions ("Consider setting a limit on...").
+4. If available data is insufficient or zero transactions exist, explicitly state in the summary that available data is insufficient instead of inventing details.
+5. Respect actual category names and actual budget values. Do not invent mock categories.
 Output ONLY a valid JSON object matching this exact schema:
 {
-  "summary": "Executive summary of financial health",
-  "strengths": ["point 1", "point 2"],
-  "weaknesses": ["point 1", "point 2"],
+  "summary": "Executive summary of financial situation",
+  "strengths": ["Confirmed strength 1", "Confirmed strength 2"],
+  "weaknesses": ["Spending area to watch"],
   "recommendations": [
     {
-      "title": "Recommendation title",
-      "description": "Details",
+      "title": "Actionable recommendation title",
+      "description": "Clear guidance based on confirmed data",
       "priority": "HIGH",
-      "category": "Food & Dining",
-      "potentialSavings": 50
+      "category": "Actual category name from data or General",
+      "potentialSavings": 0
     }
   ],
-  "warnings": ["Warning if overspending"],
+  "warnings": ["Warning if overspending or approaching budget limit"],
   "confidenceScore": 0.92
 }
 No markdown block formatting wrappers. Output clean raw JSON only.
@@ -76,13 +82,18 @@ No markdown block formatting wrappers. Output clean raw JSON only.
   ): Promise<IAIMonthEndPredictionResult> {
     const systemInstruction = `
 You are the AI Financial Prediction Engine for Nexus AI.
+Base your prediction strictly on the confirmed financial data and days remaining in the month.
+CRITICAL RULES:
+1. Ground prediction in actual recorded spending velocity and confirmed income/budget.
+2. If zero expenses are recorded, state that transaction history is insufficient to estimate burn rate.
+3. Do not invent imaginary future expenses.
 Output ONLY a valid JSON object matching:
 {
-  "predictedMonthEndBalance": 350.0,
-  "expectedTotalSpending": 650.0,
-  "savingsAchievementProbability": 85.5,
+  "predictedMonthEndBalance": 0.0,
+  "expectedTotalSpending": 0.0,
+  "savingsAchievementProbability": 85.0,
   "budgetExhaustionDate": null,
-  "reasoning": "Mathematical breakdown",
+  "reasoning": "Mathematical explanation based strictly on confirmed numbers",
   "confidenceScore": 0.89
 }
 No markdown. Clean JSON only.
@@ -111,15 +122,20 @@ No markdown. Clean JSON only.
   ): Promise<IAISafeDailyBudgetResult> {
     const systemInstruction = `
 You are the AI Safe Daily Spending Calculator for Nexus AI.
+Calculate safe daily spending strictly from confirmed remaining budget (or net balance) divided by days remaining.
+CRITICAL RULES:
+1. Use the actual remaining budget or net balance provided. Do not invent a different remaining amount.
+2. Use the exact remaining days in the month provided.
+3. Show transparent mathematical reasoning: Safe Limit = Remaining / Days Remaining.
 Output ONLY a valid JSON object matching:
 {
-  "safeDailyLimit": 25.0,
-  "remainingBudget": 350.0,
+  "safeDailyLimit": 0.0,
+  "remainingBudget": 0.0,
   "remainingDays": 14,
-  "reservedSavings": 50.0,
+  "reservedSavings": 0.0,
   "plannedUpcomingExpenses": 0.0,
-  "mathematicalReasoning": "Safe Limit = (350 - 50) / 14 = 21.43",
-  "behavioralGuidance": ["Limit coffee purchases to $5/day"],
+  "mathematicalReasoning": "Formula and numbers used",
+  "behavioralGuidance": ["Actionable guidance tailored to real spending"],
   "confidenceScore": 0.95
 }
 No markdown. Clean JSON only.
@@ -148,15 +164,20 @@ No markdown. Clean JSON only.
   ): Promise<IAISavingsPlanResult> {
     const systemInstruction = `
 You are the AI Savings Coach for Nexus AI.
+Formulate a realistic savings strategy strictly based on the confirmed income, expenses, and savings goals provided.
+CRITICAL RULES:
+1. Do not invent arbitrary debt, subscriptions, or income that the user has not logged.
+2. Reference actual goals and top expense categories from the prompt.
+3. If no income or goals exist, guide the user to set up their first financial goal.
 Output ONLY a valid JSON object matching:
 {
-  "title": "Semester Emergency & Laptop Savings Plan",
-  "strategy": "Automate $40 weekly deposits and cap dining out",
-  "suggestedMonthlyContribution": 160.0,
-  "targetCategoriesToCut": ["Entertainment", "Food & Dining"],
-  "emergencyFundAdvice": "Build a 1-month $500 safety buffer",
+  "title": "Savings plan title",
+  "strategy": "Actionable savings strategy",
+  "suggestedMonthlyContribution": 0.0,
+  "targetCategoriesToCut": ["Actual category from prompt"],
+  "emergencyFundAdvice": "Context-aware safety fund advice",
   "actionSteps": [
-    { "step": 1, "title": "Set up weekly transfer", "description": "Transfer $40 on payday" }
+    { "step": 1, "title": "Step title", "description": "Actionable instruction" }
   ],
   "confidenceScore": 0.91
 }
@@ -186,13 +207,18 @@ No markdown. Clean JSON only.
   ): Promise<IAIExpenseForecastResult> {
     const systemInstruction = `
 You are the AI Expense Forecasting Engine for Nexus AI.
+Forecast future commitments strictly using confirmed recurring expenses or confirmed historical spending rates.
+CRITICAL RULES:
+1. Only project recurring expenses that actually appear in the prompt data.
+2. If no recurring expenses exist, return an empty forecastedItems list and 0 total.
+3. Do not invent sample bills like Wi-Fi or streaming unless explicitly logged.
 Output ONLY a valid JSON object matching:
 {
   "forecastedItems": [
-    { "title": "Monthly Wifi", "categoryName": "Housing & Rent", "forecastedAmount": 50, "forecastDate": "2026-09-01", "confidence": 0.95 }
+    { "title": "Expense Title", "categoryName": "Category", "forecastedAmount": 0.0, "forecastDate": "YYYY-MM-DD", "confidence": 0.9 }
   ],
-  "totalForecastedAmount": 50.0,
-  "summary": "Projected upcoming recurring expenses",
+  "totalForecastedAmount": 0.0,
+  "summary": "Explanation of forecasted recurring commitments",
   "confidenceScore": 0.88
 }
 No markdown. Clean JSON only.
@@ -217,70 +243,187 @@ No markdown. Clean JSON only.
 
   // Deterministic Fallback Generators for Dev / Offline Mode
   private getFallbackAnalysis(context: IAIFinancePromptContext): IAIFinancialAnalysisResult {
+    const hasData = context.expenses.length > 0 || context.incomes.length > 0;
+    const curr = context.currencySymbol || '$';
+
+    if (!hasData) {
+      return {
+        summary: 'Insufficient finance data. No recorded income or expense transactions found for this period.',
+        strengths: [],
+        weaknesses: [],
+        recommendations: [
+          {
+            title: 'Log Your First Transaction',
+            description: 'Record your daily expenses and income in Finance Studio to unlock personalized AI insights.',
+            priority: 'HIGH' as const,
+            category: 'General',
+            potentialSavings: 0,
+          },
+        ],
+        warnings: [],
+        confidenceScore: 0.85,
+      };
+    }
+
+    const net = context.netBalance ?? (context.totalIncome - context.totalExpenses);
+    const topCat = context.categoryBreakdown && context.categoryBreakdown.length > 0
+      ? context.categoryBreakdown[0]
+      : null;
+
+    const strengths: string[] = [];
+    if (context.incomes.length > 0) strengths.push(`Recorded inflow: ${curr}${context.totalIncome}`);
+    if (net > 0) strengths.push(`Positive net balance of ${curr}${net.toFixed(2)}`);
+    if (context.budget && Number(context.budget.spentAmount) <= Number(context.budget.plannedAmount)) {
+      strengths.push('Spending is within planned monthly budget limit');
+    }
+
+    const weaknesses: string[] = [];
+    if (net < 0) weaknesses.push(`Expenses exceed income by ${curr}${Math.abs(net).toFixed(2)}`);
+    if (topCat && topCat.percentage > 40) {
+      weaknesses.push(`${topCat.categoryName} represents ${topCat.percentage.toFixed(0)}% of total expenses`);
+    }
+
+    const warnings: string[] = [];
+    if (context.budget && Number(context.budget.spentAmount) > Number(context.budget.plannedAmount)) {
+      warnings.push(`Monthly budget exceeded by ${curr}${(Number(context.budget.spentAmount) - Number(context.budget.plannedAmount)).toFixed(2)}`);
+    }
+
+    const recommendations = [];
+    if (topCat) {
+      const topAmount = topCat.totalSpent ?? topCat.totalAmount ?? 0;
+      recommendations.push({
+        title: `Optimize ${topCat.categoryName}`,
+        description: `Your highest spending category is ${topCat.categoryName} (${curr}${topAmount}). Consider setting a category limit.`,
+        priority: 'HIGH' as const,
+        category: topCat.categoryName,
+        potentialSavings: Math.round(topAmount * 0.1),
+      });
+    } else {
+      recommendations.push({
+        title: 'Categorize Your Expenses',
+        description: 'Assign categories to your expenses to unlock detailed AI category spending analysis.',
+        priority: 'MEDIUM' as const,
+        category: 'General',
+        potentialSavings: 0,
+      });
+    }
+
+    const emergencyReserve = (context.totalExpenses * 3).toFixed(0);
+    const structuredSummary = `### Summary
+Your recorded income is ${curr}${context.totalIncome} and recorded expenses are ${curr}${context.totalExpenses}, leaving a net balance of ${curr}${net.toFixed(2)} before other commitments.
+
+### What I noticed
+${strengths.length > 0 ? strengths.map((s) => `- ${s}`).join('\n') : '- Transactions recorded for this period.'}
+${weaknesses.length > 0 ? weaknesses.map((w) => `- ${w}`).join('\n') : '- Spending is distributed across categories.'}
+
+### What you could do
+${recommendations.map((r) => `- ${r.title}: ${r.description} (Potential monthly savings: ${curr}${r.potentialSavings || 0})`).join('\n')}
+
+### If you want to save/invest
+- Maintain an emergency reserve of approximately ${curr}${emergencyReserve} (covering 3 months of essential expenses).
+- Short-term allocations: prioritize capital preservation and liquidity.
+- Medium to long-term goals: consider diversified, goal-based investment options appropriate to your time horizon and risk tolerance.`;
+
     return {
-      summary: `Analyzed ${context.expenses.length} expenses and ${context.incomes.length} income sources.`,
-      strengths: ['Consistent income streams logged', 'Active budget maintained'],
-      weaknesses: context.totalExpenses > context.totalIncome ? ['Expenses exceed total income'] : ['High proportion spent on dining'],
-      recommendations: [
-        {
-          title: 'Optimize Dining Out',
-          description: 'Reduce weekly restaurant visits by 1 to save ~$40 monthly.',
-          priority: 'HIGH',
-          category: 'Food & Dining',
-          potentialSavings: 40,
-        },
-      ],
-      warnings: context.totalExpenses > context.totalIncome ? ['Negative cash flow detected for period'] : [],
+      summary: structuredSummary,
+      strengths: strengths.length > 0 ? strengths : ['Transaction records active'],
+      weaknesses,
+      recommendations,
+      warnings,
       confidenceScore: 0.85,
     };
   }
 
   private getFallbackPrediction(context: IAIFinancePromptContext): IAIMonthEndPredictionResult {
     const days = Math.max(1, context.daysRemainingInMonth);
-    const dailyAvg = context.expenses.length > 0 ? context.totalExpenses / Math.max(1, 30 - days) : 15;
+    const curr = context.currencySymbol || '$';
+
+    if (context.expenses.length === 0) {
+      return {
+        predictedMonthEndBalance: parseFloat(context.totalIncome.toFixed(2)),
+        expectedTotalSpending: 0,
+        savingsAchievementProbability: context.totalIncome > 0 ? 100.0 : 0.0,
+        budgetExhaustionDate: null,
+        reasoning: `No expenses logged. Projected balance matches recorded inflow of ${curr}${context.totalIncome}.`,
+        confidenceScore: 0.85,
+      };
+    }
+
+    const dailyAvg = context.totalExpenses / Math.max(1, 30 - days);
     const projectedAddlSpent = dailyAvg * days;
     const expectedTotal = context.totalExpenses + projectedAddlSpent;
-    const planned = context.budget ? Number(context.budget.plannedAmount) : 500;
-    const predictedBalance = planned - expectedTotal;
+    const baseAmount = context.budget ? Number(context.budget.plannedAmount) : context.totalIncome;
+    const predictedBalance = baseAmount - expectedTotal;
 
     return {
       predictedMonthEndBalance: parseFloat(predictedBalance.toFixed(2)),
       expectedTotalSpending: parseFloat(expectedTotal.toFixed(2)),
       savingsAchievementProbability: predictedBalance >= 0 ? 85.0 : 35.0,
       budgetExhaustionDate: predictedBalance < 0 ? new Date().toISOString().split('T')[0] : null,
-      reasoning: `Based on average daily spending of $${dailyAvg.toFixed(2)} across ${days} remaining days.`,
+      reasoning: `Based on recorded daily spending of ${curr}${dailyAvg.toFixed(2)} across ${days} remaining days.`,
       confidenceScore: 0.85,
     };
   }
 
   private getFallbackSafeDailyBudget(context: IAIFinancePromptContext): IAISafeDailyBudgetResult {
     const days = Math.max(1, context.daysRemainingInMonth);
+    const curr = context.currencySymbol || '$';
     const remBudget = Math.max(0, context.remainingBudget);
-    const reservedSavings = 50;
-    const safeDaily = Math.max(0, (remBudget - reservedSavings) / days);
+    const safeDaily = days > 0 ? remBudget / days : 0;
 
     return {
       safeDailyLimit: parseFloat(safeDaily.toFixed(2)),
-      remainingBudget: remBudget,
+      remainingBudget: parseFloat(remBudget.toFixed(2)),
       remainingDays: days,
-      reservedSavings,
+      reservedSavings: 0,
       plannedUpcomingExpenses: 0,
-      mathematicalReasoning: `Safe Daily Limit = (Remaining Budget $${remBudget.toFixed(2)} - Reserved Savings $${reservedSavings}) / ${days} days = $${safeDaily.toFixed(2)}/day.`,
-      behavioralGuidance: ['Pace discretionary purchases to stay within daily limit.'],
+      mathematicalReasoning: `Safe Daily Limit = Remaining Budget ${curr}${remBudget.toFixed(2)} / ${days} days = ${curr}${safeDaily.toFixed(2)}/day.`,
+      behavioralGuidance: [
+        safeDaily > 0
+          ? `Pace daily discretionary purchases within ${curr}${safeDaily.toFixed(2)}/day to stay within limits.`
+          : 'Log additional income or adjust your budget to calculate a positive daily spending limit.',
+      ],
       confidenceScore: 0.9,
     };
   }
 
   private getFallbackSavingsPlan(context: IAIFinancePromptContext): IAISavingsPlanResult {
+    const curr = context.currencySymbol || '$';
+    const net = context.netBalance ?? (context.totalIncome - context.totalExpenses);
+    const suggested = Math.max(0, net > 0 ? net * 0.2 : context.totalIncome * 0.1);
+    const topCat = context.categoryBreakdown && context.categoryBreakdown.length > 0
+      ? context.categoryBreakdown[0].categoryName
+      : null;
+
+    if (context.savingsGoals.length > 0) {
+      const primaryGoal = context.savingsGoals[0];
+      const target = Number(primaryGoal.targetAmount);
+      const current = Number(primaryGoal.currentAmount);
+      const remaining = Math.max(0, target - current);
+
+      return {
+        title: `${primaryGoal.title} Acceleration Strategy`,
+        strategy: `Allocate ${curr}${suggested.toFixed(0)} monthly towards ${primaryGoal.title}. Target is ${curr}${target} with ${curr}${remaining} remaining.`,
+        suggestedMonthlyContribution: parseFloat(suggested.toFixed(2)),
+        targetCategoriesToCut: topCat ? [topCat] : [],
+        emergencyFundAdvice: `Prioritize reaching ${curr}${target} for ${primaryGoal.title}.`,
+        actionSteps: [
+          { step: 1, title: 'Consistent deposit', description: `Transfer ${curr}${suggested.toFixed(0)} when income is received.` },
+        ],
+        confidenceScore: 0.88,
+      };
+    }
+
     return {
-      title: 'Student Savings Accelerator Plan',
-      strategy: 'Automate recurring monthly transfer of 10% income into savings.',
-      suggestedMonthlyContribution: parseFloat((context.totalIncome * 0.1).toFixed(2)),
-      targetCategoriesToCut: ['Entertainment', 'Food & Dining'],
-      emergencyFundAdvice: 'Maintain at least $300 in emergency reserve.',
+      title: 'Personalized Savings Plan',
+      strategy: context.totalIncome > 0
+        ? `Allocate 10-20% of monthly income (${curr}${suggested.toFixed(0)}) into a designated savings goal.`
+        : 'Record your regular income and expenses to establish an automated savings strategy.',
+      suggestedMonthlyContribution: parseFloat(suggested.toFixed(2)),
+      targetCategoriesToCut: topCat ? [topCat] : [],
+      emergencyFundAdvice: 'Establish a one-month living expense reserve before discretionary spending.',
       actionSteps: [
-        { step: 1, title: 'Set automatic transfer', description: 'Schedule recurring deposit on income receipt date.' },
-        { step: 2, title: 'Review active subscriptions', description: 'Cancel unused software or streaming apps.' },
+        { step: 1, title: 'Create a savings goal', description: 'Create a dedicated savings goal in Finance Studio.' },
       ],
       confidenceScore: 0.88,
     };
@@ -300,7 +443,9 @@ No markdown. Clean JSON only.
     return {
       forecastedItems: items,
       totalForecastedAmount: total,
-      summary: `Forecasted ${items.length} upcoming recurring expenses.`,
+      summary: items.length > 0
+        ? `Forecasted ${items.length} upcoming recurring expenses.`
+        : 'No upcoming recurring commitments detected in your transaction records.',
       confidenceScore: 0.85,
     };
   }

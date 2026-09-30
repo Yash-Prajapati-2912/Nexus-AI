@@ -7,6 +7,7 @@ import { FinancialMetricRepository } from '../repositories/financial-metric.repo
 import { AnalyticsQueryDto } from '../dto/analytics-query.dto';
 import { FinancialAnalyticsResponseDto } from '../dto/analytics-response.dto';
 import { AnalyticsDatePreset, MetricKey } from '../constants/analytics-enums.constants';
+import { FinanceDateUtils } from '../utils/finance-date.utils';
 
 @Injectable()
 export class FinancialAnalyticsService {
@@ -130,51 +131,51 @@ export class FinancialAnalyticsService {
     const now = new Date();
     if (queryDto.startDate && queryDto.endDate) {
       return {
-        startDate: new Date(queryDto.startDate),
-        endDate: new Date(queryDto.endDate),
+        startDate: FinanceDateUtils.parseStartDate(queryDto.startDate),
+        endDate: FinanceDateUtils.parseEndDate(queryDto.endDate),
       };
     }
 
     const preset = queryDto.preset || AnalyticsDatePreset.THIS_MONTH;
     switch (preset) {
       case AnalyticsDatePreset.TODAY: {
-        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        return {
+          startDate: FinanceDateUtils.getStartOfDay(now),
+          endDate: FinanceDateUtils.getEndOfDay(now),
+        };
       }
       case AnalyticsDatePreset.YESTERDAY: {
-        const yest = new Date(now);
-        yest.setDate(yest.getDate() - 1);
-        const start = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), 0, 0, 0);
-        const end = new Date(yest.getFullYear(), yest.getMonth(), yest.getDate(), 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        return {
+          startDate: FinanceDateUtils.getStartOfDay(yest),
+          endDate: FinanceDateUtils.getEndOfDay(yest),
+        };
       }
       case AnalyticsDatePreset.THIS_WEEK: {
-        const start = new Date(now.setDate(now.getDate() - now.getDay()));
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        end.setHours(23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        return {
+          startDate: FinanceDateUtils.getStartOfWeek(now),
+          endDate: FinanceDateUtils.getEndOfWeek(now),
+        };
       }
       case AnalyticsDatePreset.LAST_WEEK: {
-        const start = new Date(now.setDate(now.getDate() - now.getDay() - 7));
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 6);
-        end.setHours(23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        const thisMonday = FinanceDateUtils.getStartOfWeek(now);
+        const lastMonday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 7, 0, 0, 0, 0);
+        const lastSunday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 1, 23, 59, 59, 999);
+        return { startDate: lastMonday, endDate: lastSunday };
       }
       case AnalyticsDatePreset.LAST_MONTH: {
-        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return {
+          startDate: FinanceDateUtils.getStartOfMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1),
+          endDate: FinanceDateUtils.getEndOfMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1),
+        };
       }
       case AnalyticsDatePreset.THIS_MONTH:
       default: {
-        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        return { startDate: start, endDate: end };
+        return {
+          startDate: FinanceDateUtils.getStartOfMonth(now.getFullYear(), now.getMonth() + 1),
+          endDate: FinanceDateUtils.getEndOfMonth(now.getFullYear(), now.getMonth() + 1),
+        };
       }
     }
   }

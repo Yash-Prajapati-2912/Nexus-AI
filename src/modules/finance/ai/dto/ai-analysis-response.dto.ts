@@ -38,4 +38,15 @@ export class AIAnalysisResponseDto {
 
   @ApiProperty({ description: 'Active Provider Name' })
   providerName: string;
+
+  @ApiPropertyOptional({ description: 'Highest category shares' })
+  highestCategories?: Array<{
+    categoryName: string;
+    amount: number;
+    percentage: number;
+    trendDirection?: string;
+  }>;
+
+  @ApiPropertyOptional({ description: 'Calculated daily average spending' })
+  dailyAverageSpent?: number;
 }

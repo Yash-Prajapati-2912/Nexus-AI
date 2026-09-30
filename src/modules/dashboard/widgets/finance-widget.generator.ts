@@ -21,7 +21,14 @@ export class FinanceWidgetGenerator implements IWidgetGenerator {
         remainingBudget: finance.remainingBudget || 0,
         todaysSpending: finance.todaysSpending || 0,
         savingsProgressPercentage: finance.savingsProgressPercentage || 0,
-        financialHealthScore: finance.financialHealthScore || 85,
+        financialHealthScore: finance.financialHealthScore || 100,
+        totalIncome: finance.totalIncome || 0,
+        netBalance: finance.netBalance || 0,
+        aiFinancialTip: finance.aiFinancialTip || null,
+        activeGoalTitle: finance.activeGoalTitle || null,
+        activeGoalTarget: finance.activeGoalTarget || 0,
+        activeGoalCurrent: finance.activeGoalCurrent || 0,
+        recentTransactions: finance.recentTransactions || [],
       },
     };
   }

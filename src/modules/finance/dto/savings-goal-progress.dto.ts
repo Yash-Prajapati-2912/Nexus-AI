@@ -1,9 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsPositive } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsPositive, IsOptional, IsString } from 'class-validator';
 
 export class SavingsGoalProgressDto {
-  @ApiProperty({ description: 'Additional deposit/contribution amount to add to savings goal', example: 50.0 })
+  @ApiPropertyOptional({ description: 'Additional deposit/contribution amount to add to savings goal', example: 50.0 })
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
-  contributionAmount: number;
+  contributionAmount?: number;
+
+  @ApiPropertyOptional({ description: 'Alias for contributionAmount', example: 50.0 })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  amount?: number;
+
+  @ApiPropertyOptional({ description: 'Optional contribution note' })
+  @IsOptional()
+  @IsString()
+  note?: string;
 }

@@ -13,8 +13,23 @@ export interface IAIFinancePromptContext {
   categories: ExpenseCategory[];
   totalIncome: number;
   totalExpenses: number;
+  netBalance?: number;
   remainingBudget: number;
+  budgetUsagePercentage?: number;
   daysRemainingInMonth: number;
+  categoryBreakdown?: Array<{
+    categoryName: string;
+    totalAmount?: number;
+    totalSpent?: number;
+    percentage: number;
+    transactionCount?: number;
+  }>;
+  totalDaysInMonth?: number;
+  elapsedDays?: number;
+  normalDailyBudget?: number;
+  safeDailyLimit?: number;
+  projectedMonthEnd?: number;
+  currencySymbol?: string;
   studentProfile?: {
     careerGoals?: string[];
     studyPreferences?: string[];

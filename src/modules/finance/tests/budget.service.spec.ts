@@ -76,16 +76,17 @@ describe('BudgetService', () => {
       expect(eventEmitter.emit).toHaveBeenCalled();
     });
 
-    it('should throw ConflictException if budget for period already exists', async () => {
-      repository.findByUserAndPeriod.mockResolvedValue(mockBudget);
+    it('should update existing budget if budget for period already exists', async () => {
+      repository.findByUserAndPeriod.mockResolvedValue({ ...mockBudget });
 
-      await expect(
-        service.createBudget(mockUserId, {
-          month: 9,
-          year: 2026,
-          plannedAmount: 1000,
-        }),
-      ).rejects.toThrow(ConflictException);
+      const result = await service.createBudget(mockUserId, {
+        month: 9,
+        year: 2026,
+        plannedAmount: 1500,
+      });
+
+      expect(result.plannedAmount).toBe(1500);
+      expect(result.remainingAmount).toBe(1300); // 1500 - 200 spent
     });
   });
 

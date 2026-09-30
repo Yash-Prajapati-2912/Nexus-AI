@@ -8,8 +8,7 @@ export class FinanceEventListener {
 
   constructor(private readonly cacheService: DashboardCacheService) {}
 
-  @OnEvent('finance.expense_logged', { async: true })
-  @OnEvent('finance.budget_updated', { async: true })
+  @OnEvent('finance.*', { async: true })
   async handleFinanceEvent(event: any): Promise<void> {
     if (event && event.userId) {
       this.logger.log(`Finance event received for user ${event.userId}. Invalidating Dashboard cache.`);

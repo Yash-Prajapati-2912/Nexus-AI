@@ -9,6 +9,7 @@ import { SavingsRecommendationRepository } from '../repositories/savings-recomme
 import { AIFinanceUsageLogRepository } from '../repositories/ai-finance-usage-log.repository';
 import { FinanceAICacheService } from './finance-ai-cache.service';
 import { FinanceAIQueueProcessor } from '../queue/finance-ai.queue';
+import { FinanceDateUtils } from '../../utils/finance-date.utils';
 
 import { AIAnalysisRequestDto } from '../dto/ai-analysis-request.dto';
 import { AIAnalysisResponseDto } from '../dto/ai-analysis-response.dto';
@@ -46,9 +47,15 @@ export class FinanceAIService {
     userId: string,
     dto: AIAnalysisRequestDto,
   ): Promise<AIAnalysisResponseDto> {
+    if (dto.forceRefresh) {
+      await this.cacheService.invalidateUserCache(userId);
+    }
+
     const cacheKey = `ai_summary_${userId}_${dto.provider || 'default'}`;
-    const cached = await this.cacheService.get<AIAnalysisResponseDto>(cacheKey);
-    if (cached) return cached;
+    if (!dto.forceRefresh) {
+      const cached = await this.cacheService.get<AIAnalysisResponseDto>(cacheKey);
+      if (cached) return cached;
+    }
 
     const startTime = Date.now();
     const context = await this.buildContext(userId);
@@ -78,6 +85,15 @@ export class FinanceAIService {
 
     const saved = await this.analysisRepository.save(analysis, userId);
     const response = AIFinanceMapper.toAnalysisDto(saved);
+    response.highestCategories = (context.categoryBreakdown || []).map((c) => ({
+      categoryName: c.categoryName,
+      amount: Number(c.totalAmount ?? 0),
+      percentage: c.percentage,
+      trendDirection: 'STABLE',
+    }));
+    response.dailyAverageSpent = context.elapsedDays && context.elapsedDays > 0
+      ? parseFloat((context.totalExpenses / context.elapsedDays).toFixed(2))
+      : 0;
 
     await this.logUsage(userId, provider.providerName, 'SUMMARY', Date.now() - startTime);
     await this.cacheService.set(cacheKey, response, 600);
@@ -94,7 +110,58 @@ export class FinanceAIService {
     userId: string,
     dto: AIAnalysisRequestDto,
   ): Promise<AIAnalysisResponseDto> {
-    return this.generateFinancialSummary(userId, dto);
+    if (dto.forceRefresh) {
+      await this.cacheService.invalidateUserCache(userId);
+    }
+
+    const cacheKey = `ai_spending_${userId}_${dto.provider || 'default'}`;
+    if (!dto.forceRefresh) {
+      const cached = await this.cacheService.get<AIAnalysisResponseDto>(cacheKey);
+      if (cached) return cached;
+    }
+
+    const startTime = Date.now();
+    const context = await this.buildContext(userId);
+    const provider = this.providerFactory.getProvider(dto.provider);
+
+    const prompt = new FinancePromptBuilder()
+      .setContext(context)
+      .setTaskType('FINANCIAL_SPENDING_ANALYSIS')
+      .setExtraInstructions(dto.notes)
+      .build();
+
+    const result = await provider.generateFinancialAnalysis(prompt, context);
+
+    const analysis = this.analysisRepository.create(
+      {
+        userId,
+        summary: result.summary,
+        strengths: result.strengths,
+        weaknesses: result.weaknesses,
+        recommendations: result.recommendations,
+        warnings: result.warnings,
+        confidenceScore: result.confidenceScore,
+        providerName: provider.providerName,
+      },
+      userId,
+    );
+
+    const saved = await this.analysisRepository.save(analysis, userId);
+    const response = AIFinanceMapper.toAnalysisDto(saved);
+    response.highestCategories = (context.categoryBreakdown || []).map((c) => ({
+      categoryName: c.categoryName,
+      amount: Number(c.totalAmount ?? 0),
+      percentage: c.percentage,
+      trendDirection: 'STABLE',
+    }));
+    response.dailyAverageSpent = context.elapsedDays && context.elapsedDays > 0
+      ? parseFloat((context.totalExpenses / context.elapsedDays).toFixed(2))
+      : 0;
+
+    await this.logUsage(userId, provider.providerName, 'SPENDING_ANALYSIS', Date.now() - startTime);
+    await this.cacheService.set(cacheKey, response, 600);
+
+    return response;
   }
 
   async predictMonthEndBalance(
@@ -248,15 +315,28 @@ export class FinanceAIService {
 
   private async buildContext(userId: string) {
     const now = new Date();
-    const startOfMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1));
-    const endOfMonth = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
-    const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const daysRemainingInMonth = Math.max(1, totalDaysInMonth - now.getUTCDate());
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    const startOfMonth = FinanceDateUtils.getStartOfMonth(year, month);
+    const endOfMonth = FinanceDateUtils.getEndOfMonth(year, month);
+    const totalDaysInMonth = new Date(year, month, 0).getDate();
+    const elapsedDays = Math.min(now.getDate(), totalDaysInMonth);
+    const daysRemainingInMonth = Math.max(1, totalDaysInMonth - elapsedDays);
 
     const aggregated = await this.aggregator.aggregatePeriodData(userId, startOfMonth, endOfMonth);
     const totalExpenses = aggregated.expenses.reduce((sum: number, e: any) => sum + Number(e.amount), 0);
     const totalIncome = aggregated.incomes.reduce((sum: number, i: any) => sum + Number(i.amount), 0);
-    const remainingBudget = aggregated.budget ? Number(aggregated.budget.remainingAmount) : totalIncome - totalExpenses;
+    const netBalance = totalIncome - totalExpenses;
+    const plannedBudget = aggregated.budget ? Number(aggregated.budget.plannedAmount) : 0;
+    const remainingBudget = aggregated.budget ? Number(aggregated.budget.remainingAmount) : netBalance;
+    const budgetUsagePercentage =
+      plannedBudget > 0 && aggregated.budget
+        ? parseFloat(((Number(aggregated.budget.spentAmount) / plannedBudget) * 100).toFixed(2))
+        : 0;
+
+    const normalDailyBudget = plannedBudget > 0 ? parseFloat((plannedBudget / totalDaysInMonth).toFixed(2)) : 0;
+    const safeDailyLimit = remainingBudget > 0 && daysRemainingInMonth > 0 ? parseFloat((remainingBudget / daysRemainingInMonth).toFixed(2)) : 0;
+    const projectedMonthEnd = elapsedDays > 0 && totalExpenses > 0 ? parseFloat(((totalExpenses / elapsedDays) * totalDaysInMonth).toFixed(2)) : totalExpenses;
 
     return {
       userId,
@@ -264,11 +344,20 @@ export class FinanceAIService {
       incomes: aggregated.incomes,
       expenses: aggregated.expenses,
       savingsGoals: aggregated.savingsGoals,
-      categories: [],
+      categories: aggregated.categories || [],
+      categoryBreakdown: aggregated.categoryBreakdown || [],
       totalIncome: parseFloat(totalIncome.toFixed(2)),
       totalExpenses: parseFloat(totalExpenses.toFixed(2)),
+      netBalance: parseFloat(netBalance.toFixed(2)),
       remainingBudget: parseFloat(remainingBudget.toFixed(2)),
+      budgetUsagePercentage,
       daysRemainingInMonth,
+      totalDaysInMonth,
+      elapsedDays,
+      normalDailyBudget,
+      safeDailyLimit,
+      projectedMonthEnd,
+      currencySymbol: '₹',
     };
   }
 

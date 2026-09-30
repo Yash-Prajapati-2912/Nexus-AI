@@ -94,6 +94,9 @@ export class DashboardBuilder {
         todaysSpending: 0,
         savingsProgressPercentage: 0,
         financialHealthScore: 100,
+        totalIncome: 0,
+        netBalance: 0,
+        aiFinancialTip: null,
       },
       profileOverview: this.profileData || {
         fullName: 'Student',
@@ -136,6 +139,14 @@ export class DashboardBuilder {
         priorityLevel: ins.priorityLevel,
         domainCategory: ins.domainCategory,
       })),
+      chartData: {
+        categoryExpenses: (this.financeData?.categoryExpenses || []).map((c) => ({
+          label: c.label,
+          value: c.value,
+        })),
+        weeklyStudyHours: [],
+        taskCompletionTrend: [],
+      },
     };
   }
 }

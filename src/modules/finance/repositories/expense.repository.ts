@@ -6,6 +6,7 @@ import { Expense } from '../entities/expense.entity';
 import { QueryExpenseDto } from '../dto/query-expense.dto';
 import { DateRangePreset } from '../constants/finance-enums.constants';
 import { ICategoryBreakdown } from '../interfaces/category-breakdown.interface';
+import { FinanceDateUtils } from '../utils/finance-date.utils';
 
 @Injectable()
 export class ExpenseRepository extends BaseRepository<Expense> {
@@ -100,27 +101,28 @@ export class ExpenseRepository extends BaseRepository<Expense> {
   private applyDateFilters(qb: any, queryDto: QueryExpenseDto): void {
     const now = new Date();
     if (queryDto.dateRangePreset === DateRangePreset.TODAY) {
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      const startOfDay = FinanceDateUtils.getStartOfDay(now);
+      const endOfDay = FinanceDateUtils.getEndOfDay(now);
       qb.andWhere('expense.expenseDate BETWEEN :startOfDay AND :endOfDay', { startOfDay, endOfDay });
     } else if (queryDto.dateRangePreset === DateRangePreset.THIS_WEEK) {
-      const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-      firstDayOfWeek.setHours(0, 0, 0, 0);
-      qb.andWhere('expense.expenseDate >= :firstDayOfWeek', { firstDayOfWeek });
+      const startOfWeek = FinanceDateUtils.getStartOfWeek(now);
+      const endOfWeek = FinanceDateUtils.getEndOfWeek(now);
+      qb.andWhere('expense.expenseDate BETWEEN :startOfWeek AND :endOfWeek', { startOfWeek, endOfWeek });
     } else if (queryDto.dateRangePreset === DateRangePreset.THIS_MONTH) {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      const startOfMonth = FinanceDateUtils.getStartOfMonth(now.getFullYear(), now.getMonth() + 1);
+      const endOfMonth = FinanceDateUtils.getEndOfMonth(now.getFullYear(), now.getMonth() + 1);
       qb.andWhere('expense.expenseDate BETWEEN :startOfMonth AND :endOfMonth', { startOfMonth, endOfMonth });
     } else if (queryDto.startDate || queryDto.endDate) {
       if (queryDto.startDate && queryDto.endDate) {
-        qb.andWhere('expense.expenseDate BETWEEN :startDate AND :endDate', {
-          startDate: new Date(queryDto.startDate),
-          endDate: new Date(queryDto.endDate),
-        });
+        const startDate = FinanceDateUtils.parseStartDate(queryDto.startDate);
+        const endDate = FinanceDateUtils.parseEndDate(queryDto.endDate);
+        qb.andWhere('expense.expenseDate BETWEEN :startDate AND :endDate', { startDate, endDate });
       } else if (queryDto.startDate) {
-        qb.andWhere('expense.expenseDate >= :startDate', { startDate: new Date(queryDto.startDate) });
+        const startDate = FinanceDateUtils.parseStartDate(queryDto.startDate);
+        qb.andWhere('expense.expenseDate >= :startDate', { startDate });
       } else if (queryDto.endDate) {
-        qb.andWhere('expense.expenseDate <= :endDate', { endDate: new Date(queryDto.endDate) });
+        const endDate = FinanceDateUtils.parseEndDate(queryDto.endDate);
+        qb.andWhere('expense.expenseDate <= :endDate', { endDate });
       }
     }
   }
@@ -132,8 +134,8 @@ export class ExpenseRepository extends BaseRepository<Expense> {
     entityManager?: EntityManager,
   ): Promise<number> {
     const repo = this.getRepo(entityManager);
-    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    const startDate = FinanceDateUtils.getStartOfMonth(year, month);
+    const endDate = FinanceDateUtils.getEndOfMonth(year, month);
 
     const result = await repo
       .createQueryBuilder('expense')
@@ -153,8 +155,8 @@ export class ExpenseRepository extends BaseRepository<Expense> {
     entityManager?: EntityManager,
   ): Promise<ICategoryBreakdown[]> {
     const repo = this.getRepo(entityManager);
-    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    const startDate = FinanceDateUtils.getStartOfMonth(year, month);
+    const endDate = FinanceDateUtils.getEndOfMonth(year, month);
 
     const rawResults = await repo
       .createQueryBuilder('expense')

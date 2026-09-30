@@ -126,7 +126,12 @@ export class SavingsGoalService {
       throw new BadRequestException('Savings goal is already completed');
     }
 
-    goal.currentAmount = Number(goal.currentAmount) + dto.contributionAmount;
+    const deposit = dto.contributionAmount ?? dto.amount ?? 0;
+    if (deposit <= 0) {
+      throw new BadRequestException('Contribution amount must be greater than zero');
+    }
+
+    goal.currentAmount = Number(goal.currentAmount) + deposit;
     if (goal.currentAmount >= goal.targetAmount) {
       goal.status = SavingsStatus.COMPLETED;
     }

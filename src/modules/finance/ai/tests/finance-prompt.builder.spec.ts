@@ -32,8 +32,8 @@ describe('FinancePromptBuilder & PromptSanitizerBuilder', () => {
       .build();
 
     expect(prompt).toContain('Task: FINANCIAL_EXECUTIVE_SUMMARY');
-    expect(prompt).toContain('User ID: usr-123');
-    expect(prompt).toContain('Total Inflow: $1000');
+    expect(prompt).not.toContain('User ID: usr-123');
+    expect(prompt).toContain('Total Recorded Inflow: ₹1000');
     expect(prompt).toContain('Focus on groceries');
   });
 });

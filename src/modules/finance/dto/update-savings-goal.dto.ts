@@ -47,4 +47,14 @@ export class UpdateSavingsGoalDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({ description: 'Optional icon name' })
+  @IsOptional()
+  @IsString()
+  iconName?: string;
+
+  @ApiPropertyOptional({ description: 'Optional color hex' })
+  @IsOptional()
+  @IsString()
+  colorHex?: string;
 }
