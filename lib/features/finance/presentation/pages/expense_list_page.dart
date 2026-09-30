@@ -41,7 +41,10 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(RouteNames.financeAddExpense),
+        onPressed: () async {
+          await context.push(RouteNames.financeAddExpense);
+          if (context.mounted) context.read<ExpenseBloc>().add(const LoadExpensesEvent());
+        },
         icon: const Icon(Icons.add),
         label: const Text('Add Expense'),
       ),
@@ -65,7 +68,10 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
                 final exp = state.expenses[index];
                 return ExpenseCard(
                   expense: exp,
-                  onTap: () => context.push(RouteNames.financeExpenseDetails, extra: exp),
+                  onTap: () async {
+                    await context.push(RouteNames.financeExpenseDetails, extra: exp);
+                    if (context.mounted) context.read<ExpenseBloc>().add(const LoadExpensesEvent());
+                  },
                 );
               },
             );

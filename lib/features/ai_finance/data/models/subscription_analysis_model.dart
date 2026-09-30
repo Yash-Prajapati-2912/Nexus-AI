@@ -51,11 +51,14 @@ class SubscriptionAnalysisModel extends SubscriptionAnalysis {
         .map((e) => SubscriptionItemModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
+    final totalCost = subs.fold<double>(0.0, (sum, e) => sum + e.cost);
+    final unusedSavings = subs.where((s) => s.isUnusedOrRedundant).fold<double>(0.0, (sum, e) => sum + e.cost);
+
     return SubscriptionAnalysisModel(
-      totalMonthlySubscriptionCost: (json['totalMonthlySubscriptionCost'] as num?)?.toDouble() ?? 49.99,
+      totalMonthlySubscriptionCost: (json['totalMonthlySubscriptionCost'] as num?)?.toDouble() ?? totalCost,
       activeSubscriptionCount: json['activeSubscriptionCount'] as int? ?? subs.length,
       unusedCount: json['unusedCount'] as int? ?? subs.where((s) => s.isUnusedOrRedundant).length,
-      potentialMonthlySavingsFromCancellation: (json['potentialMonthlySavingsFromCancellation'] as num?)?.toDouble() ?? 14.99,
+      potentialMonthlySavingsFromCancellation: (json['potentialMonthlySavingsFromCancellation'] as num?)?.toDouble() ?? unusedSavings,
       subscriptions: subs,
     );
   }

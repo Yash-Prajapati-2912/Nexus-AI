@@ -14,19 +14,19 @@ class ForecastModel extends Forecast {
   });
 
   factory ForecastModel.fromJson(Map<String, dynamic> json) {
-    final rawSeries = json['projectedCashFlowSeries'] as List<dynamic>? ?? [850.0, 920.0, 780.0, 1100.0];
+    final rawSeries = json['projectedCashFlowSeries'] as List<dynamic>? ?? [];
     final series = rawSeries.map((e) => (e as num).toDouble()).toList();
 
     return ForecastModel(
-      nextWeekForecastAmount: (json['nextWeekForecastAmount'] as num?)?.toDouble() ?? 180.00,
-      nextMonthForecastAmount: (json['nextMonthForecastAmount'] as num?)?.toDouble() ?? 820.00,
-      quarterlyForecastAmount: (json['quarterlyForecastAmount'] as num?)?.toDouble() ?? 2450.00,
-      yearlyForecastAmount: (json['yearlyForecastAmount'] as num?)?.toDouble() ?? 9800.00,
-      predictedMonthEndSavings: (json['predictedMonthEndSavings'] as num?)?.toDouble() ?? 1450.25,
+      nextWeekForecastAmount: (json['nextWeekForecastAmount'] as num?)?.toDouble() ?? 0.00,
+      nextMonthForecastAmount: (json['nextMonthForecastAmount'] as num?)?.toDouble() ?? (json['totalForecastedAmount'] as num?)?.toDouble() ?? 0.00,
+      quarterlyForecastAmount: (json['quarterlyForecastAmount'] as num?)?.toDouble() ?? 0.00,
+      yearlyForecastAmount: (json['yearlyForecastAmount'] as num?)?.toDouble() ?? 0.00,
+      predictedMonthEndSavings: (json['predictedMonthEndSavings'] as num?)?.toDouble() ?? (json['predictedMonthEndBalance'] as num?)?.toDouble() ?? 0.00,
       predictedOverspendingRisk: json['predictedOverspendingRisk'] as bool? ?? false,
-      overspendingProbability: (json['overspendingProbability'] as num?)?.toDouble() ?? 0.15,
+      overspendingProbability: (json['overspendingProbability'] as num?)?.toDouble() ?? 0.0,
       projectedCashFlowSeries: series,
-      forecastExplanation: json['forecastExplanation'] as String? ?? json['explanation'] as String? ?? 'Based on historical trends, your cash flow is positive with low overspending risk.',
+      forecastExplanation: json['summary'] as String? ?? json['forecastExplanation'] as String? ?? json['explanation'] as String? ?? 'No expense forecast available.',
     );
   }
 

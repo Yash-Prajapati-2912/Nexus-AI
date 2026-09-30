@@ -27,7 +27,9 @@ class Budget extends Equatable {
   });
 
   double get remainingAmount => totalLimit - currentSpent;
-  double get spentPercentage => (totalLimit > 0) ? (currentSpent / totalLimit).clamp(0.0, 1.0) : 0.0;
+  double get usedPercentage => (totalLimit > 0) ? (currentSpent / totalLimit) * 100.0 : 0.0;
+  double get visualProgress => (totalLimit > 0) ? (currentSpent / totalLimit).clamp(0.0, 1.0) : 0.0;
+  double get spentPercentage => usedPercentage;
   bool get isOverBudget => currentSpent > totalLimit;
 
   Budget copyWith({

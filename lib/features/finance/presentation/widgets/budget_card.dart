@@ -56,7 +56,9 @@ class BudgetCard extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    'Remaining: ₹${budget.remainingAmount.clamp(0, double.infinity).toStringAsFixed(2)}',
+                    budget.remainingAmount < 0
+                        ? 'Remaining: -₹${(-budget.remainingAmount).toStringAsFixed(2)}'
+                        : 'Remaining: ₹${budget.remainingAmount.toStringAsFixed(2)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/spending_insight.dart';
+import 'markdown_viewer.dart';
 import 'confidence_badge.dart';
 
 class AIInsightCard extends StatelessWidget {
@@ -40,9 +41,8 @@ class AIInsightCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                insight.lifestyleAnalysis,
-                style: theme.textTheme.bodyMedium,
+              MarkdownViewer(
+                content: insight.lifestyleAnalysis,
               ),
               const SizedBox(height: 12),
               Row(

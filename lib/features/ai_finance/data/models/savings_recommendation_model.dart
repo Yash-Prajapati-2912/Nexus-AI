@@ -12,10 +12,10 @@ class SavingsTipModel extends SavingsTip {
   factory SavingsTipModel.fromJson(Map<String, dynamic> json) {
     return SavingsTipModel(
       title: json['title'] as String? ?? 'Optimization Tip',
-      category: json['category'] as String? ?? 'Dining',
-      potentialMonthlySavings: (json['potentialMonthlySavings'] as num?)?.toDouble() ?? (json['potentialSavings'] as num?)?.toDouble() ?? 45.0,
+      category: json['category'] as String? ?? 'General',
+      potentialMonthlySavings: (json['potentialMonthlySavings'] as num?)?.toDouble() ?? (json['potentialSavings'] as num?)?.toDouble() ?? 0.0,
       difficultyLevel: json['difficultyLevel'] as String? ?? 'EASY',
-      actionableAdvice: json['actionableAdvice'] as String? ?? json['tip'] as String? ?? 'Cook at home twice a week to save on takeout.',
+      actionableAdvice: json['actionableAdvice'] as String? ?? json['description'] as String? ?? json['tip'] as String? ?? 'Review discretionary spending.',
     );
   }
 
@@ -38,15 +38,23 @@ class SavingsRecommendationModel extends SavingsRecommendation {
   });
 
   factory SavingsRecommendationModel.fromJson(Map<String, dynamic> json) {
-    final rawTips = json['tips'] as List<dynamic>? ?? json['recommendations'] as List<dynamic>? ?? [];
+    final rawTips = json['tips'] as List<dynamic>? ??
+        json['recommendations'] as List<dynamic>? ??
+        json['actionSteps'] as List<dynamic>? ??
+        [];
     final tipsList = rawTips
         .map((e) => SavingsTipModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
     return SavingsRecommendationModel(
-      totalPotentialMonthlySavings: (json['totalPotentialMonthlySavings'] as num?)?.toDouble() ?? 160.00,
+      totalPotentialMonthlySavings: (json['suggestedMonthlyContribution'] as num?)?.toDouble() ??
+          (json['totalPotentialMonthlySavings'] as num?)?.toDouble() ??
+          0.00,
       tips: tipsList,
-      aiStrategySummary: json['aiStrategySummary'] as String? ?? json['summary'] as String? ?? 'Cut redundant streaming subscriptions and optimize grocery purchases.',
+      aiStrategySummary: json['strategy'] as String? ??
+          json['aiStrategySummary'] as String? ??
+          json['summary'] as String? ??
+          'No savings recommendations available.',
     );
   }
 

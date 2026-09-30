@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../di/injection_container.dart';
 import '../../domain/entities/transaction.dart';
+import '../../domain/repositories/i_finance_repository.dart';
 import '../widgets/transaction_card.dart';
 
 class TransactionsPage extends StatefulWidget {
@@ -11,37 +13,33 @@ class TransactionsPage extends StatefulWidget {
 
 class _TransactionsPageState extends State<TransactionsPage> {
   String _selectedFilter = 'ALL';
+  List<Transaction> _transactions = [];
+  bool _isLoading = true;
 
-  final List<Transaction> _sampleTransactions = [
-    Transaction(
-      id: 'tx-1',
-      title: 'University Tuition Fee',
-      amount: 1200.00,
-      type: TransactionType.expense,
-      categoryName: 'Education',
-      date: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    Transaction(
-      id: 'tx-2',
-      title: 'Teaching Assistant Stipend',
-      amount: 850.00,
-      type: TransactionType.income,
-      categoryName: 'Salary',
-      date: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    Transaction(
-      id: 'tx-3',
-      title: 'Grocery Store Market',
-      amount: 68.40,
-      type: TransactionType.expense,
-      categoryName: 'Food & Dining',
-      date: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadTransactions();
+  }
+
+  Future<void> _loadTransactions() async {
+    setState(() => _isLoading = true);
+    final repo = getIt<IFinanceRepository>();
+    final result = await repo.getTransactions();
+    if (mounted) {
+      result.fold(
+        (_) => setState(() => _isLoading = false),
+        (txs) => setState(() {
+          _transactions = txs;
+          _isLoading = false;
+        }),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _sampleTransactions.where((t) {
+    final filtered = _transactions.where((t) {
       if (_selectedFilter == 'EXPENSE') return t.type == TransactionType.expense;
       if (_selectedFilter == 'INCOME') return t.type == TransactionType.income;
       return true;
@@ -93,13 +91,19 @@ class _TransactionsPageState extends State<TransactionsPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                return TransactionCard(transaction: filtered[index]);
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _loadTransactions,
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        return TransactionCard(transaction: filtered[index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

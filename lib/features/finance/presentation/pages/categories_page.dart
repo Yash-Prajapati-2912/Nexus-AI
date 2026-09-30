@@ -1,24 +1,47 @@
 import 'package:flutter/material.dart';
+import '../../../../di/injection_container.dart';
 import '../../domain/entities/finance_category.dart';
+import '../../domain/repositories/i_finance_repository.dart';
 import '../widgets/category_chip.dart';
 
-class CategoriesPage extends StatelessWidget {
+class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
-  final List<FinanceCategory> _categories = const [
-    FinanceCategory(id: 'c1', name: 'Food & Dining', iconName: 'food', colorHex: '#EF4444', type: 'EXPENSE'),
-    FinanceCategory(id: 'c2', name: 'Education', iconName: 'school', colorHex: '#3B82F6', type: 'EXPENSE'),
-    FinanceCategory(id: 'c3', name: 'Transportation', iconName: 'transit', colorHex: '#F59E0B', type: 'EXPENSE'),
-    FinanceCategory(id: 'c4', name: 'Shopping', iconName: 'shopping', colorHex: '#EC4899', type: 'EXPENSE'),
-    FinanceCategory(id: 'c5', name: 'Salary', iconName: 'salary', colorHex: '#10B981', type: 'INCOME'),
-    FinanceCategory(id: 'c6', name: 'Scholarship', iconName: 'school', colorHex: '#8B5CF6', type: 'INCOME'),
-  ];
+  @override
+  State<CategoriesPage> createState() => _CategoriesPageState();
+}
+
+class _CategoriesPageState extends State<CategoriesPage> {
+  List<FinanceCategory> _categories = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final repo = getIt<IFinanceRepository>();
+    final result = await repo.getCategories();
+    if (mounted) {
+      result.fold(
+        (_) => setState(() => _isLoading = false),
+        (cats) => setState(() {
+          _categories = cats;
+          _isLoading = false;
+        }),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Categories')),
-      body: ListView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _categories.length,
         itemBuilder: (context, index) {

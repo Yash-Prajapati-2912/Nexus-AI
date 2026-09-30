@@ -23,7 +23,7 @@ class ExpenseModel extends Expense {
     final tags = rawTags.map((e) => e.toString()).toList();
 
     final categoryObj = json['category'] as Map<String, dynamic>?;
-    final rawDate = json['date'] ?? json['expenseDate'] ?? json['createdAt'];
+    final rawDate = json['expenseDate'] ?? json['date'] ?? json['createdAt'];
 
     return ExpenseModel(
       id: json['id'] as String? ?? '',
@@ -31,15 +31,15 @@ class ExpenseModel extends Expense {
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       categoryId: json['categoryId'] as String? ?? categoryObj?['id'] as String? ?? '',
       categoryName: json['categoryName'] as String? ?? categoryObj?['name'] as String? ?? 'General',
-      categoryIcon: json['categoryIcon'] as String? ?? categoryObj?['iconName'] as String? ?? 'receipt',
-      date: rawDate != null ? (DateTime.tryParse(rawDate.toString()) ?? DateTime.now()) : DateTime.now(),
-      note: json['note'] as String? ?? json['description'] as String?,
+      categoryIcon: json['categoryIcon'] as String? ?? categoryObj?['icon'] as String? ?? categoryObj?['iconName'] as String? ?? 'receipt',
+      date: rawDate != null ? (DateTime.tryParse(rawDate.toString())?.toLocal() ?? DateTime.now()) : DateTime.now(),
+      note: json['notes'] as String? ?? json['note'] as String? ?? json['description'] as String?,
       receiptUrl: json['receiptUrl'] as String?,
       isRecurring: json['isRecurring'] as bool? ?? false,
       recurringPeriod: json['recurringPeriod'] as String?,
       tags: tags,
       status: json['status'] as String? ?? 'COMPLETED',
-      paymentMethod: json['paymentMethod'] as String? ?? 'CARD',
+      paymentMethod: json['paymentMethod'] != null ? normalizePaymentMethod(json['paymentMethod'].toString()) : 'DEBIT_CARD',
     );
   }
 
@@ -58,7 +58,7 @@ class ExpenseModel extends Expense {
       'recurringPeriod': recurringPeriod,
       'tags': tags,
       'status': status,
-      'paymentMethod': _normalizePaymentMethod(paymentMethod),
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
     };
   }
 
@@ -66,17 +66,19 @@ class ExpenseModel extends Expense {
     final map = <String, dynamic>{
       'title': title.trim(),
       'amount': amount,
-      'categoryId': categoryId,
-      'expenseDate': date.toIso8601String(),
-      'paymentMethod': _normalizePaymentMethod(paymentMethod),
+      'categoryId': categoryId.trim(),
+      'expenseDate': date.toUtc().toIso8601String(),
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
       'isRecurring': isRecurring,
     };
     if (note != null && note!.trim().isNotEmpty) {
       map['notes'] = note!.trim();
       map['description'] = note!.trim();
     }
-    if (receiptUrl != null && receiptUrl!.trim().isNotEmpty) {
-      map['receiptUrl'] = receiptUrl;
+    if (receiptUrl != null &&
+        receiptUrl!.trim().isNotEmpty &&
+        (receiptUrl!.startsWith('http://') || receiptUrl!.startsWith('https://'))) {
+      map['receiptUrl'] = receiptUrl!.trim();
     }
     if (tags.isNotEmpty) {
       map['tags'] = tags;
@@ -84,12 +86,39 @@ class ExpenseModel extends Expense {
     return map;
   }
 
-  static String _normalizePaymentMethod(String pm) {
-    switch (pm.toUpperCase()) {
-      case 'CARD':
+  Map<String, dynamic> toUpdateJson() {
+    final map = <String, dynamic>{
+      'title': title.trim(),
+      'amount': amount,
+      'expenseDate': date.toUtc().toIso8601String(),
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
+      'isRecurring': isRecurring,
+    };
+    if (categoryId.trim().isNotEmpty) {
+      map['categoryId'] = categoryId.trim();
+    }
+    if (note != null && note!.trim().isNotEmpty) {
+      map['notes'] = note!.trim();
+      map['description'] = note!.trim();
+    }
+    if (receiptUrl != null &&
+        receiptUrl!.trim().isNotEmpty &&
+        (receiptUrl!.startsWith('http://') || receiptUrl!.startsWith('https://'))) {
+      map['receiptUrl'] = receiptUrl!.trim();
+    }
+    if (tags.isNotEmpty) {
+      map['tags'] = tags;
+    }
+    return map;
+  }
+
+  static String normalizePaymentMethod(String pm) {
+    final upper = pm.toUpperCase().replaceAll(' ', '_');
+    switch (upper) {
       case 'CREDIT_CARD':
         return 'CREDIT_CARD';
       case 'DEBIT_CARD':
+      case 'CARD':
         return 'DEBIT_CARD';
       case 'CASH':
         return 'CASH';
@@ -98,6 +127,7 @@ class ExpenseModel extends Expense {
       case 'BANK_TRANSFER':
         return 'BANK_TRANSFER';
       case 'OTHER':
+        return 'OTHER';
       default:
         return 'DEBIT_CARD';
     }

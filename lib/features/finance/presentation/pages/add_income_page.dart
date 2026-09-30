@@ -20,25 +20,44 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
   String _selectedSourceCategory = 'SALARY';
   bool _isRecurring = false;
+  DateTime _selectedDate = DateTime.now();
+  bool _isSubmitting = false;
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      final now = DateTime.now();
+      setState(() => _selectedDate = DateTime(picked.year, picked.month, picked.day, now.hour, now.minute, now.second));
+    }
+  }
 
   void _onSave() {
+    if (_isSubmitting) return;
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isSubmitting = true);
+
     final income = Income(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      id: '',
       title: _titleController.text.trim(),
       amount: double.tryParse(_amountController.text.trim()) ?? 0.0,
       sourceCategory: _selectedSourceCategory,
-      date: DateTime.now(),
+      date: _selectedDate,
       note: _noteController.text.trim(),
       isRecurring: _isRecurring,
+      recurringPeriod: _isRecurring ? 'MONTHLY' : 'ONE_TIME',
     );
 
     context.read<IncomeBloc>().add(CreateIncomeEvent(income));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Income record saved!')),
     );
-    context.pop();
+    context.pop(true);
   }
 
   @override
@@ -85,6 +104,22 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   DropdownMenuItem(value: 'OTHER', child: Text('Other')),
                 ],
                 onChanged: (val) => setState(() => _selectedSourceCategory = val!),
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: _pickDate,
+                borderRadius: BorderRadius.circular(4),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Received Date',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today_rounded),
+                  ),
+                  child: Text(
+                    '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               SwitchListTile(

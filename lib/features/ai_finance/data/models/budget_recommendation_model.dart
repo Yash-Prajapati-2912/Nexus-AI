@@ -42,10 +42,18 @@ class BudgetRecommendationModel extends BudgetRecommendation {
         .toList();
 
     return BudgetRecommendationModel(
-      safeDailySpendingLimit: (json['safeDailySpendingLimit'] as num?)?.toDouble() ?? (json['safeDailyBudget'] as num?)?.toDouble() ?? 32.50,
-      recommendedTotalMonthlyBudget: (json['recommendedTotalMonthlyBudget'] as num?)?.toDouble() ?? 950.00,
+      safeDailySpendingLimit: (json['safeDailyLimit'] as num?)?.toDouble() ??
+          (json['safeDailySpendingLimit'] as num?)?.toDouble() ??
+          (json['safeDailyBudget'] as num?)?.toDouble() ??
+          0.00,
+      recommendedTotalMonthlyBudget: (json['recommendedTotalMonthlyBudget'] as num?)?.toDouble() ??
+          (json['remainingBudget'] as num?)?.toDouble() ??
+          0.00,
       categoryAdjustments: adjs,
-      optimizationStrategy: json['optimizationStrategy'] as String? ?? json['strategy'] as String? ?? 'Reallocate ₹500 from Entertainment to Savings.',
+      optimizationStrategy: json['mathematicalReasoning'] as String? ??
+          json['optimizationStrategy'] as String? ??
+          json['strategy'] as String? ??
+          'No budget recommendations available.',
     );
   }
 

@@ -9,13 +9,14 @@ class BudgetProgressWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final percentage = budget.spentPercentage;
+    final usedPct = budget.usedPercentage;
+    final visualValue = budget.visualProgress;
     final isOver = budget.isOverBudget;
 
     Color progressColor;
     if (isOver) {
       progressColor = Colors.redAccent;
-    } else if (percentage >= 0.8) {
+    } else if (usedPct >= 80.0) {
       progressColor = Colors.orangeAccent;
     } else {
       progressColor = theme.colorScheme.primary;
@@ -32,7 +33,7 @@ class BudgetProgressWidget extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
-              '${(percentage * 100).toInt()}%',
+              '${usedPct.toStringAsFixed(0)}%',
               style: TextStyle(fontWeight: FontWeight.bold, color: progressColor),
             ),
           ],
@@ -41,7 +42,7 @@ class BudgetProgressWidget extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
-            value: percentage,
+            value: visualValue,
             minHeight: 10,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(progressColor),

@@ -555,11 +555,17 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiFinanceCashFlowPrediction,
-          builder: (context, state) => const CashFlowPredictionPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIFinanceBloc>(),
+            child: const CashFlowPredictionPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiFinanceGoalsAdvisor,
-          builder: (context, state) => const FinancialGoalsAdvisorPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIFinanceBloc>(),
+            child: const FinancialGoalsAdvisorPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiFinanceSubscriptionAnalysis,
@@ -570,15 +576,24 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiFinanceUnusualSpending,
-          builder: (context, state) => const UnusualSpendingDetectionPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIFinanceBloc>(),
+            child: const UnusualSpendingDetectionPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiFinanceMonthlyReport,
-          builder: (context, state) => const MonthlyAIReportPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIFinanceBloc>(),
+            child: const MonthlyAIReportPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiFinanceYearlyReport,
-          builder: (context, state) => const YearlyAIReportPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIFinanceBloc>(),
+            child: const YearlyAIReportPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiFinanceHistory,

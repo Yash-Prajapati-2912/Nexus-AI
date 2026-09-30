@@ -23,7 +23,7 @@ class ExpenseDetailsPage extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               context.read<ExpenseBloc>().add(DeleteExpenseEvent(item.id));
-              context.pop();
+              context.pop(true);
             },
             child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
           ),
@@ -34,7 +34,7 @@ class ExpenseDetailsPage extends StatelessWidget {
 
   void _onDuplicate(BuildContext context, Expense item) {
     final dup = item.copyWith(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      id: '',
       title: '${item.title} (Copy)',
       date: DateTime.now(),
     );
@@ -42,25 +42,20 @@ class ExpenseDetailsPage extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Expense duplicated!')),
     );
+    context.pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (expense == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Expense Details')),
+        body: const Center(child: Text('No expense selected.')),
+      );
+    }
+
     final theme = Theme.of(context);
-    final item = expense ??
-        Expense(
-          id: 'exp-demo-1',
-          title: 'University Bookstore & Supplies',
-          amount: 145.50,
-          categoryId: 'cat-edu',
-          categoryName: 'Education',
-          categoryIcon: 'school',
-          date: DateTime.now(),
-          note: 'Purchased Algorithm textbooks and notebook stationeries.',
-          isRecurring: false,
-          tags: const ['Textbooks', 'University'],
-          paymentMethod: 'CREDIT CARD',
-        );
+    final item = expense!;
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +68,12 @@ class ExpenseDetailsPage extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.edit_rounded),
-            onPressed: () => context.push(RouteNames.financeEditExpense, extra: item),
+            onPressed: () async {
+              final result = await context.push(RouteNames.financeEditExpense, extra: item);
+              if (result == true && context.mounted) {
+                context.pop(true);
+              }
+            },
             tooltip: 'Edit',
           ),
           IconButton(

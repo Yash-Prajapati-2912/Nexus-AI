@@ -406,6 +406,9 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                     expenses: recentExpenses,
                     budgets: activeBudgets,
                     savingsGoals: activeGoals,
+                    monthlyIncome: monthlyIncome,
+                    monthlyExpense: monthlyExpense,
+                    totalBalance: totalBalance,
                   ),
 
                   const SizedBox(height: 20),
@@ -416,7 +419,7 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
                     monthlyExpense: monthlyExpense,
                     totalBudget: plannedAmount,
                     currentSpent: currentSpent,
-                    savingsProgressPct: activeGoals.isNotEmpty ? activeGoals.first.progressPercentage : 0.0,
+                    savingsProgressPct: activeGoals.isNotEmpty ? activeGoals.first.visualProgress : 0.0,
                   ),
 
                   const SizedBox(height: 24),

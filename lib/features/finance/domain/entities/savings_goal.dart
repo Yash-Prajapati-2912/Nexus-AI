@@ -39,8 +39,9 @@ class SavingsGoal extends Equatable {
     this.contributionHistory = const [],
   });
 
-  double get progressPercentage => (targetAmount > 0) ? (currentAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
   double get remainingAmount => targetAmount - currentAmount;
+  double get progressPercentage => (targetAmount > 0) ? ((currentAmount / targetAmount) * 100.0).clamp(0.0, double.infinity) : 0.0;
+  double get visualProgress => (targetAmount > 0) ? (currentAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
   bool get isAchieved => currentAmount >= targetAmount;
 
   SavingsGoal copyWith({

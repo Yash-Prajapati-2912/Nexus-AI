@@ -48,13 +48,13 @@ class SpendingInsightModel extends SpendingInsight {
     final anomalies = rawAnomalies.map((e) => e.toString()).toList();
 
     return SpendingInsightModel(
-      dailyAverageSpent: (json['dailyAverageSpent'] as num?)?.toDouble() ?? 28.50,
-      monthlyComparisonPercentage: (json['monthlyComparisonPercentage'] as num?)?.toDouble() ?? -12.4,
-      weeklyComparisonPercentage: (json['weeklyComparisonPercentage'] as num?)?.toDouble() ?? -4.2,
+      dailyAverageSpent: (json['dailyAverageSpent'] as num?)?.toDouble() ?? 0.0,
+      monthlyComparisonPercentage: (json['monthlyComparisonPercentage'] as num?)?.toDouble() ?? 0.0,
+      weeklyComparisonPercentage: (json['weeklyComparisonPercentage'] as num?)?.toDouble() ?? 0.0,
       highestCategories: categories,
-      lifestyleAnalysis: json['lifestyleAnalysis'] as String? ?? json['summary'] as String? ?? 'Moderate lifestyle with low impulse purchasing.',
+      lifestyleAnalysis: json['lifestyleAnalysis'] as String? ?? json['summary'] as String? ?? 'No spending insights available.',
       detectedAnomalies: anomalies,
-      confidenceScore: (json['confidenceScore'] as num?)?.toDouble() ?? 0.94,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble() ?? 0.0,
     );
   }
 

@@ -41,9 +41,15 @@ class SavingsBloc extends Bloc<SavingsEvent, SavingsState> {
     emit(const SavingsLoadingState());
     final result = await repository.createSavingsGoal(event.goal);
 
-    result.fold(
-      (Failure f) => emit(SavingsFailureState(message: f.message)),
-      (goal) => emit(const SavingsOperationSuccessState(message: 'Savings goal created successfully.')),
+    await result.fold(
+      (Failure f) async => emit(SavingsFailureState(message: f.message)),
+      (goal) async {
+        final reload = await getSavingsGoalsUseCase(const NoParams());
+        reload.fold(
+          (Failure f) => emit(const SavingsOperationSuccessState(message: 'Savings goal created successfully.')),
+          (goals) => emit(SavingsLoadedState(goals: goals)),
+        );
+      },
     );
   }
 
@@ -54,9 +60,15 @@ class SavingsBloc extends Bloc<SavingsEvent, SavingsState> {
     emit(const SavingsLoadingState());
     final result = await repository.addContribution(event.goalId, event.amount, event.note);
 
-    result.fold(
-      (Failure f) => emit(SavingsFailureState(message: f.message)),
-      (goal) => emit(const SavingsOperationSuccessState(message: 'Contribution added successfully.')),
+    await result.fold(
+      (Failure f) async => emit(SavingsFailureState(message: f.message)),
+      (goal) async {
+        final reload = await getSavingsGoalsUseCase(const NoParams());
+        reload.fold(
+          (Failure f) => emit(const SavingsOperationSuccessState(message: 'Contribution added successfully.')),
+          (goals) => emit(SavingsLoadedState(goals: goals)),
+        );
+      },
     );
   }
 
@@ -67,9 +79,15 @@ class SavingsBloc extends Bloc<SavingsEvent, SavingsState> {
     emit(const SavingsLoadingState());
     final result = await repository.deleteSavingsGoal(event.id);
 
-    result.fold(
-      (Failure f) => emit(SavingsFailureState(message: f.message)),
-      (_) => emit(const SavingsOperationSuccessState(message: 'Savings goal deleted.')),
+    await result.fold(
+      (Failure f) async => emit(SavingsFailureState(message: f.message)),
+      (_) async {
+        final reload = await getSavingsGoalsUseCase(const NoParams());
+        reload.fold(
+          (Failure f) => emit(const SavingsOperationSuccessState(message: 'Savings goal deleted.')),
+          (goals) => emit(SavingsLoadedState(goals: goals)),
+        );
+      },
     );
   }
 }

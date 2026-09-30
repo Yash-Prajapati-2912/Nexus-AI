@@ -28,6 +28,15 @@ class CreateIncomeEvent extends IncomeEvent {
   List<Object?> get props => [income];
 }
 
+class UpdateIncomeEvent extends IncomeEvent {
+  final Income income;
+
+  const UpdateIncomeEvent(this.income);
+
+  @override
+  List<Object?> get props => [income];
+}
+
 class DeleteIncomeEvent extends IncomeEvent {
   final String id;
 

@@ -31,7 +31,7 @@ class Expense extends Equatable {
     this.recurringPeriod,
     this.tags = const [],
     this.status = 'COMPLETED',
-    this.paymentMethod = 'CARD',
+    this.paymentMethod = 'DEBIT_CARD',
   });
 
   Expense copyWith({

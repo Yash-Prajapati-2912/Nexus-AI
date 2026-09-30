@@ -186,7 +186,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      setState(() => _selectedDate = picked);
+      final now = DateTime.now();
+      setState(() => _selectedDate = DateTime(picked.year, picked.month, picked.day, now.hour, now.minute, now.second));
     }
   }
 

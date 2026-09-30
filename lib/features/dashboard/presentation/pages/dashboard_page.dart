@@ -9,6 +9,7 @@ import '../../../planner/domain/entities/task_entity.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
+import '../widgets/ai_finance_insight_widget.dart';
 import '../widgets/ai_mentor_section_widget.dart';
 import '../widgets/dashboard_header_widget.dart';
 import '../widgets/expense_chart_widget.dart';
@@ -161,6 +162,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 children: [
                                   FinanceSummaryWidget(summary: dashboard.financeSummary),
                                   const SizedBox(height: 24),
+                                  AiFinanceInsightWidget(summary: dashboard.financeSummary),
+                                  const SizedBox(height: 24),
                                   ExpenseChartWidget(data: dashboard.chartData.categoryExpenses),
                                   const SizedBox(height: 24),
                                   AiMentorSectionWidget(insight: dashboard.aiInsight),
@@ -183,6 +186,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             PlannerSummaryWidget(tasks: tasks),
                             const SizedBox(height: 20),
                             FinanceSummaryWidget(summary: dashboard.financeSummary),
+                            const SizedBox(height: 20),
+                            AiFinanceInsightWidget(summary: dashboard.financeSummary),
                             const SizedBox(height: 20),
                             TaskStatusDonutChart(tasks: tasks),
                             const SizedBox(height: 20),

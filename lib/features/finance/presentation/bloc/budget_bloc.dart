@@ -4,6 +4,7 @@ import 'package:nexus_ai/core/usecases/usecase.dart';
 import '../../domain/usecases/get_budget_usecase.dart';
 import '../../domain/usecases/update_budget_usecase.dart';
 import 'package:nexus_ai/features/finance/domain/repositories/i_finance_repository.dart';
+import '../../utils/finance_date_utils.dart';
 
 import 'budget_event.dart';
 import 'budget_state.dart';
@@ -37,13 +38,16 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
       (Failure f) => emit(BudgetFailureState(message: f.message)),
       (budgets) {
         final updatedBudgets = budgets.map((b) {
+          final start = FinanceDateUtils.startOfDay(b.startDate);
+          final end = FinanceDateUtils.endOfDay(b.endDate);
           final spentInPeriod = expenses.where((e) {
-            return e.date.isAfter(b.startDate.subtract(const Duration(seconds: 1))) &&
-                e.date.isBefore(b.endDate.add(const Duration(days: 1)));
+            final inRange = FinanceDateUtils.isInRange(e.date, start, end);
+            final inCat = b.categoryId == null || b.categoryId!.isEmpty || e.categoryId == b.categoryId;
+            return inRange && inCat;
           }).fold(0.0, (sum, e) => sum + e.amount);
 
           return b.copyWith(
-            currentSpent: spentInPeriod > 0 ? spentInPeriod : b.currentSpent,
+            currentSpent: spentInPeriod,
           );
         }).toList();
 

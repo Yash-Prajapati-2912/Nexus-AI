@@ -12,7 +12,8 @@ void main() {
         targetDate: DateTime.now().add(const Duration(days: 30)),
       );
 
-      expect(goal.progressPercentage, equals(0.5));
+      expect(goal.progressPercentage, equals(50.0));
+      expect(goal.visualProgress, equals(0.5));
       expect(goal.remainingAmount, equals(5000));
       expect(goal.isAchieved, isFalse);
     });
@@ -27,6 +28,7 @@ void main() {
       );
 
       expect(goal.progressPercentage, equals(0.0));
+      expect(goal.visualProgress, equals(0.0));
       expect(goal.progressPercentage.isNaN, isFalse);
     });
 
@@ -39,9 +41,30 @@ void main() {
         targetDate: DateTime.now(),
       );
 
-      expect(goal.progressPercentage, equals(1.0));
+      expect(goal.progressPercentage, closeTo(110.0, 0.001));
+      expect(goal.visualProgress, equals(1.0));
       expect(goal.isAchieved, isTrue);
-      expect(goal.remainingAmount, equals(-5000));
+    });
+
+    test('verifies exact PHASE FINANCE-08 Emergency Fund scenario', () {
+      final goal = SavingsGoal(
+        id: 'sg-emergency',
+        title: 'Emergency Fund',
+        targetAmount: 20000,
+        currentAmount: 5000,
+        targetDate: DateTime.now().add(const Duration(days: 180)),
+      );
+
+      expect(goal.targetAmount, equals(20000.0));
+      expect(goal.currentAmount, equals(5000.0));
+      expect(goal.remainingAmount, equals(15000.0));
+      expect(goal.progressPercentage, equals(25.0));
+
+      final updatedGoal = goal.copyWith(currentAmount: goal.currentAmount + 2000);
+      expect(updatedGoal.targetAmount, equals(20000.0));
+      expect(updatedGoal.currentAmount, equals(7000.0));
+      expect(updatedGoal.remainingAmount, equals(13000.0));
+      expect(updatedGoal.progressPercentage, equals(35.0));
     });
   });
 }

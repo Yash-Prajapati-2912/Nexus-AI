@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/models/expense_model.dart';
 import '../../domain/entities/expense.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
@@ -20,7 +21,6 @@ class _EditExpensePageState extends State<EditExpensePage> {
   late TextEditingController _amountController;
   late TextEditingController _noteController;
 
-  late String _selectedCategoryName;
   late String _selectedPaymentMethod;
   late bool _isRecurring;
 
@@ -31,28 +31,24 @@ class _EditExpensePageState extends State<EditExpensePage> {
     _titleController = TextEditingController(text: exp?.title ?? '');
     _amountController = TextEditingController(text: exp != null ? exp.amount.toString() : '');
     _noteController = TextEditingController(text: exp?.note ?? '');
-    _selectedCategoryName = exp?.categoryName ?? 'Food & Dining';
-    _selectedPaymentMethod = exp?.paymentMethod ?? 'CARD';
+    _selectedPaymentMethod = exp?.paymentMethod != null
+        ? ExpenseModel.normalizePaymentMethod(exp!.paymentMethod)
+        : 'DEBIT_CARD';
     _isRecurring = exp?.isRecurring ?? false;
   }
 
   void _onUpdate() {
     if (!_formKey.currentState!.validate()) return;
+    if (widget.expense == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No expense to update')),
+      );
+      return;
+    }
 
-    final updated = (widget.expense ??
-            Expense(
-              id: 'exp-updated',
-              title: '',
-              amount: 0,
-              categoryId: '',
-              categoryName: '',
-              categoryIcon: '',
-              date: DateTime.now(),
-            ))
-        .copyWith(
+    final updated = widget.expense!.copyWith(
       title: _titleController.text.trim(),
       amount: double.tryParse(_amountController.text.trim()) ?? 0.0,
-      categoryName: _selectedCategoryName,
       paymentMethod: _selectedPaymentMethod,
       isRecurring: _isRecurring,
       note: _noteController.text.trim(),
@@ -62,7 +58,7 @@ class _EditExpensePageState extends State<EditExpensePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Expense updated successfully!')),
     );
-    context.pop();
+    context.pop(true);
   }
 
   @override

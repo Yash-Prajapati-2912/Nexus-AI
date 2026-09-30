@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/budget_health_calculator.dart';
 import 'radial_budget_painter.dart';
 
 class BudgetHealthCard extends StatelessWidget {
@@ -6,6 +7,10 @@ class BudgetHealthCard extends StatelessWidget {
   final double currentSpent;
   final String currencySymbol;
   final VoidCallback? onSetBudgetTap;
+  final DateTime? currentDate;
+  final int? daysInMonth;
+  final int? elapsedDays;
+  final int? remainingDays;
 
   const BudgetHealthCard({
     super.key,
@@ -13,6 +18,10 @@ class BudgetHealthCard extends StatelessWidget {
     required this.currentSpent,
     this.currencySymbol = '₹',
     this.onSetBudgetTap,
+    this.currentDate,
+    this.daysInMonth,
+    this.elapsedDays,
+    this.remainingDays,
   });
 
   @override
@@ -88,15 +97,16 @@ class BudgetHealthCard extends StatelessWidget {
       );
     }
 
-    final now = DateTime.now();
-    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
-    final daysRemaining = (daysInMonth - now.day + 1).clamp(1, daysInMonth);
-    final remainingBudget = plannedAmount - currentSpent;
-    final dailySafeSpending = (remainingBudget > 0) ? (remainingBudget / daysRemaining) : 0.0;
+    final result = BudgetHealthCalculator.calculate(
+      monthlyBudget: plannedAmount,
+      currentSpent: currentSpent,
+      currentDate: currentDate,
+      daysInMonth: daysInMonth,
+      elapsedDays: elapsedDays,
+      remainingDays: remainingDays,
+    );
 
-    final dailyRunRate = now.day > 0 ? (currentSpent / now.day) : 0.0;
-    final projectedMonthEnd = dailyRunRate * daysInMonth;
-    final isProjectedOver = projectedMonthEnd > plannedAmount;
+    final isProjectedOver = (result.projectedMonthEnd != null) && (result.projectedMonthEnd! > plannedAmount);
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -132,7 +142,51 @@ class BudgetHealthCard extends StatelessWidget {
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
-                final isNarrow = constraints.maxWidth < 340;
+                final isNarrow = constraints.maxWidth < 360;
+                final metrics = [
+                  _HealthMetricItem(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Days Remaining',
+                    value: '${result.remainingDays} ${result.remainingDays == 1 ? 'day' : 'days'}',
+                    color: theme.colorScheme.primary,
+                    subText: '${result.totalDaysInMonth}-day month',
+                  ),
+                  const SizedBox(height: 8),
+                  _HealthMetricItem(
+                    icon: Icons.today_rounded,
+                    label: 'Daily Budget',
+                    value: '$currencySymbol${result.normalDailyBudget.toStringAsFixed(0)}/day',
+                    color: Colors.blueAccent,
+                    subText: 'Monthly daily average',
+                  ),
+                  const SizedBox(height: 8),
+                  _HealthMetricItem(
+                    icon: Icons.account_balance_wallet_rounded,
+                    label: result.remainingDays == 1 ? 'Safe to Spend Today' : 'Safe to Spend / Day',
+                    value: '$currencySymbol${result.safeDailyLimit.toStringAsFixed(0)}/day',
+                    color: result.safeDailyLimit > 0 ? const Color(0xFF10B981) : Colors.redAccent,
+                    subText: result.remainingDays == 1
+                        ? 'Final day buffer'
+                        : 'Safe per remaining day',
+                  ),
+                  const SizedBox(height: 8),
+                  _HealthMetricItem(
+                    icon: Icons.auto_graph_rounded,
+                    label: 'Projected Month-End',
+                    value: result.projectedMonthEnd != null
+                        ? '$currencySymbol${result.projectedMonthEnd!.toStringAsFixed(0)}'
+                        : 'No spending yet',
+                    color: isProjectedOver
+                        ? Colors.redAccent
+                        : (result.projectedMonthEnd != null ? Colors.indigoAccent : Colors.grey),
+                    subText: result.projectedMonthEnd != null
+                        ? (isProjectedOver
+                            ? 'Over budget by $currencySymbol${(result.projectedMonthEnd! - plannedAmount).toStringAsFixed(0)}'
+                            : 'On track to save $currencySymbol${(plannedAmount - result.projectedMonthEnd!).toStringAsFixed(0)}')
+                        : null,
+                  ),
+                ];
+
                 if (isNarrow) {
                   return Column(
                     children: [
@@ -144,68 +198,23 @@ class BudgetHealthCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _HealthMetricItem(
-                        icon: Icons.calendar_today_rounded,
-                        label: 'Days Remaining',
-                        value: '$daysRemaining days',
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(height: 10),
-                      _HealthMetricItem(
-                        icon: Icons.account_balance_wallet_rounded,
-                        label: 'Daily Safe Limit',
-                        value: '$currencySymbol${dailySafeSpending.toStringAsFixed(0)}/day',
-                        color: const Color(0xFF10B981),
-                      ),
-                      const SizedBox(height: 10),
-                      _HealthMetricItem(
-                        icon: Icons.auto_graph_rounded,
-                        label: 'Projected Month-End',
-                        value: '$currencySymbol${projectedMonthEnd.toStringAsFixed(0)}',
-                        color: isProjectedOver ? Colors.redAccent : Colors.indigoAccent,
-                        subText: isProjectedOver
-                            ? 'Over budget by $currencySymbol${(projectedMonthEnd - plannedAmount).toStringAsFixed(0)}'
-                            : 'On track to save $currencySymbol${(plannedAmount - projectedMonthEnd).toStringAsFixed(0)}',
-                      ),
+                      ...metrics,
                     ],
                   );
                 }
                 return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     RadialBudgetWidget(
                       plannedAmount: plannedAmount,
                       currentSpent: currentSpent,
                       currencySymbol: currencySymbol,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _HealthMetricItem(
-                            icon: Icons.calendar_today_rounded,
-                            label: 'Days Remaining',
-                            value: '$daysRemaining days',
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(height: 10),
-                          _HealthMetricItem(
-                            icon: Icons.account_balance_wallet_rounded,
-                            label: 'Daily Safe Limit',
-                            value: '$currencySymbol${dailySafeSpending.toStringAsFixed(0)}/day',
-                            color: const Color(0xFF10B981),
-                          ),
-                          const SizedBox(height: 10),
-                          _HealthMetricItem(
-                            icon: Icons.auto_graph_rounded,
-                            label: 'Projected Month-End',
-                            value: '$currencySymbol${projectedMonthEnd.toStringAsFixed(0)}',
-                            color: isProjectedOver ? Colors.redAccent : Colors.indigoAccent,
-                            subText: isProjectedOver
-                                ? 'Over budget by $currencySymbol${(projectedMonthEnd - plannedAmount).toStringAsFixed(0)}'
-                                : 'On track to save $currencySymbol${(plannedAmount - projectedMonthEnd).toStringAsFixed(0)}',
-                          ),
-                        ],
+                        children: metrics,
                       ),
                     ),
                   ],

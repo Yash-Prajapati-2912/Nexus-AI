@@ -7,6 +7,7 @@ import '../models/investment_model.dart';
 import '../models/report_model.dart';
 import '../models/savings_goal_model.dart';
 import '../models/transaction_model.dart';
+import '../../domain/entities/transaction.dart';
 
 abstract class IFinanceRemoteDataSource {
   // Expenses
@@ -85,6 +86,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
     final response = await _apiClient.get(
       '/finance/expenses',
       queryParameters: {
+        'limit': 1000,
         if (categoryId != null) 'categoryId': categoryId,
         if (startDate != null) 'startDate': startDate,
         if (endDate != null) 'endDate': endDate,
@@ -109,9 +111,11 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<ExpenseModel> updateExpense(ExpenseModel expense) async {
-    final response = await _apiClient.patch('/finance/expenses/${expense.id}', data: expense.toJson());
-    final data = response.data as Map<String, dynamic>;
-    return ExpenseModel.fromJson(data);
+    final response = await _apiClient.patch('/finance/expenses/${expense.id}', data: expense.toUpdateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return ExpenseModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -121,23 +125,35 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<List<IncomeModel>> getIncomes({String? sourceCategory, String? startDate, String? endDate}) async {
-    final response = await _apiClient.get('/finance/incomes');
+    final response = await _apiClient.get(
+      '/finance/incomes',
+      queryParameters: {
+        'limit': 1000,
+        if (sourceCategory != null && sourceCategory.isNotEmpty) 'source': sourceCategory,
+        if (startDate != null && startDate.isNotEmpty) 'startDate': startDate,
+        if (endDate != null && endDate.isNotEmpty) 'endDate': endDate,
+      },
+    );
     final list = _extractList(response.data);
     return list.map((e) => IncomeModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<IncomeModel> createIncome(IncomeModel income) async {
-    final response = await _apiClient.post('/finance/incomes', data: income.toJson());
-    final data = response.data as Map<String, dynamic>;
-    return IncomeModel.fromJson(data);
+    final response = await _apiClient.post('/finance/incomes', data: income.toCreateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return IncomeModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<IncomeModel> updateIncome(IncomeModel income) async {
-    final response = await _apiClient.patch('/finance/incomes/${income.id}', data: income.toJson());
-    final data = response.data as Map<String, dynamic>;
-    return IncomeModel.fromJson(data);
+    final response = await _apiClient.patch('/finance/incomes/${income.id}', data: income.toUpdateJson());
+    final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
+        ? response.data['data']
+        : response.data;
+    return IncomeModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -177,14 +193,14 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<SavingsGoalModel> createSavingsGoal(SavingsGoalModel goal) async {
-    final response = await _apiClient.post('/finance/savings-goals', data: goal.toJson());
+    final response = await _apiClient.post('/finance/savings-goals', data: goal.toCreateJson());
     final data = response.data as Map<String, dynamic>;
     return SavingsGoalModel.fromJson(data);
   }
 
   @override
   Future<SavingsGoalModel> updateSavingsGoal(SavingsGoalModel goal) async {
-    final response = await _apiClient.patch('/finance/savings-goals/${goal.id}', data: goal.toJson());
+    final response = await _apiClient.patch('/finance/savings-goals/${goal.id}', data: goal.toUpdateJson());
     final data = response.data as Map<String, dynamic>;
     return SavingsGoalModel.fromJson(data);
   }
@@ -193,7 +209,7 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
   Future<SavingsGoalModel> addContribution(String goalId, double amount, String? note) async {
     final response = await _apiClient.post(
       '/finance/savings-goals/$goalId/contribute',
-      data: {'amount': amount, if (note != null) 'note': note},
+      data: {'contributionAmount': amount, 'amount': amount, if (note != null) 'note': note},
     );
     final data = response.data as Map<String, dynamic>;
     return SavingsGoalModel.fromJson(data);
@@ -277,21 +293,113 @@ class FinanceRemoteDataSourceImpl implements IFinanceRemoteDataSource {
 
   @override
   Future<List<TransactionModel>> getTransactions({String? query, String? type}) async {
-    final response = await _apiClient.get(
-      '/finance/transactions',
-      queryParameters: {
-        if (query != null) 'search': query,
-        if (type != null) 'type': type,
-      },
-    );
-    final list = _extractList(response.data);
-    return list.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
+    try {
+      final response = await _apiClient.get(
+        '/finance/transactions',
+        queryParameters: {
+          if (query != null) 'search': query,
+          if (type != null) 'type': type,
+        },
+      );
+      final list = _extractList(response.data);
+      if (list.isNotEmpty) {
+        return list.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } catch (_) {
+      // Backend does not expose a unified /finance/transactions endpoint; aggregate expenses and incomes
+    }
+
+    final List<TransactionModel> txList = [];
+    final upperType = type?.toUpperCase() ?? 'ALL';
+    final fetchExpenses = upperType == 'ALL' || upperType == 'EXPENSE';
+    final fetchIncomes = upperType == 'ALL' || upperType == 'INCOME';
+
+    if (fetchExpenses) {
+      try {
+        final expenses = await getExpenses(search: query);
+        for (final exp in expenses) {
+          txList.add(TransactionModel(
+            id: exp.id,
+            title: exp.title,
+            amount: exp.amount,
+            type: TransactionType.expense,
+            categoryName: exp.categoryName,
+            date: exp.date,
+            note: exp.note,
+            paymentMethod: exp.paymentMethod,
+          ));
+        }
+      } catch (_) {}
+    }
+
+    if (fetchIncomes) {
+      try {
+        final incomes = await getIncomes();
+        for (final inc in incomes) {
+          if (query != null &&
+              query.isNotEmpty &&
+              !inc.title.toLowerCase().contains(query.toLowerCase())) {
+            continue;
+          }
+          txList.add(TransactionModel(
+            id: inc.id,
+            title: inc.title,
+            amount: inc.amount,
+            type: TransactionType.income,
+            categoryName: inc.sourceCategory,
+            date: inc.date,
+            note: inc.note,
+            paymentMethod: 'CASH',
+          ));
+        }
+      } catch (_) {}
+    }
+
+    txList.sort((a, b) => b.date.compareTo(a.date));
+    return txList;
   }
 
   @override
   Future<FinancialReportModel> getFinancialReport(String timeframe) async {
-    final response = await _apiClient.get('/finance/reports', queryParameters: {'timeframe': timeframe});
-    final data = response.data as Map<String, dynamic>;
-    return FinancialReportModel.fromJson(data);
+    try {
+      final response = await _apiClient.get(
+        '/finance/reports',
+        queryParameters: {'reportType': timeframe, 'timeframe': timeframe},
+      );
+      dynamic payload = response.data;
+      if (payload is Map<String, dynamic> && payload['data'] != null) {
+        payload = payload['data'];
+      }
+      if (payload is List && payload.isNotEmpty) {
+        return FinancialReportModel.fromJson(payload.first as Map<String, dynamic>);
+      } else if (payload is Map<String, dynamic>) {
+        return FinancialReportModel.fromJson(payload);
+      }
+    } catch (_) {}
+
+    try {
+      final response = await _apiClient.post(
+        '/finance/reports/generate',
+        data: {'reportType': timeframe, 'format': 'JSON'},
+      );
+      dynamic payload = response.data;
+      if (payload is Map<String, dynamic> && payload['data'] != null) {
+        payload = payload['data'];
+      }
+      if (payload is Map<String, dynamic>) {
+        return FinancialReportModel.fromJson(payload);
+      }
+    } catch (_) {}
+
+    return FinancialReportModel(
+      timeframe: timeframe,
+      totalIncome: 0.0,
+      totalExpense: 0.0,
+      netSavings: 0.0,
+      savingsRatePercentage: 0.0,
+      expenseBreakdown: const [],
+      incomeBreakdown: const [],
+      cashFlowSeries: const [],
+    );
   }
 }

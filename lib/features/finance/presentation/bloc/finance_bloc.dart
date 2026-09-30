@@ -5,6 +5,7 @@ import '../../domain/usecases/get_budget_usecase.dart';
 import '../../domain/usecases/get_expenses_usecase.dart';
 import '../../domain/usecases/get_income_usecase.dart';
 import '../../domain/usecases/get_savings_goals_usecase.dart';
+import '../../utils/finance_date_utils.dart';
 import 'finance_event.dart';
 import 'finance_state.dart';
 
@@ -50,13 +51,16 @@ class FinanceBloc extends Bloc<FinanceEvent, FinanceState> {
       final double balance = totalInc - totalExp;
 
       final updatedBudgets = rawBudgets.map((b) {
+        final start = FinanceDateUtils.startOfDay(b.startDate);
+        final end = FinanceDateUtils.endOfDay(b.endDate);
         final spentInPeriod = expenses.where((e) {
-          return e.date.isAfter(b.startDate.subtract(const Duration(seconds: 1))) &&
-              e.date.isBefore(b.endDate.add(const Duration(days: 1)));
+          final inRange = FinanceDateUtils.isInRange(e.date, start, end);
+          final inCat = b.categoryId == null || b.categoryId!.isEmpty || e.categoryId == b.categoryId;
+          return inRange && inCat;
         }).fold(0.0, (sum, e) => sum + e.amount);
 
         return b.copyWith(
-          currentSpent: spentInPeriod > 0 ? spentInPeriod : b.currentSpent,
+          currentSpent: spentInPeriod,
         );
       }).toList();
 

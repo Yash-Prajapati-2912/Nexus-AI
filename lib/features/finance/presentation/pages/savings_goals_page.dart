@@ -31,11 +31,28 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
         title: const Text('Savings Goals'),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(RouteNames.financeCreateSavingsGoal),
+        onPressed: () async {
+          final bloc = context.read<SavingsBloc>();
+          await context.push(RouteNames.financeCreateSavingsGoal);
+          if (mounted) {
+            bloc.add(const LoadSavingsGoalsEvent());
+          }
+        },
         icon: const Icon(Icons.add_rounded),
         label: const Text('New Goal'),
       ),
-      body: BlocBuilder<SavingsBloc, SavingsState>(
+      body: BlocConsumer<SavingsBloc, SavingsState>(
+        listener: (context, state) {
+          if (state is SavingsFailureState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            );
+          } else if (state is SavingsOperationSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
         builder: (context, state) {
           if (state is SavingsLoadingState) {
             return const Padding(
@@ -46,24 +63,71 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
 
           if (state is SavingsLoadedState) {
             if (state.goals.isEmpty) {
-              return const Center(child: Text('No savings goals created yet.'));
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<SavingsBloc>().add(const LoadSavingsGoalsEvent());
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                    const Center(child: Text('No savings goals created yet.')),
+                  ],
+                ),
+              );
             }
-            return ListView.builder(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
-              itemCount: state.goals.length,
-              itemBuilder: (context, index) {
-                final g = state.goals[index];
-                return SavingsGoalCard(
-                  goal: g,
-                  onTap: () {
-                    _showContributionDialog(context, g.id);
-                  },
-                );
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<SavingsBloc>().add(const LoadSavingsGoalsEvent());
               },
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+                itemCount: state.goals.length,
+                itemBuilder: (context, index) {
+                  final g = state.goals[index];
+                  return SavingsGoalCard(
+                    goal: g,
+                    onTap: () {
+                      _showContributionDialog(context, g.id);
+                    },
+                  );
+                },
+              ),
             );
           }
 
-          return const Center(child: Text('Pull to load savings goals.'));
+          if (state is SavingsOperationSuccessState) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: FinanceSkeleton(height: 120),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<SavingsBloc>().add(const LoadSavingsGoalsEvent());
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Pull to load savings goals.'),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () => context.read<SavingsBloc>().add(const LoadSavingsGoalsEvent()),
+                        child: const Text('Load Goals'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
         },
       ),
     );
@@ -86,7 +150,7 @@ class _SavingsGoalsPageState extends State<SavingsGoalsPage> {
             onPressed: () {
               final amt = double.tryParse(controller.text.trim()) ?? 0.0;
               if (amt > 0) {
-                context.read<SavingsBloc>().add(AddSavingsContributionEvent(goalId: goalId, amount: amt));
+                this.context.read<SavingsBloc>().add(AddSavingsContributionEvent(goalId: goalId, amount: amt));
               }
               Navigator.pop(context);
             },

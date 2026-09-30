@@ -50,7 +50,7 @@ class SavingsGoalCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${(progress * 100).toInt()}%',
+                    '${progress.toStringAsFixed(0)}%',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF10B981),
@@ -62,7 +62,7 @@ class SavingsGoalCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
-                  value: progress,
+                  value: goal.visualProgress,
                   minHeight: 8,
                   backgroundColor: theme.colorScheme.surfaceContainerHighest,
                   valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
@@ -77,7 +77,11 @@ class SavingsGoalCard extends StatelessWidget {
                     style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Goal: ₹${goal.targetAmount.toStringAsFixed(0)}',
+                    'Remaining: ₹${goal.remainingAmount.toStringAsFixed(0)}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                  Text(
+                    'Target: ₹${goal.targetAmount.toStringAsFixed(0)}',
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],

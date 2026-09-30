@@ -19,6 +19,7 @@ class IncomeBloc extends Bloc<IncomeEvent, IncomeState> {
   }) : super(const IncomeInitialState()) {
     on<LoadIncomeEvent>(_onLoadIncome);
     on<CreateIncomeEvent>(_onCreateIncome);
+    on<UpdateIncomeEvent>(_onUpdateIncome);
     on<DeleteIncomeEvent>(_onDeleteIncome);
   }
 
@@ -49,6 +50,19 @@ class IncomeBloc extends Bloc<IncomeEvent, IncomeState> {
     result.fold(
       (Failure f) => emit(IncomeFailureState(message: f.message)),
       (income) => emit(const IncomeOperationSuccessState(message: 'Income added successfully.')),
+    );
+  }
+
+  Future<void> _onUpdateIncome(
+    UpdateIncomeEvent event,
+    Emitter<IncomeState> emit,
+  ) async {
+    emit(const IncomeLoadingState());
+    final result = await repository.updateIncome(event.income);
+
+    result.fold(
+      (Failure f) => emit(IncomeFailureState(message: f.message)),
+      (income) => emit(const IncomeOperationSuccessState(message: 'Income updated successfully.')),
     );
   }
 

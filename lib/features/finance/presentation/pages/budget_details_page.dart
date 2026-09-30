@@ -45,7 +45,9 @@ class BudgetDetailsPage extends StatelessWidget {
                     const Divider(),
                     _RowItem(
                       label: 'Remaining Balance',
-                      value: '₹${item.remainingAmount.clamp(0, double.infinity).toStringAsFixed(2)}',
+                      value: item.remainingAmount < 0
+                          ? '-₹${(-item.remainingAmount).toStringAsFixed(2)}'
+                          : '₹${item.remainingAmount.toStringAsFixed(2)}',
                       color: item.isOverBudget ? Colors.redAccent : const Color(0xFF10B981),
                     ),
                     const Divider(),

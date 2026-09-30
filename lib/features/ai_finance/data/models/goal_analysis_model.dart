@@ -12,14 +12,20 @@ class GoalAnalysisModel extends GoalAnalysis {
   });
 
   factory GoalAnalysisModel.fromJson(Map<String, dynamic> json) {
+    final target = (json['targetAmount'] as num?)?.toDouble() ?? 0.0;
+    final current = (json['currentAmount'] as num?)?.toDouble() ?? 0.0;
+    final calculatedProgress = target > 0 ? (current / target * 100.0) : 0.0;
+
     return GoalAnalysisModel(
-      goalId: json['goalId'] as String? ?? json['id'] as String? ?? 'g1',
+      goalId: json['goalId'] as String? ?? json['id'] as String? ?? '',
       goalTitle: json['goalTitle'] as String? ?? json['title'] as String? ?? 'Savings Goal',
-      currentProgressPercentage: (json['currentProgressPercentage'] as num?)?.toDouble() ?? 45.0,
+      currentProgressPercentage: (json['currentProgressPercentage'] as num?)?.toDouble() ?? calculatedProgress,
       riskLevel: json['riskLevel'] as String? ?? 'LOW',
-      predictedCompletionDate: json['predictedCompletionDate'] != null ? DateTime.parse(json['predictedCompletionDate'] as String) : DateTime.now().add(const Duration(days: 90)),
-      recommendedMonthlyContribution: (json['recommendedMonthlyContribution'] as num?)?.toDouble() ?? 120.0,
-      aiOptimizationTip: json['aiOptimizationTip'] as String? ?? 'On track! Increase monthly contribution by ₹200 to finish 2 weeks early.',
+      predictedCompletionDate: json['predictedCompletionDate'] != null
+          ? DateTime.tryParse(json['predictedCompletionDate'] as String) ?? DateTime.now()
+          : (json['targetDate'] != null ? DateTime.tryParse(json['targetDate'] as String) ?? DateTime.now() : DateTime.now()),
+      recommendedMonthlyContribution: (json['recommendedMonthlyContribution'] as num?)?.toDouble() ?? 0.0,
+      aiOptimizationTip: json['aiOptimizationTip'] as String? ?? '',
     );
   }
 

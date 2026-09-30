@@ -15,7 +15,7 @@ class FinanceCategoryModel extends FinanceCategory {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? 'Category',
       iconName: json['iconName'] as String? ?? json['icon'] as String? ?? 'category',
-      colorHex: json['colorHex'] as String? ?? json['color'] as String? ?? '#6366F1',
+      colorHex: json['colorHex'] as String? ?? json['colour'] as String? ?? json['color'] as String? ?? '#6366F1',
       type: json['type'] as String? ?? 'EXPENSE',
       monthlyBudgetLimit: (json['monthlyBudgetLimit'] as num?)?.toDouble(),
     );

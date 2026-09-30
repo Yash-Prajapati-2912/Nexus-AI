@@ -31,7 +31,10 @@ class _IncomeListPageState extends State<IncomeListPage> {
         title: const Text('Income Stream'),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(RouteNames.financeAddIncome),
+        onPressed: () async {
+          await context.push(RouteNames.financeAddIncome);
+          if (context.mounted) context.read<IncomeBloc>().add(const LoadIncomeEvent());
+        },
         icon: const Icon(Icons.add_rounded),
         label: const Text('Add Income'),
       ),

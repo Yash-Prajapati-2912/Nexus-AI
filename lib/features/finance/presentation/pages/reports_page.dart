@@ -112,6 +112,7 @@ class _ReportsPageState extends State<ReportsPage> {
                         expenseBreakdown: const [],
                         incomeBreakdown: const [],
                         cashFlowSeries: const [],
+                        cashFlowPoints: const [],
                       );
 
                 return Column(
