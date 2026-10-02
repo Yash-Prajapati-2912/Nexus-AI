@@ -137,7 +137,7 @@ class DesktopHeader extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.settings_outlined, size: 20),
                 color: textPrimary,
                 tooltip: 'Settings',
-                onPressed: () => context.push(RouteNames.settingsAppearance),
+                onPressed: () => context.push(RouteNames.settings),
               ),
             ),
             const SizedBox(width: 10),

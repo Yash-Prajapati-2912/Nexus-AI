@@ -509,8 +509,14 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
-                    items: _categoryOptions.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    items: _categoryOptions
+                        .map((c) => DropdownMenuItem(
+                              value: c,
+                              child: Text(c, overflow: TextOverflow.ellipsis),
+                            ))
+                        .toList(),
                     onChanged: (val) {
                       if (val != null) setState(() => _selectedCategory = val);
                     },
@@ -518,9 +524,13 @@ class _CreateTaskPageState extends State<CreateTaskPage>
                   const SizedBox(height: 16),
                   DropdownButtonFormField<TaskPriority>(
                     value: _priority,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Priority', border: OutlineInputBorder()),
                     items: TaskPriority.values
-                        .map((p) => DropdownMenuItem(value: p, child: Text(p.name.toUpperCase())))
+                        .map((p) => DropdownMenuItem(
+                              value: p,
+                              child: Text(p.name.toUpperCase(), overflow: TextOverflow.ellipsis),
+                            ))
                         .toList(),
                     onChanged: (val) {
                       if (val != null) setState(() => _priority = val);

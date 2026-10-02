@@ -117,18 +117,40 @@ class ApiClient {
 
     if (response != null && response.data is Map<String, dynamic>) {
       final data = response.data as Map<String, dynamic>;
-      final message = data['detail'] as String? ?? data['message'] as String? ?? 'An error occurred';
-      final type = data['type'] as String?;
+
+      // Support NestJS GlobalExceptionFilter envelope ({statusCode, success, error: {code, message, details}})
+      // as well as flat error formats ({detail, message, errors, type})
+      final errorObj = data['error'] is Map<String, dynamic>
+          ? data['error'] as Map<String, dynamic>
+          : null;
+
+      String message = 'An error occurred';
+      final dynamic rawMessage = errorObj?['message'] ?? data['message'] ?? data['detail'];
+
+      final errorsMap = <String, List<String>>{};
+
+      if (rawMessage is String && rawMessage.isNotEmpty) {
+        message = rawMessage;
+      } else if (rawMessage is List && rawMessage.isNotEmpty) {
+        message = rawMessage.map((e) => e.toString()).join(', ');
+        errorsMap['general'] = rawMessage.map((e) => e.toString()).toList();
+      }
+
+      // Check for structured validation error map in errorObj.details or data.errors
+      final dynamic rawErrors = errorObj?['details'] ?? data['errors'];
+      if (rawErrors is Map<String, dynamic>) {
+        rawErrors.forEach((key, value) {
+          if (value is List) {
+            errorsMap[key] = value.map((e) => e.toString()).toList();
+          } else if (value != null) {
+            errorsMap[key] = [value.toString()];
+          }
+        });
+      }
+
+      final type = (errorObj?['code'] ?? data['type']) as String?;
 
       if (statusCode == 400) {
-        final errorsMap = <String, List<String>>{};
-        if (data['errors'] is Map<String, dynamic>) {
-          (data['errors'] as Map<String, dynamic>).forEach((key, value) {
-            if (value is List) {
-              errorsMap[key] = value.map((e) => e.toString()).toList();
-            }
-          });
-        }
         return ValidationException(message: message, errors: errorsMap, type: type);
       }
 
@@ -147,6 +169,12 @@ class ApiClient {
       if (statusCode != null && statusCode >= 500) {
         return ServerException(message: message, statusCode: statusCode, type: type);
       }
+
+      return NetworkException(
+        message: message,
+        statusCode: statusCode,
+        type: type,
+      );
     }
 
     return NetworkException(

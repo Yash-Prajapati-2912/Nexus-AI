@@ -209,9 +209,10 @@ class _PlannerHomePageState extends State<PlannerHomePage> {
           }
 
           if (state is PlannerErrorState) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
                 child: AppErrorCard(
                   message: state.message,
                   onRetry: () => context.read<PlannerBloc>().add(LoadPlannerEvent()),

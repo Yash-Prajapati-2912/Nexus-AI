@@ -36,4 +36,24 @@ class DashboardEntity extends Equatable {
         productivityStats,
         chartData,
       ];
+
+  DashboardEntity copyWith({
+    UserEntity? user,
+    PlannerSummaryEntity? plannerSummary,
+    FinanceSummaryEntity? financeSummary,
+    AiInsightEntity? aiInsight,
+    NotificationSummaryEntity? notificationSummary,
+    ProductivityStatsEntity? productivityStats,
+    ChartDataEntity? chartData,
+  }) {
+    return DashboardEntity(
+      user: user ?? this.user,
+      plannerSummary: plannerSummary ?? this.plannerSummary,
+      financeSummary: financeSummary ?? this.financeSummary,
+      aiInsight: aiInsight ?? this.aiInsight,
+      notificationSummary: notificationSummary ?? this.notificationSummary,
+      productivityStats: productivityStats ?? this.productivityStats,
+      chartData: chartData ?? this.chartData,
+    );
+  }
 }

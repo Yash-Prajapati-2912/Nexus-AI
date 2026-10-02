@@ -27,4 +27,16 @@ class ChartDataEntity extends Equatable {
         categoryExpenses,
         taskCompletionTrend,
       ];
+
+  ChartDataEntity copyWith({
+    List<ChartDataPoint>? weeklyStudyHours,
+    List<ChartDataPoint>? categoryExpenses,
+    List<ChartDataPoint>? taskCompletionTrend,
+  }) {
+    return ChartDataEntity(
+      weeklyStudyHours: weeklyStudyHours ?? this.weeklyStudyHours,
+      categoryExpenses: categoryExpenses ?? this.categoryExpenses,
+      taskCompletionTrend: taskCompletionTrend ?? this.taskCompletionTrend,
+    );
+  }
 }

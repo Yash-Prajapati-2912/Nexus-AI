@@ -286,6 +286,10 @@ Future<void> configureDependencies(AppEnv env) async {
     () => DashboardBloc(
       getDashboardUseCase: getIt<GetDashboardUseCase>(),
       getPlannerUseCase: getIt<GetPlannerUseCase>(),
+      getExpensesUseCase: getIt<GetExpensesUseCase>(),
+      getIncomeUseCase: getIt<GetIncomeUseCase>(),
+      getBudgetUseCase: getIt<GetBudgetUseCase>(),
+      getSavingsGoalsUseCase: getIt<GetSavingsGoalsUseCase>(),
     ),
   );
 

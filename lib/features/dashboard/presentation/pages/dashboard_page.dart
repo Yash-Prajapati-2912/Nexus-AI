@@ -73,9 +73,10 @@ class _DashboardPageState extends State<DashboardPage> {
           }
 
           if (state is DashboardErrorState) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
                 child: AppErrorCard(
                   message: state.message,
                   onRetry: () => context.read<DashboardBloc>().add(RetryLoadDashboardEvent()),
@@ -132,9 +133,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Left Main Column (60% width)
+                            // Left Main Column: Academic & Productivity Hub
                             Expanded(
-                              flex: 7,
+                              flex: 1,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -149,14 +150,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                   const SizedBox(height: 24),
                                   TaskCompletionChartWidget(data: dashboard.chartData.taskCompletionTrend),
+                                  const SizedBox(height: 24),
+                                  ProductivitySectionWidget(stats: dashboard.productivityStats),
+                                  const SizedBox(height: 24),
+                                  WeeklyStudyChartWidget(data: dashboard.chartData.weeklyStudyHours),
                                 ],
                               ),
                             ),
                             const SizedBox(width: 24),
 
-                            // Right Secondary Column (40% width)
+                            // Right Secondary Column: Financial Health & AI Assistant Hub
                             Expanded(
-                              flex: 5,
+                              flex: 1,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -164,13 +169,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                   const SizedBox(height: 24),
                                   AiFinanceInsightWidget(summary: dashboard.financeSummary),
                                   const SizedBox(height: 24),
-                                  ExpenseChartWidget(data: dashboard.chartData.categoryExpenses),
+                                  ExpenseChartWidget(
+                                    data: dashboard.chartData.categoryExpenses,
+                                    totalIncome: dashboard.financeSummary.totalIncome,
+                                    totalExpenses: dashboard.financeSummary.spentThisMonth,
+                                  ),
                                   const SizedBox(height: 24),
                                   AiMentorSectionWidget(insight: dashboard.aiInsight),
-                                  const SizedBox(height: 24),
-                                  ProductivitySectionWidget(stats: dashboard.productivityStats),
-                                  const SizedBox(height: 24),
-                                  WeeklyStudyChartWidget(data: dashboard.chartData.weeklyStudyHours),
                                   const SizedBox(height: 24),
                                   RecentActivityWidget(notificationSummary: dashboard.notificationSummary),
                                 ],
@@ -197,7 +202,11 @@ class _DashboardPageState extends State<DashboardPage> {
                               lowPriorityCount: lowPriorityCount,
                             ),
                             const SizedBox(height: 20),
-                            ExpenseChartWidget(data: dashboard.chartData.categoryExpenses),
+                            ExpenseChartWidget(
+                              data: dashboard.chartData.categoryExpenses,
+                              totalIncome: dashboard.financeSummary.totalIncome,
+                              totalExpenses: dashboard.financeSummary.spentThisMonth,
+                            ),
                             const SizedBox(height: 20),
                             AiMentorSectionWidget(insight: dashboard.aiInsight),
                             const SizedBox(height: 20),

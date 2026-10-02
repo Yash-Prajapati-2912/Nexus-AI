@@ -7,6 +7,7 @@ import '../../domain/entities/investment.dart';
 import '../bloc/finance_bloc.dart';
 import '../bloc/finance_event.dart';
 import '../bloc/finance_state.dart';
+import '../widgets/finance_skeleton.dart';
 
 class InvestmentsPage extends StatefulWidget {
   const InvestmentsPage({super.key});
@@ -16,6 +17,16 @@ class InvestmentsPage extends StatefulWidget {
 }
 
 class _InvestmentsPageState extends State<InvestmentsPage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadInvestments();
+  }
+
+  void _loadInvestments() {
+    context.read<FinanceBloc>().add(const LoadFinanceDashboardEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -39,6 +50,72 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
       ),
       body: BlocBuilder<FinanceBloc, FinanceState>(
         builder: (context, state) {
+          if (state is FinanceLoadingState || state is FinanceInitialState) {
+            return const SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                children: [
+                  FinanceSkeleton(height: 140),
+                  SizedBox(height: 16),
+                  FinanceSkeleton(height: 72),
+                  SizedBox(height: 12),
+                  FinanceSkeleton(height: 72),
+                ],
+              ),
+            );
+          }
+
+          if (state is FinanceFailureState) {
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, size: 48, color: DesignColors.errorDark),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Unable to load investments',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: isDark ? Colors.white : DesignColors.textPrimaryLight,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? DesignColors.textSecondaryDark : DesignColors.textSecondaryLight,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: DesignColors.primaryDark,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: _loadInvestments,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Retry', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final investments = (state is FinanceLoadedState) ? state.investments : <Investment>[];
           final totalInvested = (state is FinanceLoadedState) ? state.totalInvested : 0.0;
           final totalCurrent = (state is FinanceLoadedState) ? state.totalInvestmentValue : 0.0;

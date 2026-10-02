@@ -201,16 +201,26 @@ class _FinanceDashboardPageState extends State<FinanceDashboardPage> {
 
           if (state is FinanceFailureState) {
             return Center(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
                     const SizedBox(height: 16),
                     const Text('Unable to load Finance Studio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
-                    Text(state.message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        maxLines: 6,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: _loadDashboard,

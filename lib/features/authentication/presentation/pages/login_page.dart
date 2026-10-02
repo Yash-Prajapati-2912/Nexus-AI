@@ -15,7 +15,6 @@ import '../widgets/auth_footer.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_scaffold.dart';
 import '../widgets/forgot_password_link.dart';
-import '../widgets/loading_overlay.dart';
 import '../widgets/remember_me_checkbox.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,6 +39,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onLoginSubmitted() {
+    final state = context.read<AuthenticationBloc>().state;
+    if (state is AuthLoadingState) return;
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthenticationBloc>().add(
             LoginRequestedEvent(
@@ -67,88 +68,86 @@ class _LoginPageState extends State<LoginPage> {
         final isLoading = state is AuthLoadingState;
 
         return AuthScaffold(
-          child: LoadingOverlay(
-            isLoading: isLoading,
-            child: Column(
-              children: [
-                const AppLogo(size: 80),
-                const SizedBox(height: 16),
-                const AuthHeader(
-                  title: 'Welcome back',
-                  subtitle: 'Sign in to continue to Nexus AI',
-                ),
-                const SizedBox(height: 24),
-                AuthCard(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        CustomTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          hint: 'Enter your email',
-                          keyboardType: TextInputType.emailAddress,
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          validator: Validators.email,
-                        ),
-                        const SizedBox(height: 16),
-                        CustomTextField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          hint: 'Enter your password',
-                          obscureText: _obscurePassword,
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
+          child: Column(
+            children: [
+              const AppLogo(size: 80),
+              const SizedBox(height: 16),
+              const AuthHeader(
+                title: 'Welcome back',
+                subtitle: 'Sign in to continue to Nexus AI',
+              ),
+              const SizedBox(height: 24),
+              AuthCard(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CustomTextField(
+                        controller: _emailController,
+                        label: 'Email',
+                        hint: 'Enter your email',
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        validator: Validators.email,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        hint: 'Enter your password',
+                        obscureText: _obscurePassword,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
                           ),
-                          validator: (val) => Validators.required(val, message: 'Password is required'),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          runSpacing: 4,
-                          children: [
-                            RememberMeCheckbox(
-                              value: _rememberMe,
-                              onChanged: (val) => setState(() => _rememberMe = val ?? false),
-                            ),
-                            ForgotPasswordLink(
-                              onTap: () => context.push(RouteNames.forgotPassword),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        PrimaryButton(
-                          label: 'Sign In',
-                          isLoading: isLoading,
-                          onPressed: _onLoginSubmitted,
-                        ),
-                      ],
-                    ),
+                        validator: (val) => Validators.required(val, message: 'Password is required'),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runSpacing: 4,
+                        children: [
+                          RememberMeCheckbox(
+                            value: _rememberMe,
+                            onChanged: (val) => setState(() => _rememberMe = val ?? false),
+                          ),
+                          ForgotPasswordLink(
+                            onTap: () => context.push(RouteNames.forgotPassword),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      PrimaryButton(
+                        label: 'Sign In',
+                        isLoading: isLoading,
+                        onPressed: isLoading ? null : _onLoginSubmitted,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                AuthFooter(
-                  text: "Don't have an account?",
-                  actionLabel: 'Sign Up',
-                  onActionTap: () => context.go(RouteNames.register),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              AuthFooter(
+                text: "Don't have an account?",
+                actionLabel: 'Sign Up',
+                onActionTap: () => context.go(RouteNames.register),
+              ),
+            ],
           ),
         );
       },
     );
   }
 }
+

@@ -116,11 +116,14 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     if ((isDesktop || isTablet) && widget.constrainDesktopWidth) {
       mainContent = Align(
         alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: widget.maxDesktopWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: widget.body,
+        child: SizedBox(
+          height: double.infinity,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: widget.maxDesktopWidth),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: widget.body,
+            ),
           ),
         ),
       );
@@ -139,7 +142,11 @@ class _BaseScaffoldState extends State<BaseScaffold> {
           Expanded(
             child: Column(
               children: [
-                if (effectiveHeader != null) effectiveHeader,
+                if (effectiveHeader != null)
+                  SizedBox(
+                    height: effectiveHeader.preferredSize.height,
+                    child: effectiveHeader,
+                  ),
                 Expanded(
                   child: mainContent,
                 ),

@@ -7,6 +7,7 @@ import '../../domain/entities/finance_category.dart';
 import '../../domain/repositories/i_finance_repository.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
+import '../bloc/expense_state.dart';
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
@@ -172,10 +173,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
 
     context.read<ExpenseBloc>().add(CreateExpenseEvent(expense));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Saving expense...')),
-    );
-    context.pop(true);
   }
 
   Future<void> _pickDate() async {
@@ -203,9 +200,26 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Expense')),
-      body: SingleChildScrollView(
+    return BlocListener<ExpenseBloc, ExpenseState>(
+      listener: (context, state) {
+        if (state is ExpenseOperationSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+          context.pop(true);
+        } else if (state is ExpenseFailureState) {
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Add Expense')),
+        body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
@@ -341,15 +355,25 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton.icon(
-                  onPressed: _onSave,
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text('Save Expense', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  onPressed: _isSubmitting ? null : _onSave,
+                  icon: _isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.check_rounded),
+                  label: Text(
+                    _isSubmitting ? 'Saving Expense...' : 'Save Expense',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    ),
     );
   }
 }

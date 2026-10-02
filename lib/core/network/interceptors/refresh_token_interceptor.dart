@@ -36,20 +36,32 @@ class RefreshTokenInterceptor extends Interceptor {
           );
 
           if (response.statusCode == 200 || response.statusCode == 201) {
-            final data = response.data['data'] as Map<String, dynamic>;
-            final newAccessToken = data['accessToken'] as String;
-            final newRefreshToken = data['refreshToken'] as String;
+            final rawData = response.data;
+            final data = (rawData is Map<String, dynamic> && rawData['data'] is Map<String, dynamic>)
+                ? rawData['data'] as Map<String, dynamic>
+                : (rawData is Map<String, dynamic> ? rawData : <String, dynamic>{});
+            final tokens = (data['tokens'] is Map<String, dynamic>)
+                ? data['tokens'] as Map<String, dynamic>
+                : data;
 
-            await _tokenStorage.saveTokens(
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-            );
+            final newAccessToken = tokens['accessToken'] as String?;
+            final newRefreshToken = tokens['refreshToken'] as String?;
 
-            // Retry original failed request
-            final opts = err.requestOptions;
-            opts.headers['Authorization'] = 'Bearer $newAccessToken';
-            final cloneReq = await _dio.fetch(opts);
-            return handler.resolve(cloneReq);
+            if (newAccessToken != null &&
+                newAccessToken.isNotEmpty &&
+                newRefreshToken != null &&
+                newRefreshToken.isNotEmpty) {
+              await _tokenStorage.saveTokens(
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+              );
+
+              // Retry original failed request
+              final opts = err.requestOptions;
+              opts.headers['Authorization'] = 'Bearer $newAccessToken';
+              final cloneReq = await _dio.fetch(opts);
+              return handler.resolve(cloneReq);
+            }
           }
         } catch (e) {
           LoggerService.error('Token refresh failed', e);

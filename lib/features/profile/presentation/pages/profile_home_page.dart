@@ -75,9 +75,10 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             if (state is ProfileFailureState) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                padding: const EdgeInsets.all(24.0),
+                child: Center(
                   child: AppErrorCard(
                     message: state.message,
                     onRetry: () => context.read<ProfileBloc>().add(const LoadProfileEvent()),
@@ -87,7 +88,8 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             }
 
             if (state is! ProfileLoadedState) {
-              return const Padding(
+              return const SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 padding: EdgeInsets.all(16),
                 child: Column(
                   children: [
