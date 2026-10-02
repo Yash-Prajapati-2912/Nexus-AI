@@ -140,9 +140,9 @@ export class ExpenseRepository extends BaseRepository<Expense> {
     const result = await repo
       .createQueryBuilder('expense')
       .select('SUM(expense.amount)', 'total')
-      .where('expense.user_id = :userId', { userId })
-      .andWhere('expense.expense_date BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('expense.deleted_at IS NULL')
+      .where('expense.userId = :userId', { userId })
+      .andWhere('expense.expenseDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('expense.deletedAt IS NULL')
       .getRawOne();
 
     return result && result.total ? parseFloat(result.total) : 0;
@@ -160,19 +160,20 @@ export class ExpenseRepository extends BaseRepository<Expense> {
 
     const rawResults = await repo
       .createQueryBuilder('expense')
-      .innerJoin('expense.category', 'category')
-      .select('category.id', 'categoryId')
-      .addSelect('category.name', 'categoryName')
-      .addSelect('category.colour', 'colour')
-      .addSelect('category.icon', 'icon')
+      .leftJoin('expense.category', 'category')
+      .select('COALESCE(category.id, expense.categoryId)', 'categoryId')
+      .addSelect('COALESCE(category.name, \'General\')', 'categoryName')
+      .addSelect('COALESCE(category.colour, \'#6366F1\')', 'colour')
+      .addSelect('COALESCE(category.icon, \'tag\')', 'icon')
       .addSelect('SUM(expense.amount)', 'totalAmount')
-      .where('expense.user_id = :userId', { userId })
-      .andWhere('expense.expense_date BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('expense.deleted_at IS NULL')
+      .where('expense.userId = :userId', { userId })
+      .andWhere('expense.expenseDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('expense.deletedAt IS NULL')
       .groupBy('category.id')
       .addGroupBy('category.name')
       .addGroupBy('category.colour')
       .addGroupBy('category.icon')
+      .addGroupBy('expense.categoryId')
       .orderBy('SUM(expense.amount)', 'DESC')
       .getRawMany();
 

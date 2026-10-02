@@ -39,4 +39,9 @@ describe('FinanceAIController', () => {
     const res = await controller.calculateSafeDailyBudget(mockUserId, {});
     expect(res.safeDailyLimit).toBe(15);
   });
+
+  it('should call generateFinancialReview endpoint with reviewType', async () => {
+    const res = await controller.generateFinancialReview(mockUserId, { reviewType: 'SUBSCRIPTIONS' });
+    expect(res.summary).toBe('Review OK');
+  });
 });

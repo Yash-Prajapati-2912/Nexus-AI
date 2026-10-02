@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum, IsString } from 'class-validator';
 import { ReviewFrequency } from '../constants/finance-ai-enums.constants';
 
 export class FinancialReviewRequestDto {
@@ -7,4 +7,9 @@ export class FinancialReviewRequestDto {
   @IsOptional()
   @IsEnum(ReviewFrequency)
   frequency?: ReviewFrequency = ReviewFrequency.MONTHLY;
+
+  @ApiPropertyOptional({ description: 'Specific review focus type (e.g. SUBSCRIPTIONS, GOALS)', example: 'SUBSCRIPTIONS' })
+  @IsOptional()
+  @IsString()
+  reviewType?: string;
 }

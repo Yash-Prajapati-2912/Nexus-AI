@@ -4,7 +4,7 @@ import { ExpenseRepository } from '../../finance/repositories/expense.repository
 import { IncomeRepository } from '../../finance/repositories/income.repository';
 import { SavingsGoalRepository } from '../../finance/repositories/savings-goal.repository';
 import { AIFinancialAnalysisRepository } from '../../finance/ai/repositories/ai-financial-analysis.repository';
-import { DateRangePreset, SavingsStatus } from '../../finance/constants/finance-enums.constants';
+import { DateRangePreset, SavingsStatus, BudgetStatus } from '../../finance/constants/finance-enums.constants';
 import { IFinanceOverviewData } from '../interfaces/aggregated-dashboard-data.interface';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class FinanceOverviewAggregator {
     const month = now.getUTCMonth() + 1;
     const year = now.getUTCFullYear();
 
-    const [budget, monthExpenses, monthIncome, savingsGoals, todayExpensesRes, categoryBreakdown, latestAI, recentExpenses] =
+    const [budget, monthExpenses, monthIncome, savingsGoals, todayExpensesRes, categoryBreakdown, latestAI, recentExpenses, recentIncomes] =
       await Promise.all([
         this.budgetRepository.findByUserAndPeriod(userId, month, year).catch(() => null),
         this.expenseRepository.calculateTotalSpentForPeriod(userId, month, year).catch(() => 0),
@@ -42,19 +42,50 @@ export class FinanceOverviewAggregator {
             where: { userId },
             relations: ['category'],
             order: { expenseDate: 'DESC' },
-            take: 3,
+            take: 5,
           })
           .catch(() => []),
+        typeof this.incomeRepository.findFilteredIncomes === 'function'
+          ? this.incomeRepository
+              .findFilteredIncomes(userId, { limit: 5 })
+              .catch(() => ({ data: [], total: 0 }))
+          : Promise.resolve({ data: [], total: 0 }),
       ]);
 
-    const planned = budget ? Number(budget.plannedAmount) : 0;
-    const spent = monthExpenses;
-    const remaining = budget ? Number(budget.remainingAmount) : Math.max(0, planned - spent);
+    // Active budget resolution (fallback to user active budget if current month budget not explicitly keyed)
+    let activeBudget = budget;
+    if (!activeBudget) {
+      if (typeof this.budgetRepository.findActiveByUserAndPeriod === 'function') {
+        activeBudget = await this.budgetRepository.findActiveByUserAndPeriod(userId, month, year).catch(() => null);
+      }
+      if (!activeBudget && typeof this.budgetRepository.findUserBudgets === 'function') {
+        const userBudgets = await this.budgetRepository.findUserBudgets(userId).catch(() => []);
+        activeBudget = userBudgets.find((b) => b.status === BudgetStatus.ACTIVE) || null;
+      }
+    }
+
+    let spent = monthExpenses;
+    if (spent === 0 && recentExpenses && recentExpenses.length > 0 && typeof this.expenseRepository.findFilteredExpenses === 'function') {
+      const allExpenses = await this.expenseRepository.findFilteredExpenses(userId, { limit: 1000 }).catch(() => ({ data: [], total: 0 }));
+      if (allExpenses.data && allExpenses.data.length > 0) {
+        spent = allExpenses.data.reduce((sum, e) => sum + Number(e.amount), 0);
+      }
+    }
+
+    let totalIncome = monthIncome;
+    if (totalIncome === 0 && typeof this.incomeRepository.findFilteredIncomes === 'function') {
+      const allIncomes = await this.incomeRepository.findFilteredIncomes(userId, { limit: 1000 }).catch(() => ({ data: [], total: 0 }));
+      if (allIncomes.data && allIncomes.data.length > 0) {
+        totalIncome = allIncomes.data.reduce((sum, i) => sum + Number(i.amount), 0);
+      }
+    }
+
+    const planned = activeBudget ? Number(activeBudget.plannedAmount) : 0;
+    const remaining = activeBudget ? Number(activeBudget.remainingAmount) : Math.max(0, planned - spent);
     const todaysSpending = (todayExpensesRes?.data || []).reduce(
       (sum, exp) => sum + Number(exp.amount),
       0,
     );
-    const totalIncome = monthIncome;
     const netBalance = parseFloat((totalIncome - spent).toFixed(2));
 
     // Dynamic savings progress calculation from real user savings goals
@@ -148,12 +179,24 @@ export class FinanceOverviewAggregator {
       }
     }
 
-    const categoryExpenses = (categoryBreakdown || []).map((c) => ({
+    let resolvedCategoryExpenses = (categoryBreakdown || []).map((c) => ({
       label: c.categoryName,
       value: c.totalAmount,
     }));
 
-    const recentTransactions = (recentExpenses || []).map((exp) => ({
+    if (resolvedCategoryExpenses.length === 0 && spent > 0 && recentExpenses && recentExpenses.length > 0) {
+      const catMap = new Map<string, number>();
+      for (const e of recentExpenses) {
+        const name = e.category?.name || 'General';
+        catMap.set(name, (catMap.get(name) || 0) + Number(e.amount));
+      }
+      resolvedCategoryExpenses = Array.from(catMap.entries()).map(([label, value]) => ({
+        label,
+        value,
+      }));
+    }
+
+    const expenseTx = (recentExpenses || []).map((exp) => ({
       id: exp.id,
       title: exp.title,
       amount: Number(exp.amount),
@@ -162,6 +205,20 @@ export class FinanceOverviewAggregator {
       date: exp.expenseDate instanceof Date ? exp.expenseDate.toISOString() : String(exp.expenseDate),
       isExpense: true,
     }));
+
+    const incomeTx = ((recentIncomes as any)?.data || []).map((inc: any) => ({
+      id: inc.id,
+      title: inc.title,
+      amount: Number(inc.amount),
+      categoryName: inc.source || 'Income',
+      categoryColour: '#10B981',
+      date: inc.receivedDate instanceof Date ? inc.receivedDate.toISOString() : String(inc.receivedDate),
+      isExpense: false,
+    }));
+
+    const recentTransactions = [...expenseTx, ...incomeTx].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    ).slice(0, 5);
 
     return {
       monthlyBudgetPlanned: planned,
@@ -173,7 +230,7 @@ export class FinanceOverviewAggregator {
       totalIncome,
       netBalance,
       aiFinancialTip,
-      categoryExpenses,
+      categoryExpenses: resolvedCategoryExpenses,
       activeGoalTitle,
       activeGoalTarget,
       activeGoalCurrent,

@@ -77,9 +77,9 @@ export class IncomeRepository extends BaseRepository<Income> {
     const result = await repo
       .createQueryBuilder('income')
       .select('SUM(income.amount)', 'total')
-      .where('income.user_id = :userId', { userId })
-      .andWhere('income.received_date BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('income.deleted_at IS NULL')
+      .where('income.userId = :userId', { userId })
+      .andWhere('income.receivedDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('income.deletedAt IS NULL')
       .getRawOne();
 
     return result && result.total ? parseFloat(result.total) : 0;

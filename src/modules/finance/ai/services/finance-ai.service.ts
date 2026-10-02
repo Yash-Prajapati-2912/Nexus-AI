@@ -310,7 +310,8 @@ export class FinanceAIService {
     userId: string,
     dto: FinancialReviewRequestDto,
   ): Promise<AIAnalysisResponseDto> {
-    return this.generateFinancialSummary(userId, { notes: `Review Frequency: ${dto.frequency || 'MONTHLY'}` });
+    const focus = dto.reviewType ? ` | Focus: ${dto.reviewType}` : '';
+    return this.generateFinancialSummary(userId, { notes: `Review Frequency: ${dto.frequency || 'MONTHLY'}${focus}` });
   }
 
   private async buildContext(userId: string) {

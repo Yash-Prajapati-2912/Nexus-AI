@@ -42,8 +42,8 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.categoryEntity', 'categoryEntity')
       .leftJoinAndSelect('task.labelMappings', 'labelMappings')
       .leftJoinAndSelect('labelMappings.label', 'label')
-      .where('task.user_id = :userId', { userId })
-      .andWhere('task.deleted_at IS NULL');
+      .where('task.userId = :userId', { userId })
+      .andWhere('task.deletedAt IS NULL');
 
     // Search filter across title, description, and notes
     if (queryDto.search && queryDto.search.trim().length > 0) {
@@ -55,7 +55,7 @@ export class TaskRepository extends BaseRepository<Task> {
     }
 
     if (queryDto.categoryId) {
-      qb.andWhere('task.category_id = :categoryId', { categoryId: queryDto.categoryId });
+      qb.andWhere('task.categoryId = :categoryId', { categoryId: queryDto.categoryId });
     }
 
     if (queryDto.priority) {
@@ -67,7 +67,7 @@ export class TaskRepository extends BaseRepository<Task> {
     }
 
     if (queryDto.labelIds && queryDto.labelIds.length > 0) {
-      qb.andWhere('labelMappings.label_id IN (:...labelIds)', { labelIds: queryDto.labelIds });
+      qb.andWhere('labelMappings.labelId IN (:...labelIds)', { labelIds: queryDto.labelIds });
     }
 
     // Quick filter bounds
@@ -78,7 +78,7 @@ export class TaskRepository extends BaseRepository<Task> {
 
       switch (queryDto.quickFilter) {
         case TaskQuickFilter.TODAY:
-          qb.andWhere('task.due_date >= :startOfDay AND task.due_date <= :endOfDay', {
+          qb.andWhere('task.dueDate >= :startOfDay AND task.dueDate <= :endOfDay', {
             startOfDay,
             endOfDay,
           });
@@ -86,7 +86,7 @@ export class TaskRepository extends BaseRepository<Task> {
         case TaskQuickFilter.TOMORROW:
           const startOfTomorrow = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
           const endOfTomorrow = new Date(endOfDay.getTime() + 24 * 60 * 60 * 1000);
-          qb.andWhere('task.due_date >= :startOfTomorrow AND task.due_date <= :endOfTomorrow', {
+          qb.andWhere('task.dueDate >= :startOfTomorrow AND task.dueDate <= :endOfTomorrow', {
             startOfTomorrow,
             endOfTomorrow,
           });
@@ -95,7 +95,7 @@ export class TaskRepository extends BaseRepository<Task> {
           const dayOfWeek = now.getDay();
           const startOfWeek = new Date(startOfDay.getTime() - dayOfWeek * 24 * 60 * 60 * 1000);
           const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
-          qb.andWhere('task.due_date >= :startOfWeek AND task.due_date <= :endOfWeek', {
+          qb.andWhere('task.dueDate >= :startOfWeek AND task.dueDate <= :endOfWeek', {
             startOfWeek,
             endOfWeek,
           });
@@ -103,7 +103,7 @@ export class TaskRepository extends BaseRepository<Task> {
         case TaskQuickFilter.THIS_MONTH:
           const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
           const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-          qb.andWhere('task.due_date >= :startOfMonth AND task.due_date <= :endOfMonth', {
+          qb.andWhere('task.dueDate >= :startOfMonth AND task.dueDate <= :endOfMonth', {
             startOfMonth,
             endOfMonth,
           });
@@ -117,23 +117,23 @@ export class TaskRepository extends BaseRepository<Task> {
           qb.andWhere('task.status = :completedStatus', { completedStatus: TaskStatus.COMPLETED });
           break;
         case TaskQuickFilter.ARCHIVED:
-          qb.andWhere('task.is_archived = true');
+          qb.andWhere('task.isArchived = true');
           break;
         case TaskQuickFilter.PINNED:
-          qb.andWhere('task.is_pinned = true');
+          qb.andWhere('task.isPinned = true');
           break;
         case TaskQuickFilter.IMPORTANT:
-          qb.andWhere('task.is_important = true');
+          qb.andWhere('task.isImportant = true');
           break;
       }
     }
 
     if (!queryDto.quickFilter || queryDto.quickFilter !== TaskQuickFilter.ARCHIVED) {
-      qb.andWhere('task.is_archived = false');
+      qb.andWhere('task.isArchived = false');
     }
 
     if (queryDto.startDate && queryDto.endDate) {
-      qb.andWhere('task.due_date >= :startDate AND task.due_date <= :endDate', {
+      qb.andWhere('task.dueDate >= :startDate AND task.dueDate <= :endDate', {
         startDate: new Date(queryDto.startDate),
         endDate: new Date(queryDto.endDate),
       });
