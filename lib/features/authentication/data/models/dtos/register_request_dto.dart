@@ -10,10 +10,14 @@ class RegisterRequestDto {
   });
 
   Map<String, dynamic> toJson() {
+    final parts = fullName.trim().split(RegExp(r'\s+'));
+    final firstName = parts.isNotEmpty && parts.first.isNotEmpty ? parts.first : 'User';
+    final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : 'Member';
     return {
       'email': email,
       'password': password,
-      'fullName': fullName,
+      'firstName': firstName,
+      'lastName': lastName,
     };
   }
 }
