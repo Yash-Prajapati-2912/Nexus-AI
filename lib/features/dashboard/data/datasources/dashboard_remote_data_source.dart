@@ -28,7 +28,7 @@ class DashboardRemoteDataSourceImpl extends BaseRemoteDataSource implements IDas
 
   @override
   Future<PlannerSummaryModel> getPlannerSummary() async {
-    final response = await apiClient.get('/planner/summary');
+    final response = await apiClient.get(ApiConstants.plannerSummary);
     final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
         ? response.data['data']
         : response.data;
@@ -37,7 +37,7 @@ class DashboardRemoteDataSourceImpl extends BaseRemoteDataSource implements IDas
 
   @override
   Future<FinanceSummaryModel> getFinanceSummary() async {
-    final response = await apiClient.get(ApiConstants.financialAdvice);
+    final response = await apiClient.get(ApiConstants.financeSummary);
     final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
         ? response.data['data']
         : response.data;
@@ -46,7 +46,7 @@ class DashboardRemoteDataSourceImpl extends BaseRemoteDataSource implements IDas
 
   @override
   Future<AiInsightModel> getAiInsights() async {
-    final response = await apiClient.get(ApiConstants.mentorChat);
+    final response = await apiClient.get(ApiConstants.dashboardInsights);
     final data = (response.data is Map<String, dynamic> && response.data['data'] != null)
         ? response.data['data']
         : response.data;

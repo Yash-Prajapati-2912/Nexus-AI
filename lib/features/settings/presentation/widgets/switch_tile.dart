@@ -5,7 +5,7 @@ class SwitchTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
 
   const SwitchTile({
     super.key,
@@ -13,7 +13,7 @@ class SwitchTile extends StatelessWidget {
     required this.title,
     this.subtitle,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
   });
 
   @override

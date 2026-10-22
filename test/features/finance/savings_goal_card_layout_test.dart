@@ -30,7 +30,7 @@ void main() {
 
     expect(find.text('Laptop'), findsOneWidget);
     expect(find.text('Saved: ₹25000'), findsOneWidget);
-    expect(find.text('Remaining: ₹225000'), findsOneWidget);
+    expect(find.text('Remaining: ₹225000'), findsNothing);
     expect(find.text('Target: ₹250000'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

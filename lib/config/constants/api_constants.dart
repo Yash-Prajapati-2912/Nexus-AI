@@ -11,16 +11,20 @@ abstract class ApiConstants {
   static const String verifyEmail = '/auth/verify-email';
   static const String resendVerification = '/auth/resend-verification';
   static const String profile = '/auth/me';
+  static const String changePassword = '/auth/change-password';
 
   // Dashboard
   static const String dashboardSummary = '/dashboard/summary';
+  static const String dashboardInsights = '/dashboard/insights';
 
   // Smart Planner
   static const String tasks = '/planner/tasks';
+  static const String plannerSummary = '/planner/productivity/summary';
   static const String optimizeSchedule = '/planner/ai-optimize';
 
   // Smart Finance
   static const String expenses = '/finance/expenses';
+  static const String financeSummary = '/finance/summary';
   static const String financialAdvice = '/finance/ai-advisor';
 
   // AI Mentor

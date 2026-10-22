@@ -26,15 +26,18 @@ class AIMentorRemoteDataSourceImpl implements IAIMentorRemoteDataSource {
   @override
   Future<ChatMessageModel> sendMessage(String conversationId, String content, {String? topic}) async {
     final endpoint = _getEndpointForTopic(topic);
+    final body = <String, dynamic>{
+      'message': content,
+      'prompt': content,
+    };
+    if (conversationId.isNotEmpty && conversationId != 'c_new') {
+      body['conversationId'] = conversationId;
+    }
     final response = await _apiClient.post(
       endpoint,
-      data: {
-        'conversationId': conversationId,
-        'message': content,
-        'prompt': content,
-      },
+      data: body,
     );
-    final data = response.data as Map<String, dynamic>;
+    final data = _unwrapPayload(response.data);
     return ChatMessageModel.fromJson(data);
   }
 
@@ -42,14 +45,20 @@ class AIMentorRemoteDataSourceImpl implements IAIMentorRemoteDataSource {
   Future<List<ConversationModel>> getConversations({int page = 1, int limit = 20}) async {
     final response = await _apiClient.get('/mentor/conversations', queryParameters: {'page': page, 'limit': limit});
     final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : (rawData is Map<String, dynamic> && rawData['data'] is List ? rawData['data'] as List<dynamic> : []);
+    final list = rawData is List<dynamic>
+        ? rawData
+        : (rawData is Map<String, dynamic> && rawData['data'] is List
+            ? rawData['data'] as List<dynamic>
+            : (rawData is Map<String, dynamic> && rawData['data'] is Map<String, dynamic> && rawData['data']['items'] is List
+                ? rawData['data']['items'] as List<dynamic>
+                : []));
     return list.map((e) => ConversationModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<ConversationModel> getConversationById(String conversationId) async {
     final response = await _apiClient.get('/mentor/conversations/$conversationId');
-    final data = response.data as Map<String, dynamic>;
+    final data = _unwrapPayload(response.data);
     return ConversationModel.fromJson(data);
   }
 
@@ -61,7 +70,7 @@ class AIMentorRemoteDataSourceImpl implements IAIMentorRemoteDataSource {
     if (isArchived != null) body['isArchived'] = isArchived;
 
     final response = await _apiClient.patch('/mentor/conversations/$conversationId', data: body);
-    final data = response.data as Map<String, dynamic>;
+    final data = _unwrapPayload(response.data);
     return ConversationModel.fromJson(data);
   }
 
@@ -73,21 +82,34 @@ class AIMentorRemoteDataSourceImpl implements IAIMentorRemoteDataSource {
   @override
   Future<List<ChatMessageModel>> getMessages(String conversationId) async {
     final response = await _apiClient.get('/mentor/conversations/$conversationId');
-    final data = response.data as Map<String, dynamic>;
+    final data = _unwrapPayload(response.data);
     final rawMessages = data['messages'] as List<dynamic>? ?? [];
     return rawMessages.map((e) => ChatMessageModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override
   Future<void> submitFeedback(MentorFeedbackModel feedback) async {
-    await _apiClient.post('/mentor/feedback', data: feedback.toJson());
+    final endpoint = feedback.messageId.isNotEmpty
+        ? '/mentor/messages/${feedback.messageId}/feedback'
+        : '/mentor/chat/feedback';
+    await _apiClient.post(endpoint, data: feedback.toJson());
   }
 
   @override
   Future<StudentWellnessModel> getWellnessScores() async {
     final response = await _apiClient.get('/mentor/wellness-scores');
-    final data = response.data as Map<String, dynamic>;
+    final data = _unwrapPayload(response.data);
     return StudentWellnessModel.fromJson(data);
+  }
+
+  Map<String, dynamic> _unwrapPayload(dynamic rawData) {
+    if (rawData is Map<String, dynamic>) {
+      if (rawData['data'] is Map<String, dynamic>) {
+        return rawData['data'] as Map<String, dynamic>;
+      }
+      return rawData;
+    }
+    return <String, dynamic>{};
   }
 
   @override
@@ -104,7 +126,13 @@ class AIMentorRemoteDataSourceImpl implements IAIMentorRemoteDataSource {
   Future<List<ConversationModel>> searchConversations(String query) async {
     final response = await _apiClient.get('/mentor/conversations', queryParameters: {'search': query});
     final rawData = response.data;
-    final list = rawData is List<dynamic> ? rawData : [];
+    final list = rawData is List<dynamic>
+        ? rawData
+        : (rawData is Map<String, dynamic> && rawData['data'] is List
+            ? rawData['data'] as List<dynamic>
+            : (rawData is Map<String, dynamic> && rawData['data'] is Map<String, dynamic> && rawData['data']['items'] is List
+                ? rawData['data']['items'] as List<dynamic>
+                : []));
     return list.map((e) => ConversationModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 

@@ -91,12 +91,6 @@ class _SettingsHomePageState extends State<SettingsHomePage> {
                 subtitle: 'Push, In-App, Planner, Sound & Quiet Hours',
                 onTap: () => context.push(RouteNames.settingsNotificationPreferences),
               ),
-              SettingsTile(
-                icon: Icons.cloud_sync_outlined,
-                title: 'Backup & Restore',
-                subtitle: 'Cloud Sync, Data Export, Restore Points',
-                onTap: () => context.push(RouteNames.settingsBackupRestore),
-              ),
               const Divider(height: 24),
               _buildSectionHeader(context, 'Developer & System'),
               SettingsTile(

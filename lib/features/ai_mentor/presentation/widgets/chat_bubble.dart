@@ -8,13 +8,68 @@ class ChatBubble extends StatelessWidget {
   final ChatMessage message;
   final VoidCallback? onBookmark;
   final VoidCallback? onRetry;
+  final ValueChanged<int>? onRate;
+  final VoidCallback? onFeedback;
 
   const ChatBubble({
     super.key,
     required this.message,
     this.onBookmark,
     this.onRetry,
+    this.onRate,
+    this.onFeedback,
   });
+
+  void _showQuickRatingDialog(BuildContext context) {
+    showDialog<int>(
+      context: context,
+      builder: (ctx) {
+        int selected = message.rating ?? 5;
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              title: const Text('Rate AI Response', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('How helpful was this mentor response?'),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (idx) {
+                      final score = idx + 1;
+                      return IconButton(
+                        icon: Icon(
+                          score <= selected ? Icons.star_rounded : Icons.star_border_rounded,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                        onPressed: () => setDialogState(() => selected = score),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, selected),
+                  child: const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((rating) {
+      if (rating != null && onRate != null) {
+        onRate!(rating);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +166,7 @@ class ChatBubble extends StatelessWidget {
                   : MarkdownRenderer(text: message.content),
             ),
 
-            // Section 6: AI Response Action Bar (Copy, Retry, Bookmark)
+            // Section 6: AI Response Action Bar (Copy, Retry, Bookmark, Rate)
             if (!isUser)
               Padding(
                 padding: const EdgeInsets.only(top: 4, left: 4),
@@ -197,6 +252,41 @@ class ChatBubble extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: message.isBookmarked ? Colors.amber : (isDark ? Colors.white54 : Colors.black45),
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    // Rate / Feedback Action
+                    if (onRate != null || onFeedback != null)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          if (onFeedback != null) {
+                            onFeedback!();
+                          } else if (onRate != null) {
+                            _showQuickRatingDialog(context);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                message.rating != null ? Icons.star_rounded : Icons.star_border_rounded,
+                                size: 13,
+                                color: message.rating != null ? Colors.amber : (isDark ? Colors.white54 : Colors.black45),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                message.rating != null ? '${message.rating}★' : 'Rate',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: message.rating != null ? Colors.amber : (isDark ? Colors.white54 : Colors.black45),
                                   fontFamily: 'Poppins',
                                 ),
                               ),

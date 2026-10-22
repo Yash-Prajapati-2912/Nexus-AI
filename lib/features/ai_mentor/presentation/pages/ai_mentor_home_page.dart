@@ -5,8 +5,10 @@ import '../../../../router/route_names.dart';
 import '../../../../shared/branding/nexus_logo.dart';
 import '../../../../shared/widgets/base_scaffold.dart';
 import '../../domain/entities/conversation.dart';
+import '../../domain/entities/student_wellness.dart';
 import '../bloc/ai_mentor_bloc.dart';
 import '../widgets/ai_mentor_skeleton.dart';
+import '../widgets/wellness_score_card.dart';
 
 class AIMentorHomePage extends StatefulWidget {
   const AIMentorHomePage({super.key});
@@ -69,11 +71,14 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
     super.dispose();
   }
 
-  void _submitPrompt(String text) {
+  void _submitPrompt(String text) async {
     final query = text.trim();
     if (query.isEmpty) return;
     _promptInputController.clear();
-    context.push('${RouteNames.aiMentorConversation}?prompt=${Uri.encodeComponent(query)}');
+    await context.push('${RouteNames.aiMentorConversation}?prompt=${Uri.encodeComponent(query)}');
+    if (mounted) {
+      context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+    }
   }
 
   @override
@@ -91,12 +96,20 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search_rounded),
-            onPressed: () => context.push(RouteNames.aiMentorSearch),
+            onPressed: () async {
+              final bloc = context.read<AIMentorBloc>();
+              await context.push(RouteNames.aiMentorSearch);
+              if (mounted) bloc.add(const LoadAIMentorDashboardEvent());
+            },
             tooltip: 'Search Conversations',
           ),
           IconButton(
             icon: const Icon(Icons.history_rounded),
-            onPressed: () => context.push(RouteNames.aiMentorHistory),
+            onPressed: () async {
+              final bloc = context.read<AIMentorBloc>();
+              await context.push(RouteNames.aiMentorHistory);
+              if (mounted) bloc.add(const LoadAIMentorDashboardEvent());
+            },
             tooltip: 'Conversation History',
           ),
           IconButton(
@@ -163,6 +176,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
           }
 
           final recentConvs = (state is AIMentorLoadedState) ? state.recentConversations : <Conversation>[];
+          final wellness = (state is AIMentorLoadedState) ? state.wellness : null;
 
           return LayoutBuilder(
             builder: (context, constraints) {
@@ -194,7 +208,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: Container(
                             constraints: const BoxConstraints(maxWidth: 800),
-                            child: _buildMainLandingContent(context, recentConvs, isDark),
+                            child: _buildMainLandingContent(context, recentConvs, isDark, wellness),
                           ),
                         ),
                       ),
@@ -207,7 +221,7 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
               return SingleChildScrollView(
                 padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
                 physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                child: _buildMainLandingContent(context, recentConvs, isDark),
+                child: _buildMainLandingContent(context, recentConvs, isDark, wellness),
               );
             },
           );
@@ -216,10 +230,19 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
     );
   }
 
-  Widget _buildMainLandingContent(BuildContext context, List<Conversation> recentConvs, bool isDark) {
+  Widget _buildMainLandingContent(
+    BuildContext context,
+    List<Conversation> recentConvs,
+    bool isDark,
+    StudentWellness? wellness,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (wellness != null) ...[
+          WellnessScoreCard(wellness: wellness),
+          const SizedBox(height: 16),
+        ],
         // Section 3: Personalized Hero Greeting
         Container(
           padding: const EdgeInsets.all(24),
@@ -430,7 +453,10 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                 ),
               ),
               TextButton(
-                onPressed: () => context.push(RouteNames.aiMentorHistory),
+                onPressed: () async {
+                  await context.push(RouteNames.aiMentorHistory);
+                  if (context.mounted) context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+                },
                 child: const Text('View All'),
               ),
             ],
@@ -451,7 +477,12 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                   title: Text(conv.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'Poppins')),
                   subtitle: Text(conv.lastMessageSnippet, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
                   trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                  onTap: () => context.push('${RouteNames.aiMentorConversation}?id=${conv.id}'),
+                  onTap: () async {
+                    await context.push('${RouteNames.aiMentorConversation}?id=${conv.id}');
+                    if (context.mounted) {
+                      context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+                    }
+                  },
                 ),
               )),
         ],
@@ -496,7 +527,10 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => context.push(RouteNames.aiMentorConversation),
+              onPressed: () async {
+                await context.push(RouteNames.aiMentorConversation);
+                if (context.mounted) context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+              },
               icon: const Icon(Icons.add_rounded),
               label: const Text('New Chat', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
               style: ElevatedButton.styleFrom(
@@ -536,7 +570,10 @@ class _AIMentorHomePageState extends State<AIMentorHomePage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        onTap: () => context.push('${RouteNames.aiMentorConversation}?id=${c.id}'),
+                        onTap: () async {
+                          await context.push('${RouteNames.aiMentorConversation}?id=${c.id}');
+                          if (context.mounted) context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+                        },
                       );
                     },
                   ),

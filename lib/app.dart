@@ -30,25 +30,35 @@ class NexusApp extends StatelessWidget {
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, state) {
-          ThemeMode currentThemeMode;
-          switch (state.theme.themeMode) {
-            case AppThemeMode.light:
-              currentThemeMode = ThemeMode.light;
-              break;
-            case AppThemeMode.dark:
-              currentThemeMode = ThemeMode.dark;
-              break;
-            case AppThemeMode.system:
-              currentThemeMode = ThemeMode.system;
-              break;
-          }
+          final currentThemeMode = switch (state.theme.themeMode) {
+            AppThemeMode.light => ThemeMode.light,
+            AppThemeMode.dark => ThemeMode.dark,
+            AppThemeMode.system => ThemeMode.system,
+          };
+
+          Color? primaryColor;
+          try {
+            final hex = state.theme.primaryColorHex.replaceAll('#', '').replaceFirst('0x', '');
+            primaryColor = Color(int.parse(hex, radix: 16));
+          } catch (_) {}
+
+          final isHighContrast = state.accessibility.highContrastEnabled;
+          final isLargeText = state.accessibility.largeTextEnabled;
+          final textScale = isLargeText ? 1.25 : state.theme.fontScale;
 
           return MaterialApp.router(
             title: 'Nexus AI',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.lightThemeWith(
+              primaryColor: primaryColor,
+              highContrast: isHighContrast,
+            ),
+            darkTheme: AppTheme.darkThemeWith(
+              primaryColor: primaryColor,
+              highContrast: isHighContrast,
+            ),
             themeMode: currentThemeMode,
+            locale: Locale(state.language.languageCode),
             routerConfig: router,
             supportedLocales: L10n.all,
             localizationsDelegates: const [
@@ -58,12 +68,11 @@ class NexusApp extends StatelessWidget {
             ],
             builder: (context, child) {
               final mediaQuery = MediaQuery.of(context);
-              final clampedScaler = mediaQuery.textScaler.clamp(
-                minScaleFactor: 0.85,
-                maxScaleFactor: 1.15,
-              );
               return MediaQuery(
-                data: mediaQuery.copyWith(textScaler: clampedScaler),
+                data: mediaQuery.copyWith(
+                  textScaler: TextScaler.linear(textScale),
+                  disableAnimations: state.accessibility.reduceMotionEnabled,
+                ),
                 child: child ?? const SizedBox.shrink(),
               );
             },

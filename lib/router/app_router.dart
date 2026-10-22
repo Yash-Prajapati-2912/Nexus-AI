@@ -80,6 +80,7 @@ import '../features/ai_finance/presentation/pages/saved_insights_page.dart';
 import '../features/ai_finance/presentation/pages/ai_finance_settings_page.dart';
 import '../features/ai_mentor/presentation/bloc/ai_mentor_bloc.dart';
 import '../features/ai_mentor/presentation/bloc/conversation_bloc.dart';
+import '../features/ai_mentor/presentation/bloc/prompt_bloc.dart';
 import '../features/ai_mentor/presentation/pages/ai_mentor_home_page.dart';
 import '../features/ai_mentor/presentation/pages/conversation_screen.dart';
 import '../features/ai_mentor/presentation/pages/conversation_history_page.dart';
@@ -92,6 +93,7 @@ import '../features/ai_mentor/presentation/pages/ai_mentor_settings_page.dart';
 import '../features/ai_mentor/presentation/pages/ai_mentor_profile_page.dart';
 import '../features/ai_mentor/presentation/pages/feedback_screen.dart';
 import '../features/ai_mentor/presentation/pages/rate_response_screen.dart';
+import '../features/ai_mentor/domain/entities/conversation.dart';
 import '../features/profile/presentation/bloc/profile_bloc.dart';
 import '../features/profile/presentation/pages/profile_home_page.dart';
 import '../features/profile/presentation/pages/edit_profile_page.dart';
@@ -104,7 +106,6 @@ import '../features/profile/presentation/pages/interests_page.dart';
 import '../features/profile/presentation/pages/goals_overview_page.dart';
 import '../features/profile/presentation/pages/connected_accounts_page.dart';
 import '../features/profile/presentation/pages/privacy_settings_page.dart';
-import '../features/profile/presentation/pages/security_overview_page.dart';
 import '../features/profile/presentation/pages/delete_account_page.dart';
 import '../features/profile/presentation/pages/export_my_data_page.dart';
 import '../features/profile/presentation/pages/profile_completion_page.dart';
@@ -647,11 +648,24 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiMentorConversationDetails,
-          builder: (context, state) => const ConversationDetailsPage(),
+          builder: (context, state) {
+            final id = state.uri.queryParameters['id'];
+            final conv = state.extra is Conversation ? state.extra as Conversation : null;
+            return BlocProvider(
+              create: (_) => getIt<AIMentorBloc>()..add(const LoadAIMentorDashboardEvent()),
+              child: ConversationDetailsPage(
+                conversationId: id ?? conv?.id,
+                initialConversation: conv,
+              ),
+            );
+          },
         ),
         GoRoute(
           path: RouteNames.aiMentorPinnedConversations,
-          builder: (context, state) => const PinnedConversationsPage(),
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<AIMentorBloc>()..add(const LoadAIMentorDashboardEvent()),
+            child: const PinnedConversationsPage(),
+          ),
         ),
         GoRoute(
           path: RouteNames.aiMentorSavedMessages,
@@ -666,7 +680,13 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiMentorSuggestedPrompts,
-          builder: (context, state) => const SuggestedPromptsPage(),
+          builder: (context, state) {
+            final id = state.uri.queryParameters['id'];
+            return BlocProvider(
+              create: (_) => getIt<PromptBloc>()..add(const LoadPromptsEvent()),
+              child: SuggestedPromptsPage(conversationId: id),
+            );
+          },
         ),
         GoRoute(
           path: RouteNames.aiMentorSettings,
@@ -678,7 +698,10 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.aiMentorFeedback,
-          builder: (context, state) => const FeedbackScreen(),
+          builder: (context, state) {
+            final messageId = state.uri.queryParameters['messageId'] ?? (state.extra as String?);
+            return FeedbackScreen(messageId: messageId);
+          },
         ),
         GoRoute(
           path: RouteNames.aiMentorRateResponse,
@@ -762,10 +785,7 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.profileSecurityOverview,
-          builder: (context, state) => BlocProvider.value(
-            value: getIt<ProfileBloc>(),
-            child: const SecurityOverviewPage(),
-          ),
+          redirect: (context, state) => RouteNames.settingsSecurity,
         ),
         GoRoute(
           path: RouteNames.profileDeleteAccount,
@@ -836,7 +856,7 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: RouteNames.filesMediaGallery,
-          builder: (context, state) => MediaGalleryPage(),
+          builder: (context, state) => const MediaGalleryPage(),
         ),
         GoRoute(
           path: RouteNames.filesImageViewer,

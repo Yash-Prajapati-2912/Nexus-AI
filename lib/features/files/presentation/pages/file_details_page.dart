@@ -34,15 +34,6 @@ class FileDetailsPage extends StatelessWidget {
             ListTile(title: const Text('Folder'), subtitle: Text(fl.folder)),
             ListTile(title: const Text('Module'), subtitle: Text(fl.moduleName)),
             ListTile(title: const Text('Size'), subtitle: Text('${(fl.sizeBytes / 1024).toStringAsFixed(1)} KB')),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.share_rounded),
-                label: const Text('Share File Link'),
-                onPressed: () {},
-              ),
-            ),
           ],
         ),
       ),

@@ -23,46 +23,6 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
     context.read<NotificationBloc>().add(const LoadNotificationsEvent());
   }
 
-  final List<NotificationItem> _sampleNotifications = [
-    NotificationItem(
-      id: 'n1',
-      userId: 'u1',
-      title: 'Smart Planner: CS101 Assignment Due',
-      body: 'Your Data Structures assignment is due in 3 hours. Complete it to keep your streak!',
-      type: 'PLANNER',
-      module: 'PLANNER',
-      category: 'ASSIGNMENT',
-      priority: 'HIGH',
-      createdAt: DateTime.now().subtract(const Duration(minutes: 45)),
-      deepLinkUrl: RouteNames.aiPlannerHome,
-    ),
-
-    NotificationItem(
-      id: 'n2',
-      userId: 'u1',
-      title: 'AI Advisor: Unusual Spending Alert',
-      body: 'Dining expenses exceed your weekly allocation by 18%. View AI savings tip.',
-      type: 'FINANCE',
-      module: 'FINANCE',
-      category: 'BUDGET',
-      priority: 'MEDIUM',
-      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      deepLinkUrl: RouteNames.aiFinanceUnusualSpending,
-    ),
-    NotificationItem(
-      id: 'n3',
-      userId: 'u1',
-      title: 'AI Mentor: Study Recommendation',
-      body: 'Based on your wellness score, consider a 15-minute break before your evening session.',
-      type: 'AI_MENTOR',
-      module: 'MENTOR',
-      category: 'MENTOR_REPLY',
-      priority: 'LOW',
-      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
-      deepLinkUrl: RouteNames.aiMentorHome,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,13 +57,52 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
               );
             }
 
-            final items = (state is NotificationLoadedState && state.notifications.isNotEmpty)
-                ? state.notifications
-                : _sampleNotifications;
-            final unread = (state is NotificationLoadedState) ? state.unreadCount : 2;
+            if (state is NotificationFailureState) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline_rounded, size: 48, color: Theme.of(context).colorScheme.error),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Failed to load notifications',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          context.read<NotificationBloc>().add(const LoadNotificationsEvent());
+                        },
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final items = (state is NotificationLoadedState) ? state.notifications : <NotificationItem>[];
+            final unread = (state is NotificationLoadedState) ? state.unreadCount : 0;
 
             if (items.isEmpty) {
-              return const EmptyNotificationWidget();
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: const EmptyNotificationWidget(),
+                  ),
+                ],
+              );
             }
 
             return Column(

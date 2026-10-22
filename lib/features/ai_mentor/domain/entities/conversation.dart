@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'chat_message.dart';
 
 /// Domain entity representing an AI Mentor conversation session.
 class Conversation extends Equatable {
@@ -11,6 +12,7 @@ class Conversation extends Equatable {
   final int messageCount;
   final String lastMessageSnippet;
   final String topic; // GENERAL, STUDY, CAREER, FINANCE, PRODUCTIVITY, DECISION
+  final List<ChatMessage> messages;
 
   const Conversation({
     required this.id,
@@ -22,6 +24,7 @@ class Conversation extends Equatable {
     required this.messageCount,
     required this.lastMessageSnippet,
     required this.topic,
+    this.messages = const [],
   });
 
   @override
@@ -35,5 +38,6 @@ class Conversation extends Equatable {
         messageCount,
         lastMessageSnippet,
         topic,
+        messages,
       ];
 }

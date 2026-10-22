@@ -171,17 +171,7 @@ class SettingsRemoteDataSourceImpl implements ISettingsRemoteDataSource {
       final list = data['trustedDevices'] as List;
       return list.map((item) => SessionModel.fromJson(item as Map<String, dynamic>)).toList();
     }
-    return [
-      SessionModel(
-        sessionId: 'sess-current',
-        deviceName: 'Primary Mobile Device',
-        deviceType: 'Flutter App',
-        ipAddress: '127.0.0.1',
-        location: 'Active Workstation',
-        lastActive: DateTime.now(),
-        isCurrentSession: true,
-      ),
-    ];
+    return const [];
   }
 
   @override
@@ -207,16 +197,7 @@ class SettingsRemoteDataSourceImpl implements ISettingsRemoteDataSource {
       final list = data['trustedDevices'] as List;
       return list.map((item) => ConnectedDeviceModel.fromJson(item as Map<String, dynamic>)).toList();
     }
-    return [
-      ConnectedDeviceModel(
-        deviceId: 'dev-1',
-        name: 'Pixel 8 Pro',
-        platform: 'Android 14',
-        isTrusted: true,
-        lastSeen: DateTime.now(),
-        appVersion: '1.0.0+1',
-      ),
-    ];
+    return const [];
   }
 
   @override

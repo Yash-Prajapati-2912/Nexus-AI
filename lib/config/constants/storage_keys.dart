@@ -8,4 +8,7 @@ abstract class StorageKeys {
   static const String languageCode = 'pref_language_code';
   static const String onboarded = 'pref_onboarded_flag';
   static const String biometricEnabled = 'pref_biometric_enabled';
+  static const String aiMentorAutoContext = 'pref_ai_mentor_auto_context';
+  static const String aiMentorVoicePlayback = 'pref_ai_mentor_voice_playback';
+  static const String aiMentorProactiveNudges = 'pref_ai_mentor_proactive_nudges';
 }

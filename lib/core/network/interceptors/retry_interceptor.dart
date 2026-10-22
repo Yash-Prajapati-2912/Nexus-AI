@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../config/constants/app_constants.dart';
 import '../../services/logger_service.dart';
@@ -34,7 +33,7 @@ class RetryInterceptor extends Interceptor {
     return err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.sendTimeout ||
-        (err.error is SocketException) ||
+        err.type == DioExceptionType.connectionError ||
         (err.response?.statusCode == 503);
   }
 }

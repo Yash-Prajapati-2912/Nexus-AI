@@ -8,7 +8,6 @@ class AIPlannerSettingsPage extends StatefulWidget {
 }
 
 class _AIPlannerSettingsPageState extends State<AIPlannerSettingsPage> {
-  String _selectedProvider = 'GEMINI 1.5 PRO';
   bool _autoBalanceWorkload = true;
   bool _deadlineRiskAlerts = true;
   double _defaultSessionDuration = 60;
@@ -24,23 +23,6 @@ class _AIPlannerSettingsPageState extends State<AIPlannerSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'AI Model Engine',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: _selectedProvider,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
-            items: const [
-              DropdownMenuItem(value: 'GEMINI 1.5 PRO', child: Text('Gemini 1.5 Pro (Recommended)')),
-              DropdownMenuItem(value: 'GEMINI 1.5 FLASH', child: Text('Gemini 1.5 Flash (Ultra Fast)')),
-            ],
-            onChanged: (val) {
-              if (val != null) setState(() => _selectedProvider = val);
-            },
-          ),
-          const SizedBox(height: 24),
           SwitchListTile(
             title: const Text('Auto-Balance Workload'),
             subtitle: const Text('Automatically reschedule tasks on overloaded days'),

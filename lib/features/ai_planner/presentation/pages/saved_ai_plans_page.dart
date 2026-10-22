@@ -19,26 +19,36 @@ class SavedAIPlansPage extends StatelessWidget {
       ),
       body: BlocBuilder<AIPlannerBloc, AIPlannerState>(
         builder: (context, state) {
-          final saved = (state is AIPlannerLoadedState && state.savedPlans.isNotEmpty)
-              ? state.savedPlans
-              : [
-                  StudyPlan(
-                    id: 'saved-1',
-                    title: 'Midterm Crunch 7-Day Plan',
-                    summary: 'Intensive focus allocation for CS & Math exams.',
-                    timeframe: 'weekly',
-                    reasoning: const ['Exams scheduled in 7 days.'],
-                    actionItems: const [],
-                    warnings: const [],
-                    confidenceScore: 0.96,
-                    providerName: 'GEMINI 1.5 PRO',
-                    createdAt: DateTime.now().subtract(const Duration(days: 2)),
-                    isSaved: true,
-                  ),
-                ];
+          final saved = (state is AIPlannerLoadedState) ? state.savedPlans : <StudyPlan>[];
 
           if (saved.isEmpty) {
-            return const Center(child: Text('No saved AI plans yet.'));
+            final theme = Theme.of(context);
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 36,
+                      backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                      child: Icon(Icons.bookmark_border_rounded, size: 36, color: theme.colorScheme.outline),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Saved AI Plans Yet',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Generated study plans you save will appear here for future reference.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           return ListView.builder(
@@ -55,11 +65,6 @@ class SavedAIPlansPage extends StatelessWidget {
                   context.read<AIPlannerBloc>().add(DeletePlanEvent(plan.id));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Removed plan from saved list.')),
-                  );
-                },
-                onShare: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sharing "${plan.title}" link...')),
                   );
                 },
               );

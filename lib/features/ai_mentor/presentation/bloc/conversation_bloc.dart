@@ -22,11 +22,11 @@ class LoadConversationEvent extends ConversationEvent {
 }
 
 class SendChatMessageEvent extends ConversationEvent {
-  final String conversationId;
+  final String? conversationId;
   final String content;
   final String? topic;
 
-  const SendChatMessageEvent({required this.conversationId, required this.content, this.topic});
+  const SendChatMessageEvent({this.conversationId, required this.content, this.topic});
 
   @override
   List<Object?> get props => [conversationId, content, topic];
@@ -119,42 +119,100 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   }
 
   Future<void> _onLoadConversation(LoadConversationEvent event, Emitter<ConversationState> emit) async {
+    if (event.conversationId.isEmpty || event.conversationId == 'c_new') {
+      return;
+    }
     emit(const ConversationLoadingState());
     final res = await loadConversationDetailsUseCase(event.conversationId);
     res.fold(
       (Failure f) => emit(ConversationFailureState(f.message)),
-      (conv) => emit(ConversationLoadedState(conversation: conv, messages: const [])),
+      (conv) => emit(ConversationLoadedState(
+        conversation: conv,
+        messages: conv.messages,
+      )),
     );
   }
 
   Future<void> _onSendMessage(SendChatMessageEvent event, Emitter<ConversationState> emit) async {
-    if (state is ConversationLoadedState) {
-      final currentState = state as ConversationLoadedState;
-      final userMsg = ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        conversationId: event.conversationId,
-        sender: 'USER',
-        content: event.content,
-        createdAt: DateTime.now(),
-      );
-
-      final updatedMessages = List<ChatMessage>.from(currentState.messages)..add(userMsg);
-      emit(currentState.copyWith(messages: updatedMessages, isSending: true));
-
-      final res = await sendMessageUseCase(SendMessageParams(
-        conversationId: event.conversationId,
-        content: event.content,
-        topic: event.topic,
-      ));
-
-      res.fold(
-        (Failure f) => emit(currentState.copyWith(isSending: false)),
-        (aiMsg) {
-          final finalMessages = List<ChatMessage>.from(updatedMessages)..add(aiMsg);
-          emit(currentState.copyWith(messages: finalMessages, isSending: false));
-        },
-      );
+    // Prevent duplicate submission if already sending
+    if (state is ConversationLoadedState && (state as ConversationLoadedState).isSending) {
+      return;
     }
+
+    final currentConversation = (state is ConversationLoadedState)
+        ? (state as ConversationLoadedState).conversation
+        : Conversation(
+            id: event.conversationId ?? '',
+            title: event.content.length > 30 ? '${event.content.substring(0, 30)}...' : event.content,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            messageCount: 0,
+            lastMessageSnippet: event.content,
+            topic: event.topic ?? 'GENERAL',
+          );
+
+    final currentMessages = (state is ConversationLoadedState)
+        ? (state as ConversationLoadedState).messages
+        : <ChatMessage>[];
+
+    final resolvedConvId = (event.conversationId != null &&
+            event.conversationId!.isNotEmpty &&
+            event.conversationId != 'c_new')
+        ? event.conversationId!
+        : currentConversation.id;
+
+    final userMsg = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      conversationId: resolvedConvId,
+      sender: 'USER',
+      content: event.content,
+      createdAt: DateTime.now(),
+    );
+
+    final updatedMessages = List<ChatMessage>.from(currentMessages)..add(userMsg);
+
+    emit(ConversationLoadedState(
+      conversation: currentConversation,
+      messages: updatedMessages,
+      isSending: true,
+    ));
+
+    final res = await sendMessageUseCase(SendMessageParams(
+      conversationId: resolvedConvId,
+      content: event.content,
+      topic: event.topic ?? currentConversation.topic,
+    ));
+
+    res.fold(
+      (Failure f) => emit(ConversationLoadedState(
+        conversation: currentConversation,
+        messages: updatedMessages,
+        isSending: false,
+      )),
+      (aiMsg) {
+        final finalMessages = List<ChatMessage>.from(updatedMessages)..add(aiMsg);
+        final assignedConvId = aiMsg.conversationId.isNotEmpty ? aiMsg.conversationId : resolvedConvId;
+
+        final updatedConv = Conversation(
+          id: assignedConvId,
+          title: currentConversation.title,
+          isPinned: currentConversation.isPinned,
+          isArchived: currentConversation.isArchived,
+          createdAt: currentConversation.createdAt,
+          updatedAt: DateTime.now(),
+          messageCount: finalMessages.length,
+          lastMessageSnippet: aiMsg.content,
+          topic: currentConversation.topic,
+          messages: finalMessages,
+        );
+
+        emit(ConversationLoadedState(
+          conversation: updatedConv,
+          messages: finalMessages,
+          isSending: false,
+        ));
+      },
+    );
   }
 
   Future<void> _onTogglePin(TogglePinConversationEvent event, Emitter<ConversationState> emit) async {

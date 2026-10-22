@@ -1,3 +1,6 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:nexus_ai/config/constants/api_constants.dart';
 import 'package:nexus_ai/core/network/api_client.dart';
 import '../models/academic_profile_model.dart';
 import '../models/achievement_model.dart';
@@ -10,7 +13,7 @@ import '../models/user_statistics_model.dart';
 abstract class IProfileRemoteDataSource {
   Future<UserProfileModel> getProfile();
   Future<UserProfileModel> updateProfile(Map<String, dynamic> body);
-  Future<String> uploadAvatar(String imagePath);
+  Future<String> uploadAvatar(String imagePath, {List<int>? bytes, String? filename});
   Future<AcademicProfileModel> getAcademicProfile();
   Future<AcademicProfileModel> updateAcademicProfile(Map<String, dynamic> body);
   Future<UserPreferencesModel> getPreferences();
@@ -53,8 +56,22 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
   }
 
   @override
-  Future<String> uploadAvatar(String imagePath) async {
-    final response = await _apiClient.post('/profile/avatar', data: {'imagePath': imagePath});
+  Future<String> uploadAvatar(String imagePath, {List<int>? bytes, String? filename}) async {
+    final fileName = filename ?? imagePath.split(RegExp(r'[/\\]')).last;
+    final MultipartFile file;
+    if (bytes != null) {
+      file = MultipartFile.fromBytes(bytes, filename: fileName.isNotEmpty ? fileName : 'avatar.png');
+    } else if (kIsWeb) {
+      throw UnsupportedError('Direct file path uploading is not supported on Flutter Web. Pass file bytes or a blob URI.');
+    } else {
+      file = await MultipartFile.fromFile(imagePath, filename: fileName);
+    }
+
+    final formData = FormData.fromMap({
+      'file': file,
+    });
+
+    final response = await _apiClient.post('/profile/avatar', data: formData);
     final data = _unpackData(response.data);
     if (data is Map<String, dynamic>) {
       return data['avatarUrl'] as String? ?? data['avatar'] as String? ?? '';
@@ -165,7 +182,7 @@ class ProfileRemoteDataSourceImpl implements IProfileRemoteDataSource {
 
   @override
   Future<void> changePassword(String currentPassword, String newPassword) async {
-    await _apiClient.post('/profile/change-password', data: {
+    await _apiClient.post(ApiConstants.changePassword, data: {
       'currentPassword': currentPassword,
       'newPassword': newPassword,
     });

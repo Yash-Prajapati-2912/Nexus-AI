@@ -28,9 +28,6 @@ class _YearlyAIReportPageState extends State<YearlyAIReportPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Yearly AI Report'),
-        actions: [
-          IconButton(icon: const Icon(Icons.share_rounded), onPressed: () {}),
-        ],
       ),
       body: BlocBuilder<AIFinanceBloc, AIFinanceState>(
         builder: (context, state) {

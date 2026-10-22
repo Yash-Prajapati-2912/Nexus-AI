@@ -8,26 +8,37 @@ import 'theme_extensions.dart';
 
 /// 2026 Material 3 ThemeData builder for Pristine Light Mode and Futuristic Dark Mode.
 abstract class AppTheme {
-  static ThemeData get lightTheme {
+  static ThemeData get lightTheme => lightThemeWith();
+
+  static ThemeData lightThemeWith({
+    Color? primaryColor,
+    bool highContrast = false,
+  }) {
     final baseTextTheme = ThemeData.light().textTheme;
+    final primary = primaryColor ?? DesignColors.primaryLight;
+    final surface = highContrast ? Colors.white : DesignColors.surfaceLight;
+    final textPrimary = highContrast ? Colors.black : DesignColors.textPrimaryLight;
+    final textSecondary = highContrast ? Colors.black87 : DesignColors.textSecondaryLight;
+    final border = highContrast ? Colors.black54 : DesignColors.glassBorderLight;
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: DesignColors.primaryLight,
+      colorScheme: ColorScheme.light(
+        primary: primary,
         onPrimary: DesignColors.onPrimaryLight,
-        primaryContainer: DesignColors.primaryContainerLight,
-        onPrimaryContainer: DesignColors.onPrimaryContainerLight,
+        primaryContainer: primary.withValues(alpha: 0.15),
+        onPrimaryContainer: primary,
         secondary: DesignColors.secondaryLight,
         onSecondary: DesignColors.onSecondaryLight,
         secondaryContainer: DesignColors.secondaryContainerLight,
-        surface: DesignColors.surfaceLight,
-        onSurface: DesignColors.textPrimaryLight,
-        onSurfaceVariant: DesignColors.textSecondaryLight,
+        surface: surface,
+        onSurface: textPrimary,
+        onSurfaceVariant: textSecondary,
         error: DesignColors.errorLight,
-        outlineVariant: DesignColors.glassBorderLight,
+        outlineVariant: border,
       ),
-      scaffoldBackgroundColor: DesignColors.backgroundLight,
+      scaffoldBackgroundColor: highContrast ? Colors.white : DesignColors.backgroundLight,
       fontFamily: DesignTypography.fontFamily,
       textTheme: GoogleFonts.poppinsTextTheme(baseTextTheme).copyWith(
         displayLarge: GoogleFonts.poppins(color: DesignColors.textPrimaryLight, fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.5),
@@ -183,26 +194,37 @@ abstract class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
+  static ThemeData get darkTheme => darkThemeWith();
+
+  static ThemeData darkThemeWith({
+    Color? primaryColor,
+    bool highContrast = false,
+  }) {
     final baseTextTheme = ThemeData.dark().textTheme;
+    final primary = primaryColor ?? DesignColors.primaryDark;
+    final surface = highContrast ? Colors.black : DesignColors.surfaceDark;
+    final textPrimary = highContrast ? Colors.white : DesignColors.textPrimaryDark;
+    final textSecondary = highContrast ? Colors.white70 : DesignColors.textSecondaryDark;
+    final border = highContrast ? Colors.white54 : DesignColors.glassBorderDark;
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: DesignColors.primaryDark,
+      colorScheme: ColorScheme.dark(
+        primary: primary,
         onPrimary: DesignColors.onPrimaryDark,
-        primaryContainer: DesignColors.primaryContainerDark,
-        onPrimaryContainer: DesignColors.onPrimaryContainerDark,
+        primaryContainer: primary.withValues(alpha: 0.2),
+        onPrimaryContainer: primary,
         secondary: DesignColors.secondaryDark,
         onSecondary: DesignColors.onSecondaryDark,
         secondaryContainer: DesignColors.secondaryContainerDark,
-        surface: DesignColors.surfaceDark,
-        onSurface: DesignColors.textPrimaryDark,
-        onSurfaceVariant: DesignColors.textSecondaryDark,
+        surface: surface,
+        onSurface: textPrimary,
+        onSurfaceVariant: textSecondary,
         error: DesignColors.errorDark,
-        outlineVariant: DesignColors.glassBorderDark,
+        outlineVariant: border,
       ),
-      scaffoldBackgroundColor: DesignColors.backgroundDark,
+      scaffoldBackgroundColor: highContrast ? Colors.black : DesignColors.backgroundDark,
       fontFamily: DesignTypography.fontFamily,
       textTheme: GoogleFonts.poppinsTextTheme(baseTextTheme).copyWith(
         displayLarge: GoogleFonts.poppins(color: DesignColors.textPrimaryDark, fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.5),

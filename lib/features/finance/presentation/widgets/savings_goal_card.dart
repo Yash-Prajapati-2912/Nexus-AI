@@ -69,27 +69,45 @@ class SavingsGoalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  runSpacing: 4,
-                  spacing: 8,
-                  children: [
-                    Text(
-                      'Saved: ₹${goal.currentAmount.toStringAsFixed(0)}',
-                      style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Remaining: ₹${goal.remainingAmount.toStringAsFixed(0)}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                    Text(
-                      'Target: ₹${goal.targetAmount.toStringAsFixed(0)}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isCompact = constraints.maxWidth < 360;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Saved: ₹${goal.currentAmount.toStringAsFixed(0)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if (!isCompact) ...[
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Remaining: ₹${goal.remainingAmount.toStringAsFixed(0)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          'Target: ₹${goal.targetAmount.toStringAsFixed(0)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),

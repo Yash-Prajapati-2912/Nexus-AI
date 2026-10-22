@@ -22,18 +22,6 @@ class _FileManagerPageState extends State<FileManagerPage> {
     context.read<FileBloc>().add(const LoadFilesEvent());
   }
 
-  final List<FolderItem> _sampleFolders = [
-    FolderItem(id: 'f1', ownerId: 'u1', name: 'Documents', itemCount: 12, totalSizeBytes: 45000000, createdAt: DateTime.now()),
-    FolderItem(id: 'f2', ownerId: 'u1', name: 'Assignments', itemCount: 8, totalSizeBytes: 25000000, createdAt: DateTime.now()),
-    FolderItem(id: 'f3', ownerId: 'u1', name: 'Media', itemCount: 24, totalSizeBytes: 95000000, createdAt: DateTime.now()),
-  ];
-
-  final List<FileItem> _sampleFiles = [
-    FileItem(id: 'fl1', ownerId: 'u1', fileName: 'CS101_Lecture_Notes.pdf', originalName: 'CS101.pdf', mimeType: 'application/pdf', extension: 'pdf', sizeBytes: 2450000, folder: 'Documents', moduleName: 'PLANNER', fileUrl: 'https://api.nexus-ai.com/files/cs101.pdf', createdAt: DateTime.now()),
-    FileItem(id: 'fl2', ownerId: 'u1', fileName: 'Budget_Report_2026.xlsx', originalName: 'budget.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', extension: 'xlsx', sizeBytes: 1200000, folder: 'Finance', moduleName: 'FINANCE', fileUrl: 'https://api.nexus-ai.com/files/budget.xlsx', createdAt: DateTime.now()),
-    FileItem(id: 'fl3', ownerId: 'u1', fileName: 'AI_Mentor_Summary.md', originalName: 'summary.md', mimeType: 'text/markdown', extension: 'md', sizeBytes: 14000, folder: 'Documents', moduleName: 'MENTOR', fileUrl: 'https://api.nexus-ai.com/files/summary.md', createdAt: DateTime.now()),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -58,8 +46,39 @@ class _FileManagerPageState extends State<FileManagerPage> {
         },
         child: BlocBuilder<FileBloc, FileState>(
           builder: (context, state) {
-            final folders = (state is FileLoadedState && state.folders.isNotEmpty) ? state.folders : _sampleFolders;
-            final files = (state is FileLoadedState && state.files.isNotEmpty) ? state.files : _sampleFiles;
+            if (state is FileLoadingState) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is FileFailureState) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline_rounded, size: 48, color: theme.colorScheme.error),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Failed to load files',
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(state.message, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => context.read<FileBloc>().add(const LoadFilesEvent()),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final folders = (state is FileLoadedState) ? state.folders : <FolderItem>[];
+            final files = (state is FileLoadedState) ? state.files : <FileItem>[];
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -73,25 +92,50 @@ class _FileManagerPageState extends State<FileManagerPage> {
                     child: Text('Folders', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 10),
-                  GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1.0,
+                  if (folders.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.folder_open_rounded, color: theme.colorScheme.outline),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'No folders created yet',
+                                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 1.0,
+                      ),
+                      itemCount: folders.length,
+                      itemBuilder: (context, index) {
+                        final f = folders[index];
+                        return FolderCard(
+                          folder: f,
+                          onTap: () => context.push(RouteNames.filesMediaGallery),
+                        );
+                      },
                     ),
-                    itemCount: folders.length,
-                    itemBuilder: (context, index) {
-                      final f = folders[index];
-                      return FolderCard(
-                        folder: f,
-                        onTap: () => context.push(RouteNames.filesMediaGallery),
-                      );
-                    },
-                  ),
 
                   const SizedBox(height: 20),
 
@@ -117,11 +161,6 @@ class _FileManagerPageState extends State<FileManagerPage> {
                           label: const Text('Downloads'),
                           onPressed: () => context.push(RouteNames.filesDownloads),
                         ),
-                        ActionChip(
-                          avatar: const Icon(Icons.delete_rounded, size: 16),
-                          label: const Text('Trash'),
-                          onPressed: () => context.push(RouteNames.filesTrash),
-                        ),
                       ],
                     ),
                   ),
@@ -134,19 +173,42 @@ class _FileManagerPageState extends State<FileManagerPage> {
                     child: Text('Recent Files', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 10),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: files.length,
-                    itemBuilder: (context, index) {
-                      final fl = files[index];
-                      return FileCard(
-                        file: fl,
-                        onTap: () => _openViewer(context, fl),
-                        onMore: () => context.push(RouteNames.filesDetails, extra: fl),
-                      );
-                    },
-                  ),
+                  if (files.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.insert_drive_file_outlined, size: 40, color: theme.colorScheme.outline),
+                            const SizedBox(height: 8),
+                            Text('No files uploaded yet', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Text('Uploaded files will appear here.', style: theme.textTheme.bodySmall),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: files.length,
+                      itemBuilder: (context, index) {
+                        final fl = files[index];
+                        return FileCard(
+                          file: fl,
+                          onTap: () => _openViewer(context, fl),
+                          onMore: () => context.push(RouteNames.filesDetails, extra: fl),
+                        );
+                      },
+                    ),
                 ],
               ),
             );

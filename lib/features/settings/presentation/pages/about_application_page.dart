@@ -64,27 +64,66 @@ class AboutApplicationPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.support_agent_outlined),
                   title: const Text('Contact Support'),
+                  subtitle: const Text('Get help from the Nexus AI engineering team'),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Opening Support Portal...')),
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Contact Support'),
+                        content: const Text(
+                          'For questions, account help, and technical support, please reach out to us at:\n\nsupport@nexusai.com',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.bug_report_outlined),
                   title: const Text('Report a Bug'),
+                  subtitle: const Text('Submit diagnostic logs and issue descriptions'),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Bug Report dialog opened.')),
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Report a Bug'),
+                        content: const Text(
+                          'To report bugs or unexpected crashes, please send reproduction steps and logs to:\n\nbugs@nexusai.com\n\nOr file an issue in our repository tracker.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.lightbulb_outline),
                   title: const Text('Feature Request'),
+                  subtitle: const Text('Share ideas for future platform capabilities'),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Feature Request form opened.')),
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Feature Request'),
+                        content: const Text(
+                          'We are actively developing Nexus AI! Email your feature suggestions and ideas to:\n\nfeedback@nexusai.com',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

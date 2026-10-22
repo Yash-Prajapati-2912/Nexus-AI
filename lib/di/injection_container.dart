@@ -624,6 +624,7 @@ Future<void> configureDependencies(AppEnv env) async {
       updateThemeUseCase: getIt<UpdateThemeUseCase>(),
       updateLanguageUseCase: getIt<UpdateLanguageUseCase>(),
       updateAccessibilityUseCase: getIt<UpdateAccessibilityUseCase>(),
+      localDataSource: getIt<ISettingsLocalDataSource>(),
     ),
   );
   getIt.registerFactory(

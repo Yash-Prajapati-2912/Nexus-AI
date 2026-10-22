@@ -16,12 +16,19 @@ class AiInsightModel {
   });
 
   factory AiInsightModel.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> source = json;
+    if (json['insights'] is List && (json['insights'] as List).isNotEmpty) {
+      final first = (json['insights'] as List).first;
+      if (first is Map<String, dynamic>) {
+        source = first;
+      }
+    }
     return AiInsightModel(
-      title: json['title'] as String? ?? 'Daily AI Focus',
-      insight: json['insight'] as String? ?? 'Keep up your steady study momentum!',
-      motivationalQuote: json['motivationalQuote'] as String? ?? 'Consistency is the key to mastery.',
-      recommendedStudyPlan: json['recommendedStudyPlan'] as String? ?? 'Focus 45 mins on core subject modules today.',
-      careerSuggestion: json['careerSuggestion'] as String? ?? 'Explore building full-stack Flutter projects.',
+      title: source['title'] as String? ?? 'Daily AI Focus',
+      insight: source['insight'] as String? ?? source['summary'] as String? ?? source['dailyInsight'] as String? ?? 'Keep up your steady study momentum!',
+      motivationalQuote: source['motivationalQuote'] as String? ?? source['detail'] as String? ?? source['productivityTip'] as String? ?? 'Consistency is the key to mastery.',
+      recommendedStudyPlan: source['recommendedStudyPlan'] as String? ?? source['todaysRecommendation'] as String? ?? 'Focus 45 mins on core subject modules today.',
+      careerSuggestion: source['careerSuggestion'] as String? ?? source['careerTip'] as String? ?? 'Explore building full-stack Flutter projects.',
     );
   }
 

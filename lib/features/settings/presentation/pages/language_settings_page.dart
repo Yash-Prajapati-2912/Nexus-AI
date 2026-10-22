@@ -33,26 +33,6 @@ class LanguageSettingsPage extends StatelessWidget {
                   },
                 ),
               ),
-              PreferenceCard(
-                title: 'Regional Formats',
-                subtitle: 'Timezone and formatting rules',
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: const Text('Date Format'),
-                      trailing: Text(lang.dateFormat),
-                    ),
-                    ListTile(
-                      title: const Text('Time Format'),
-                      trailing: Text(lang.timeFormat),
-                    ),
-                    ListTile(
-                      title: const Text('System Timezone'),
-                      trailing: Text(lang.timezone),
-                    ),
-                  ],
-                ),
-              ),
             ],
           );
         },

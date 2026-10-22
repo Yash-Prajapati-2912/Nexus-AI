@@ -1,3 +1,4 @@
+import 'package:flutter/painting.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
@@ -241,7 +242,8 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   @override
   Future<Either<Failure, bool>> clearCache() async {
     try {
-      await localDataSource.clearAllSettings();
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
       await remoteDataSource.clearCache();
       return const Right(true);
     } catch (e) {

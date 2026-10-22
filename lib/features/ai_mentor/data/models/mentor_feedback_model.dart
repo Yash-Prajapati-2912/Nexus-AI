@@ -12,9 +12,9 @@ class MentorFeedbackModel extends MentorFeedback {
   factory MentorFeedbackModel.fromJson(Map<String, dynamic> json) {
     return MentorFeedbackModel(
       messageId: json['messageId'] as String? ?? '',
-      rating: json['rating'] as int? ?? 5,
+      rating: json['rating'] as int? ?? json['ratingScore'] as int? ?? 5,
       feedbackType: json['feedbackType'] as String? ?? 'HELPFUL',
-      comment: json['comment'] as String? ?? '',
+      comment: (json['comment'] ?? json['comments']) as String? ?? '',
       category: json['category'] as String? ?? 'GENERAL',
     );
   }
@@ -25,6 +25,7 @@ class MentorFeedbackModel extends MentorFeedback {
       'rating': rating,
       'feedbackType': feedbackType,
       'comment': comment,
+      'comments': comment,
       'category': category,
     };
   }

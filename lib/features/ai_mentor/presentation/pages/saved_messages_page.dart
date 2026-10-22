@@ -5,19 +5,35 @@ class SavedMessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Saved & Bookmarked Messages')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.bookmark_rounded, color: Color(0xFF6366F1)),
-              title: Text('Tree Traversal Revision Formula', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('Bookmarked from Midterm Prep Strategy session'),
-            ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 36,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                child: Icon(Icons.bookmark_border_rounded, size: 36, color: theme.colorScheme.outline),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Saved Messages Yet',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Important AI Mentor advice and explanations you bookmark will appear here.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

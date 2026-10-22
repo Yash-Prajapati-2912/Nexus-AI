@@ -7,6 +7,9 @@ import '../../domain/entities/conversation.dart';
 import '../bloc/ai_mentor_bloc.dart';
 import '../bloc/conversation_bloc.dart';
 import '../../../../shared/branding/nexus_logo.dart';
+import '../../../../di/injection_container.dart';
+import '../../domain/entities/mentor_feedback.dart';
+import '../../domain/repositories/i_ai_mentor_repository.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/typing_indicator.dart';
 
@@ -29,18 +32,47 @@ class ConversationScreen extends StatefulWidget {
 class _ConversationScreenState extends State<ConversationScreen> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isVoiceRecording = false;
+  String? _activeConversationId;
+  bool _initialPromptSent = false;
 
   @override
   void initState() {
     super.initState();
-    final convId = widget.conversationId ?? 'c_new';
-    context.read<ConversationBloc>().add(LoadConversationEvent(convId));
+    _activeConversationId = (widget.conversationId != null &&
+            widget.conversationId!.isNotEmpty &&
+            widget.conversationId != 'c_new')
+        ? widget.conversationId
+        : null;
 
-    if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
+    if (_activeConversationId != null) {
+      context.read<ConversationBloc>().add(LoadConversationEvent(_activeConversationId!));
+    }
+
+    if (widget.initialPrompt != null && widget.initialPrompt!.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _sendMessage(widget.initialPrompt!);
+        if (!_initialPromptSent && mounted) {
+          _initialPromptSent = true;
+          _sendMessage(widget.initialPrompt!);
+        }
       });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ConversationScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.conversationId != oldWidget.conversationId) {
+      final newId = (widget.conversationId != null &&
+              widget.conversationId!.isNotEmpty &&
+              widget.conversationId != 'c_new')
+          ? widget.conversationId
+          : null;
+      if (newId != _activeConversationId) {
+        _activeConversationId = newId;
+        if (newId != null) {
+          context.read<ConversationBloc>().add(LoadConversationEvent(newId));
+        }
+      }
     }
   }
 
@@ -49,7 +81,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final state = context.read<ConversationBloc>().state;
     if (state is ConversationLoadedState && state.isSending) return;
 
-    final convId = widget.conversationId ?? 'c_new';
+    final convId = _activeConversationId ??
+        (state is ConversationLoadedState &&
+                state.conversation.id.isNotEmpty &&
+                state.conversation.id != 'c_new'
+            ? state.conversation.id
+            : null);
 
     context.read<ConversationBloc>().add(SendChatMessageEvent(
           conversationId: convId,
@@ -116,13 +153,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.auto_awesome_rounded),
+            onPressed: () {
+              final convId = _activeConversationId;
+              final path = convId != null
+                  ? '${RouteNames.aiMentorSuggestedPrompts}?id=$convId'
+                  : RouteNames.aiMentorSuggestedPrompts;
+              context.push(path);
+            },
+            tooltip: 'Suggested Prompts',
+          ),
+          IconButton(
             icon: const Icon(Icons.history_rounded),
             onPressed: () => context.push(RouteNames.aiMentorHistory),
             tooltip: 'History',
           ),
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
-            onPressed: () => context.push(RouteNames.aiMentorConversationDetails),
+            onPressed: () {
+              final state = context.read<ConversationBloc>().state;
+              final conv = state is ConversationLoadedState ? state.conversation : null;
+              final convId = _activeConversationId ?? (conv != null && conv.id != 'c_new' && conv.id.isNotEmpty ? conv.id : null);
+              if (convId != null) {
+                context.push('${RouteNames.aiMentorConversationDetails}?id=$convId', extra: conv);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Send a message first to establish conversation details.')),
+                );
+              }
+            },
             tooltip: 'Details',
           ),
         ],
@@ -172,11 +231,59 @@ class _ConversationScreenState extends State<ConversationScreen> {
         Expanded(
           child: BlocConsumer<ConversationBloc, ConversationState>(
             listener: (context, state) {
+              if (state is ConversationFailureState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
               if (state is ConversationLoadedState) {
+                if (_activeConversationId == null &&
+                    state.conversation.id.isNotEmpty &&
+                    state.conversation.id != 'c_new') {
+                  _activeConversationId = state.conversation.id;
+                  context.read<AIMentorBloc>().add(const LoadAIMentorDashboardEvent());
+                }
                 _scrollToBottom();
               }
             },
             builder: (context, state) {
+              if (state is ConversationFailureState) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Failed to load conversation',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_activeConversationId != null) {
+                              context.read<ConversationBloc>().add(LoadConversationEvent(_activeConversationId!));
+                            }
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
               if (state is ConversationLoadingState) {
                 return const Center(
                   child: Column(
@@ -229,31 +336,54 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                     );
                   }
+                  final msg = messages[index];
                   return ChatBubble(
-                    message: messages[index],
-                    onRetry: () => _sendMessage(messages[index].content),
+                    message: msg,
+                    onRetry: () => _sendMessage(msg.content),
+                    onFeedback: () {
+                      context.push('${RouteNames.aiMentorFeedback}?messageId=${msg.id}');
+                    },
+                    onRate: (rating) async {
+                      if (msg.id.isEmpty) return;
+                      try {
+                        final repository = getIt<IAIMentorRepository>();
+                        final res = await repository.submitFeedback(
+                          MentorFeedback(
+                            messageId: msg.id,
+                            rating: rating,
+                            feedbackType: 'HELPFUL',
+                            comment: '',
+                            category: 'CHAT_RESPONSE',
+                          ),
+                        );
+                        if (!context.mounted) return;
+                        res.fold(
+                          (failure) => ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to submit rating: ${failure.message}'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          ),
+                          (_) => ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Thank you! Rated $rating★'),
+                              backgroundColor: const Color(0xFF10B981),
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent),
+                        );
+                      }
+                    },
                   );
                 },
               );
             },
           ),
         ),
-
-        if (_isVoiceRecording)
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: Colors.redAccent.withValues(alpha: 0.15),
-            child: const Row(
-              children: [
-                Icon(Icons.mic_rounded, color: Colors.redAccent),
-                SizedBox(width: 8),
-                Text(
-                  'Recording voice prompt... Tap mic to stop & send',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent, fontSize: 13, fontFamily: 'Poppins'),
-                ),
-              ],
-            ),
-          ),
 
         // Section 7: Premium Input Composer
         Container(
@@ -269,21 +399,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           child: SafeArea(
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file_rounded, color: Colors.grey),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Attachment selector ready')),
-                    );
-                  },
-                  tooltip: 'Add Attachment',
-                ),
-                IconButton(
-                  icon: Icon(_isVoiceRecording ? Icons.stop_circle_rounded : Icons.mic_rounded),
-                  color: _isVoiceRecording ? Colors.redAccent : Colors.indigoAccent,
-                  onPressed: () => setState(() => _isVoiceRecording = !_isVoiceRecording),
-                  tooltip: 'Voice Prompt',
-                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(

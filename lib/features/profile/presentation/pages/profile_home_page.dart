@@ -150,16 +150,9 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                         const SizedBox(width: 8),
                         _buildActionChip(
                           context,
-                          icon: Icons.link_rounded,
-                          label: 'Accounts',
-                          onTap: () => context.push(RouteNames.profileConnectedAccounts),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildActionChip(
-                          context,
                           icon: Icons.security_rounded,
                           label: 'Security',
-                          onTap: () => context.push(RouteNames.profileSecurityOverview),
+                          onTap: () => context.push(RouteNames.settingsSecurity),
                         ),
                       ],
                     ),
@@ -303,13 +296,6 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                     icon: Icons.shield_outlined,
                     child: Column(
                       children: [
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.download_outlined, color: primaryColor),
-                          title: Text('Export My Data', style: TextStyle(fontWeight: FontWeight.w600, color: titleColor)),
-                          trailing: Icon(Icons.chevron_right_rounded, color: subtitleColor),
-                          onTap: () => context.push(RouteNames.profileExportData),
-                        ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: const Icon(Icons.logout_rounded, color: Colors.orangeAccent),

@@ -46,13 +46,13 @@ class AIMentorFailureState extends AIMentorState {
 }
 
 class AIMentorLoadedState extends AIMentorState {
-  final StudentWellness wellness;
+  final StudentWellness? wellness;
   final List<Conversation> recentConversations;
   final List<Conversation> pinnedConversations;
   final List<PromptTemplate> suggestedPrompts;
 
   const AIMentorLoadedState({
-    required this.wellness,
+    this.wellness,
     required this.recentConversations,
     required this.pinnedConversations,
     required this.suggestedPrompts,
@@ -85,20 +85,10 @@ class AIMentorBloc extends Bloc<AIMentorEvent, AIMentorState> {
       final convsRes = await loadConversationsUseCase(const NoParams());
       final promptsRes = await repository.getSuggestedPrompts();
 
-      final wellness = wellnessRes.getOrElse((_) => const StudentWellness(
-            overallWellnessScore: 86,
-            academicPerformanceScore: 82,
-            financialWellnessScore: 84,
-            productivityScore: 88,
-            careerReadinessScore: 78,
-            goalProgressScore: 85,
-            habitConsistencyScore: 89,
-            wellnessLevel: 'BALANCED',
-            keyRecommendations: [
-              'Maintain study schedule consistency',
-              'Schedule 1 hour outdoor break daily',
-            ],
-          ));
+      final wellness = wellnessRes.fold(
+        (_) => null,
+        (data) => data,
+      );
 
       final convs = convsRes.getOrElse((_) => []);
       final prompts = promptsRes.getOrElse((_) => []);

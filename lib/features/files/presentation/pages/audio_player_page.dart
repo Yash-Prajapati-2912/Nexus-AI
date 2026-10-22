@@ -20,15 +20,33 @@ class AudioPlayerPage extends StatelessWidget {
               child: Icon(Icons.audiotrack_rounded, size: 44, color: Colors.white),
             ),
             const SizedBox(height: 16),
-            Text(file?.fileName ?? 'Lecture_Audio.mp3', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(icon: const Icon(Icons.replay_10_rounded), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.play_circle_filled_rounded, size: 48, color: Color(0xFF10B981)), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.forward_10_rounded), onPressed: () {}),
-              ],
+            if (file != null)
+              Text(
+                file!.fileName,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber.shade700.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.amber.shade800),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'In-app audio playback is currently not supported. Please download the file to play using your device media player.',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

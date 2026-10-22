@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,6 +77,7 @@ class _CreateTaskPageState extends State<CreateTaskPage>
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['txt', 'pdf', 'doc', 'docx', 'md', 'json'],
+        withData: true,
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -94,9 +94,6 @@ class _CreateTaskPageState extends State<CreateTaskPage>
         PdfExtractionQualityResult qualityResult;
         if (file.bytes != null) {
           qualityResult = AcademicDocumentClassifierService.extractAndValidatePdfText(file.bytes!, filename);
-        } else if (file.path != null) {
-          final bytes = await File(file.path!).readAsBytes();
-          qualityResult = AcademicDocumentClassifierService.extractAndValidatePdfText(bytes, filename);
         } else {
           qualityResult = const PdfExtractionQualityResult(
             text: '',

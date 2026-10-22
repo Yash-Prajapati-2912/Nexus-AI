@@ -21,7 +21,7 @@ class WeeklyHeatmapWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: days.map((day) {
-            final intensity = heatmapData[day] ?? (days.indexOf(day) % 4 + 1);
+            final intensity = (heatmapData[day] ?? 0).clamp(0, 4);
             Color boxColor;
             switch (intensity) {
               case 4:
@@ -41,7 +41,6 @@ class WeeklyHeatmapWidget extends StatelessWidget {
                 break;
             }
 
-
             return Column(
               children: [
                 Container(
@@ -54,10 +53,12 @@ class WeeklyHeatmapWidget extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      '$intensity',
+                      intensity > 0 ? '$intensity' : '-',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: intensity >= 3 ? Colors.white : Colors.black87,
+                        color: intensity >= 3
+                            ? Colors.white
+                            : (intensity > 0 ? Colors.black87 : theme.colorScheme.outline),
                       ),
                     ),
                   ),

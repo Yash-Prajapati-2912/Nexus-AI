@@ -30,31 +30,29 @@ class SecuritySettingsPage extends StatelessWidget {
         },
         builder: (context, state) {
           final security = (state is SecurityLoaded) ? state.security : null;
-          final isBiometric = security?.isBiometricEnabled ?? false;
-          final isPin = security?.isPinLockEnabled ?? false;
           final timeout = security?.sessionTimeoutMinutes ?? 30;
 
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              PreferenceCard(
+              const PreferenceCard(
                 title: 'Biometrics & Passcode',
-                subtitle: 'Protect your account using device authentication',
+                subtitle: 'Device authentication and security options',
                 child: Column(
                   children: [
                     SwitchTile(
                       icon: Icons.fingerprint,
                       title: 'Biometric Lock',
-                      subtitle: 'Use Fingerprint / Face ID to unlock Nexus AI',
-                      value: isBiometric,
-                      onChanged: (val) => context.read<SecurityBloc>().add(ToggleBiometricEvent(val)),
+                      subtitle: 'Platform biometric authentication is not available on this device',
+                      value: false,
+                      onChanged: null,
                     ),
                     SwitchTile(
                       icon: Icons.pin,
                       title: 'PIN Lock',
-                      subtitle: 'Require 4-digit security PIN upon app launch',
-                      value: isPin,
-                      onChanged: (val) => context.read<SecurityBloc>().add(TogglePinLockEvent(val)),
+                      subtitle: 'App PIN lock setup is not available yet',
+                      value: false,
+                      onChanged: null,
                     ),
                   ],
                 ),
@@ -89,9 +87,7 @@ class SecuritySettingsPage extends StatelessWidget {
                   description: 'Log out of all mobile & web devices except this one',
                   icon: Icons.phonelink_erase,
                   action: ElevatedButton(
-                    onPressed: () {
-                      context.read<SecurityBloc>().add(LogoutAllOtherDevicesEvent());
-                    },
+                    onPressed: () => _confirmLogoutAllOtherDevices(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -103,6 +99,35 @@ class SecuritySettingsPage extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _confirmLogoutAllOtherDevices(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Terminate Other Sessions?'),
+        content: const Text(
+          'Are you sure you want to log out of all other devices? All other active sessions will be terminated.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<SecurityBloc>().add(LogoutAllOtherDevicesEvent());
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Logout All'),
+          ),
+        ],
       ),
     );
   }

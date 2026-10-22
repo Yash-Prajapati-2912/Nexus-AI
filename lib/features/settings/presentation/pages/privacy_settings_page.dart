@@ -78,13 +78,12 @@ class PrivacySettingsPage extends StatelessWidget {
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.forum_outlined, color: Colors.redAccent),
-                      title: const Text('Delete AI Conversation History'),
-                      subtitle: const Text('Permanently remove stored chat transcripts'),
-                      trailing: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                        onPressed: () => _confirmDeleteAIHistory(context),
-                        child: const Text('Delete AI Data'),
+                      leading: const Icon(Icons.forum_outlined, color: Colors.blueGrey),
+                      title: const Text('AI Conversation History'),
+                      subtitle: const Text('Manage or delete chat logs directly inside AI Mentor'),
+                      trailing: OutlinedButton(
+                        onPressed: () => _showAIHistoryInfo(context),
+                        child: const Text('Manage Chats'),
                       ),
                     ),
                   ],
@@ -97,21 +96,18 @@ class PrivacySettingsPage extends StatelessWidget {
     );
   }
 
-  void _confirmDeleteAIHistory(BuildContext context) {
+  void _showAIHistoryInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete AI History?'),
-        content: const Text('This action is irreversible. All AI Mentor chat sessions will be erased permanently.'),
+        title: const Text('AI Conversation Management'),
+        content: const Text(
+          'Bulk conversation deletion is not supported by the backend. To delete or archive chats, open AI Mentor and use the delete option on individual conversations in the history menu.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.read<PrivacyBloc>().add(DeleteAIHistoryEvent());
-            },
-            child: const Text('Delete'),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Understood'),
           ),
         ],
       ),

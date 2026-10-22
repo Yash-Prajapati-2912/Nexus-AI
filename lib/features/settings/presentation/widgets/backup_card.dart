@@ -4,14 +4,14 @@ class BackupCard extends StatelessWidget {
   final String lastBackupDate;
   final String backupSize;
   final String status;
-  final VoidCallback onBackupNow;
+  final VoidCallback? onBackupNow;
 
   const BackupCard({
     super.key,
     required this.lastBackupDate,
     required this.backupSize,
     required this.status,
-    required this.onBackupNow,
+    this.onBackupNow,
   });
 
   @override
