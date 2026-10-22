@@ -6,7 +6,7 @@ class ProdEnv implements AppEnv {
   EnvironmentType get environmentType => EnvironmentType.production;
 
   @override
-  String get apiBaseUrl => 'https://api.nexusai.io/v1';
+  String get apiBaseUrl => 'https://nexus-ai-backend-1vcs.onrender.com/api/v1';
 
   @override
   int get connectTimeoutMs => 10000;
