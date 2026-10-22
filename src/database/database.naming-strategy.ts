@@ -77,44 +77,55 @@ export class DatabaseNamingStrategy
     return snakeCase(`${parentTableName}_${parentTableIdPropertyName}`);
   }
 
-  primaryKeyName(tableOrName: string, _columnNames: string[]): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
-    return `pk_${table}`;
+  protected getTableName(tableOrName: any): string {
+    if (typeof tableOrName === 'string') {
+      return tableOrName.split('.').pop() || tableOrName;
+    }
+    if (tableOrName && typeof tableOrName.name === 'string') {
+      return tableOrName.name.split('.').pop() || tableOrName.name;
+    }
+    return 'table';
   }
 
-  uniqueConstraintName(tableOrName: string, columnNames: string[]): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
-    const cols = columnNames.join('_');
+  primaryKeyName(tableOrName: any, columnNames: string[]): string {
+    const table = this.getTableName(tableOrName);
+    const cols = columnNames.map((c) => snakeCase(c)).join('_');
+    return `pk_${table}${cols ? `_${cols}` : ''}`;
+  }
+
+  uniqueConstraintName(tableOrName: any, columnNames: string[]): string {
+    const table = this.getTableName(tableOrName);
+    const cols = columnNames.map((c) => snakeCase(c)).join('_');
     return `uq_${table}_${cols}`;
   }
 
-  relationConstraintName(tableOrName: string, columnNames: string[]): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
-    const cols = columnNames.join('_');
+  relationConstraintName(tableOrName: any, columnNames: string[]): string {
+    const table = this.getTableName(tableOrName);
+    const cols = columnNames.map((c) => snakeCase(c)).join('_');
     return `fk_${table}_${cols}`;
   }
 
   foreignKeyName(
-    tableOrName: string,
+    tableOrName: any,
     columnNames: string[],
     referencedTablePath?: string,
     _referencedColumnNames?: string[],
   ): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
+    const table = this.getTableName(tableOrName);
     const refTable = referencedTablePath ? referencedTablePath.replace('.', '_') : 'ref';
-    const cols = columnNames.join('_');
+    const cols = columnNames.map((c) => snakeCase(c)).join('_');
     return `fk_${table}_${refTable}_${cols}`;
   }
 
-  indexName(tableOrName: string, columnNames: string[], where?: string): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
-    const cols = columnNames.join('_');
+  indexName(tableOrName: any, columnNames: string[], where?: string): string {
+    const table = this.getTableName(tableOrName);
+    const cols = columnNames.map((c) => snakeCase(c)).join('_');
     const suffix = where ? '_partial' : '';
     return `idx_${table}_${cols}${suffix}`;
   }
 
-  checkConstraintName(tableOrName: string, expression: string): string {
-    const table = typeof tableOrName === 'string' ? tableOrName : tableOrName;
+  checkConstraintName(tableOrName: any, expression: string): string {
+    const table = this.getTableName(tableOrName);
     const cleanExpr = expression.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     const truncatedExpr = cleanExpr.length > 20 ? cleanExpr.substring(0, 20) : cleanExpr;
     return `chk_${table}_${truncatedExpr}`;
