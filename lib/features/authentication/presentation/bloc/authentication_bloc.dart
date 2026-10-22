@@ -64,11 +64,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     userResult.fold(
       (failure) => emit(UnauthenticatedState()),
       (user) {
-        if (!user.isEmailVerified) {
-          emit(EmailVerificationPendingState(email: user.email));
-        } else {
-          emit(AuthenticatedState(user: user));
-        }
+        emit(AuthenticatedState(user: user));
       },
     );
   }
@@ -89,11 +85,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         userResult.fold(
           (failure) => emit(AuthFailureState(message: failure.message)),
           (user) {
-            if (!user.isEmailVerified) {
-              emit(EmailVerificationPendingState(email: user.email));
-            } else {
-              emit(AuthenticatedState(user: user));
-            }
+            emit(AuthenticatedState(user: user));
           },
         );
       },
@@ -113,9 +105,17 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       ),
     );
 
-    result.fold(
-      (failure) => emit(AuthFailureState(message: failure.message)),
-      (user) => emit(EmailVerificationPendingState(email: user.email)),
+    await result.fold(
+      (failure) async => emit(AuthFailureState(message: failure.message)),
+      (user) async {
+        final loginResult = await _loginUseCase(
+          LoginParams(email: event.email, password: event.password),
+        );
+        loginResult.fold(
+          (failure) => emit(AuthenticatedState(user: user)),
+          (tokens) => emit(AuthenticatedState(user: user)),
+        );
+      },
     );
   }
 

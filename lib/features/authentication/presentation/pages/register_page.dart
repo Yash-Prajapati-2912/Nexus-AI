@@ -63,8 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
-        if (state is EmailVerificationPendingState) {
-          context.go(RouteNames.emailVerificationPending, extra: state.email);
+        if (state is AuthenticatedState) {
+          context.go(RouteNames.dashboard);
+        } else if (state is EmailVerificationPendingState) {
+          context.go(RouteNames.dashboard);
         } else if (state is AuthFailureState) {
           SnackBarManager.showError(context, state.message);
         }

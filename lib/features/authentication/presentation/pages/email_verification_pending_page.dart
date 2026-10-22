@@ -55,6 +55,7 @@ class EmailVerificationPendingPage extends StatelessWidget {
                     label: 'Continue to Dashboard',
                     onPressed: () {
                       context.read<AuthenticationBloc>().add(AppStartedEvent());
+                      context.go(RouteNames.dashboard);
                     },
                   ),
                   const SizedBox(height: 12),
@@ -68,7 +69,10 @@ class EmailVerificationPendingPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   SecondaryButton(
                     label: 'Back to Sign In',
-                    onPressed: () => context.go(RouteNames.login),
+                    onPressed: () {
+                      context.read<AuthenticationBloc>().add(LogoutRequestedEvent());
+                      context.go(RouteNames.login);
+                    },
                   ),
                 ],
               ),
