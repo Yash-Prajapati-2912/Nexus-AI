@@ -34,7 +34,7 @@
     "docker:dev": "docker compose -f docker-compose.dev.yml up --build",
     "docker:prod": "docker compose up --build -d",
     "docker:down": "docker compose down",
-    "prepare": "husky install"
+    "prepare": "husky install || true"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
