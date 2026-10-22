@@ -5,19 +5,107 @@ import { IAIMentorProvider } from '../interfaces/ai-mentor-provider.interface';
 import { IAIMentorContext } from '../interfaces/ai-mentor-context.interface';
 import { IAIMentorStructuredResponse } from '../interfaces/ai-mentor-response.interface';
 
+export type GeminiFailureCategory =
+  | 'AUTH_FAILURE'
+  | 'QUOTA_EXHAUSTED'
+  | 'RATE_LIMITED_OR_OVERLOADED'
+  | 'MODEL_UNAVAILABLE'
+  | 'NETWORK_ERROR'
+  | 'MALFORMED_RESPONSE'
+  | 'UNKNOWN_ERROR';
+
 @Injectable()
 export class GeminiMentorProvider implements IAIMentorProvider {
   readonly providerName = 'GEMINI';
   private readonly logger = new Logger(GeminiMentorProvider.name);
   private genAI: GoogleGenerativeAI | null = null;
   private modelName: string;
+  private lastFailureCategory: GeminiFailureCategory | null = null;
+  private lastGenerationSuccessful = false;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('gemini.apiKey') || process.env.GEMINI_API_KEY;
-    this.modelName = this.configService.get<string>('gemini.model') || 'gemini-1.5-flash';
+    this.modelName =
+      this.configService.get<string>('gemini.model') ||
+      process.env.GEMINI_MODEL ||
+      'gemini-3.5-flash-lite';
     if (apiKey && apiKey !== 'dev_gemini_api_key_placeholder') {
       this.genAI = new GoogleGenerativeAI(apiKey);
     }
+  }
+
+  getModelName(): string {
+    return this.modelName;
+  }
+
+  getLastFailureCategory(): GeminiFailureCategory | null {
+    return this.lastFailureCategory;
+  }
+
+  isLastGenerationSuccessful(): boolean {
+    return this.lastGenerationSuccessful;
+  }
+
+  setGenerativeAIClient(client: GoogleGenerativeAI | null): void {
+    this.genAI = client;
+  }
+
+  classifyError(err: any): GeminiFailureCategory {
+    const msg = String(err?.message || '').toLowerCase();
+    const status = err?.status || err?.statusCode || (err?.response && err?.response?.status);
+
+    if (
+      msg.includes('api_key_invalid') ||
+      msg.includes('api key not valid') ||
+      msg.includes('invalid api key') ||
+      msg.includes('permission_denied') ||
+      status === 401 ||
+      status === 403
+    ) {
+      return 'AUTH_FAILURE';
+    }
+    if (
+      msg.includes('resource_exhausted') ||
+      msg.includes('quota') ||
+      status === 429
+    ) {
+      return 'QUOTA_EXHAUSTED';
+    }
+    if (
+      msg.includes('high demand') ||
+      msg.includes('overloaded') ||
+      msg.includes('unavailable') ||
+      status === 503
+    ) {
+      return 'RATE_LIMITED_OR_OVERLOADED';
+    }
+    if (
+      msg.includes('not found') ||
+      msg.includes('no longer available') ||
+      msg.includes('unsupported model') ||
+      status === 404
+    ) {
+      return 'MODEL_UNAVAILABLE';
+    }
+    if (
+      msg.includes('enotfound') ||
+      msg.includes('etimedout') ||
+      msg.includes('econnrefused') ||
+      msg.includes('fetch failed') ||
+      msg.includes('network') ||
+      msg.includes('timeout')
+    ) {
+      return 'NETWORK_ERROR';
+    }
+    if (
+      err instanceof SyntaxError ||
+      msg.includes('json') ||
+      msg.includes('unexpected token') ||
+      msg.includes('is not valid json')
+    ) {
+      return 'MALFORMED_RESPONSE';
+    }
+    return 'UNKNOWN_ERROR';
   }
 
   async generateMentorResponse(
@@ -53,9 +141,20 @@ Output ONLY a valid raw JSON object matching this exact schema:
 No markdown formatting blocks (\`\`\`json). Output clean raw JSON only.
 `;
 
-    try {
-      if (!this.genAI) return this.getFallbackMentorResponse(context);
+    if (!this.genAI) {
+      this.lastFailureCategory = 'AUTH_FAILURE';
+      this.lastGenerationSuccessful = false;
+      this.logger.warn(
+        JSON.stringify({
+          event: 'GEMINI_PROVIDER_FALLBACK',
+          category: 'AUTH_FAILURE',
+          reason: 'API key is missing or unconfigured placeholder',
+        }),
+      );
+      return this.getFallbackMentorResponse(context);
+    }
 
+    try {
       const model = this.genAI.getGenerativeModel({
         model: this.modelName,
         generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
@@ -63,19 +162,38 @@ No markdown formatting blocks (\`\`\`json). Output clean raw JSON only.
 
       const fullPrompt = `${systemInstruction}\n\n${prompt}`;
       const result = await model.generateContent(fullPrompt);
-      const cleaned = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+      const text = result?.response?.text ? result.response.text() : '';
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
       const parsed = JSON.parse(cleaned) as IAIMentorStructuredResponse;
+      this.lastFailureCategory = null;
+      this.lastGenerationSuccessful = true;
+      this.logger.log(
+        JSON.stringify({
+          event: 'GEMINI_PROVIDER_SUCCESS',
+          model: this.modelName,
+        }),
+      );
+
       return {
         summary: parsed.summary || 'AI Mentoring session processed.',
-        reasoning: parsed.reasoning || [],
-        recommendations: parsed.recommendations || [],
-        actionPlan: parsed.actionPlan || [],
-        confidenceScore: parsed.confidenceScore ?? 0.9,
-        followUpQuestions: parsed.followUpQuestions || [],
+        reasoning: Array.isArray(parsed.reasoning) ? parsed.reasoning : [],
+        recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+        actionPlan: Array.isArray(parsed.actionPlan) ? parsed.actionPlan : [],
+        confidenceScore: typeof parsed.confidenceScore === 'number' ? parsed.confidenceScore : 0.9,
+        followUpQuestions: Array.isArray(parsed.followUpQuestions) ? parsed.followUpQuestions : [],
       };
     } catch (err: any) {
-      this.logger.error(`Gemini Mentor provider error: ${err.message}`, err.stack);
+      const category = this.classifyError(err);
+      this.lastFailureCategory = category;
+      this.lastGenerationSuccessful = false;
+      this.logger.warn(
+        JSON.stringify({
+          event: 'GEMINI_PROVIDER_FALLBACK',
+          category,
+          model: this.modelName,
+        }),
+      );
       return this.getFallbackMentorResponse(context);
     }
   }

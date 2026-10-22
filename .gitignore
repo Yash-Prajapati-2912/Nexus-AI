@@ -8,11 +8,8 @@
 
 # Environment variables
 .env
-.env.production
-.env.staging
+.env.*
 !.env.example
-!.env.development
-!.env.test
 
 # Logs
 /logs

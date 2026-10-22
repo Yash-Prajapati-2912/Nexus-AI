@@ -25,4 +25,18 @@ export class ConversationMessageRepository extends BaseRepository<ConversationMe
       take: limit,
     });
   }
+
+  async findRecentMessages(
+    conversationId: string,
+    limit: number = 6,
+    entityManager?: EntityManager,
+  ): Promise<ConversationMessage[]> {
+    const repo = this.getRepo(entityManager);
+    const messages = await repo.find({
+      where: { conversationId },
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
+    return messages.reverse();
+  }
 }

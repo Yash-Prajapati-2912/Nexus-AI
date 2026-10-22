@@ -16,27 +16,34 @@ export class ConversationQueryDto {
 
   @ApiPropertyOptional({ description: 'Filter by archived state' })
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => (value === undefined || value === null || value === '' ? undefined : value === 'true' || value === true))
   @IsBoolean()
   isArchived?: boolean;
 
   @ApiPropertyOptional({ description: 'Filter by pinned state' })
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(({ value }) => (value === undefined || value === null || value === '' ? undefined : value === 'true' || value === true))
   @IsBoolean()
   isPinned?: boolean;
 
   @ApiPropertyOptional({ description: 'Limit number of results', default: 20 })
   @IsOptional()
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : 20))
   @IsInt()
   @Min(1)
   limit?: number = 20;
 
   @ApiPropertyOptional({ description: 'Offset', default: 0 })
   @IsOptional()
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : 0))
   @IsInt()
   @Min(0)
   offset?: number = 0;
+
+  @ApiPropertyOptional({ description: 'Page number (1-based)', default: 1 })
+  @IsOptional()
+  @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : undefined))
+  @IsInt()
+  @Min(1)
+  page?: number;
 }

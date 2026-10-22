@@ -6,16 +6,52 @@ import { IAIMentorStructuredResponse } from '../interfaces/ai-mentor-response.in
 
 export class MentorMapper {
   static toMessageDto(entity: ConversationMessage): MessageItemDto {
+    let summary: string | undefined;
+    let content: string = entity.userMessage || '';
+
+    if (entity.role === 'ASSISTANT') {
+      const ai: any = entity.aiResponse;
+      if (ai && typeof ai === 'object') {
+        summary = ai.summary || ai.content || ai.text;
+        content = summary || entity.userMessage || '';
+      } else if (typeof ai === 'string' && ai.trim().length > 0) {
+        summary = ai;
+        content = ai;
+      }
+    }
+
     return {
       id: entity.id,
+      conversationId: entity.conversationId,
       role: entity.role,
       userMessage: entity.userMessage,
+      content,
+      summary,
       aiResponse: entity.aiResponse,
       createdAt: entity.createdAt,
     };
   }
 
   static toConversationDto(entity: Conversation): ConversationResponseDto {
+    const rawMessages = entity.messages ? entity.messages.map(MentorMapper.toMessageDto) : undefined;
+    if (rawMessages && rawMessages.length > 1) {
+      rawMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+
+    let lastSnippet: string | undefined;
+    if (rawMessages && rawMessages.length > 0) {
+      const last = rawMessages[rawMessages.length - 1];
+      if (last.role === 'USER') {
+        lastSnippet = last.userMessage;
+      } else if (last.summary) {
+        lastSnippet = last.summary;
+      } else if (last.content) {
+        lastSnippet = last.content;
+      } else {
+        lastSnippet = last.userMessage;
+      }
+    }
+
     return {
       id: entity.id,
       title: entity.title,
@@ -25,7 +61,9 @@ export class MentorMapper {
       tags: entity.tags || [],
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-      messages: entity.messages ? entity.messages.map(MentorMapper.toMessageDto) : undefined,
+      messageCount: rawMessages ? rawMessages.length : 0,
+      lastMessageSnippet: lastSnippet || 'No messages yet.',
+      messages: rawMessages,
     };
   }
 

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfileModule } from '../profile/profile.module';
 import { FinanceModule } from '../finance/finance.module';
+import { PlannerModule } from '../planner/planner.module';
 
 // Base Entities
 import { Conversation } from './entities/conversation.entity';
@@ -82,6 +83,7 @@ import { IntelligenceNotificationListener } from './intelligence/listeners/intel
   imports: [
     ProfileModule,
     FinanceModule,
+    PlannerModule,
     TypeOrmModule.forFeature([
       Conversation,
       ConversationMessage,

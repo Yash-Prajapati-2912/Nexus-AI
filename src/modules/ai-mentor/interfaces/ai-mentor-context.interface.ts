@@ -28,8 +28,8 @@ export interface IAIMentorContext {
     topExpenseCategory?: string;
   };
   productivityStats?: {
-    weeklyFocusHours: number;
-    taskCompletionRate: number;
+    weeklyFocusHours?: number;
+    taskCompletionRate?: number;
   };
   previousRecommendations?: string[];
   shortTermMemoryTurns?: Array<{

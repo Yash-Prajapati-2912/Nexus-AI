@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,9 +27,10 @@ import { AIMentorService } from '../services/ai-mentor.service';
 import { ChatRequestDto } from '../dto/chat-request.dto';
 import { ChatResponseDto } from '../dto/chat-response.dto';
 import { ConversationQueryDto } from '../dto/conversation-query.dto';
-import { ConversationResponseDto } from '../dto/conversation-response.dto';
+import { ConversationResponseDto, MessageItemDto } from '../dto/conversation-response.dto';
 import { UpdateConversationDto } from '../dto/update-conversation.dto';
 import { MentorFeatureRequestDto } from '../dto/mentor-feature-request.dto';
+import { MessageFeedbackDto } from '../dto/message-feedback.dto';
 
 @ApiTags('Context-Aware AI Mentor')
 @ApiBearerAuth()
@@ -124,6 +126,17 @@ export class AIMentorController {
     return this.mentorService.getConversationById(userId, id);
   }
 
+  @Get('conversations/:id/messages')
+  @ApiOperation({ summary: 'Get full message history list by conversation ID' })
+  @ApiParam({ name: 'id', description: 'Conversation UUID' })
+  @ApiResponse({ status: 200, description: 'Conversation messages returned', type: [MessageItemDto] })
+  async getConversationMessages(
+    @CurrentUser('id') userId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<MessageItemDto[]> {
+    return this.mentorService.getConversationMessages(userId, id);
+  }
+
   @Patch('conversations/:id')
   @ApiOperation({ summary: 'Update conversation title, pin state, or archive status' })
   @ApiParam({ name: 'id', description: 'Conversation UUID' })
@@ -146,5 +159,33 @@ export class AIMentorController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<{ success: boolean }> {
     return this.mentorService.deleteConversation(userId, id);
+  }
+
+  @Post('messages/:id/feedback')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit feedback rating and comments for an assistant message' })
+  @ApiParam({ name: 'id', description: 'Target Message UUID' })
+  @ApiResponse({ status: 200, description: 'Message feedback recorded successfully' })
+  async submitMessageFeedback(
+    @CurrentUser('id') userId: string,
+    @Param('id', new ParseUUIDPipe()) messageId: string,
+    @Body() dto: MessageFeedbackDto,
+  ): Promise<{ success: boolean; feedbackId: string; updated: boolean }> {
+    return this.mentorService.submitMessageFeedback(userId, messageId, dto);
+  }
+
+  @Post('chat/feedback')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit feedback rating and comments for a chat message' })
+  @ApiResponse({ status: 200, description: 'Message feedback recorded successfully' })
+  async submitChatFeedback(
+    @CurrentUser('id') userId: string,
+    @Body() dto: MessageFeedbackDto,
+  ): Promise<{ success: boolean; feedbackId: string; updated: boolean }> {
+    const targetId = dto.messageId;
+    if (!targetId) {
+      throw new BadRequestException('messageId is required');
+    }
+    return this.mentorService.submitMessageFeedback(userId, targetId, dto);
   }
 }

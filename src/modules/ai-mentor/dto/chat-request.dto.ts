@@ -8,6 +8,11 @@ export class ChatRequestDto {
   @IsString()
   message: string;
 
+  @ApiPropertyOptional({ description: 'Alternative prompt alias for message' })
+  @IsOptional()
+  @IsString()
+  prompt?: string;
+
   @ApiPropertyOptional({ description: 'Existing conversation UUID to continue session' })
   @IsOptional()
   @IsUUID()
@@ -17,6 +22,11 @@ export class ChatRequestDto {
   @IsOptional()
   @IsEnum(ConversationType)
   conversationType?: ConversationType = ConversationType.GENERAL;
+
+  @ApiPropertyOptional({ description: 'Topic alias for conversationType', example: 'STUDY' })
+  @IsOptional()
+  @IsString()
+  topic?: string;
 
   @ApiPropertyOptional({ description: 'Target AI Provider override', enum: MentorProviderType })
   @IsOptional()

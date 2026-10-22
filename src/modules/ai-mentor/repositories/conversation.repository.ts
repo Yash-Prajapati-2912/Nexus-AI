@@ -23,6 +23,7 @@ export class ConversationRepository extends BaseRepository<Conversation> {
       isPinned?: boolean;
       limit?: number;
       offset?: number;
+      page?: number;
     },
     entityManager?: EntityManager,
   ): Promise<Conversation[]> {
@@ -34,11 +35,17 @@ export class ConversationRepository extends BaseRepository<Conversation> {
     if (options?.isPinned !== undefined) where.isPinned = options.isPinned;
     if (options?.search) where.title = ILike(`%${options.search}%`);
 
+    const limit = options?.limit || 20;
+    const offset = options?.offset !== undefined
+      ? options.offset
+      : (options?.page && options.page > 0 ? (options.page - 1) * limit : 0);
+
     return repo.find({
       where,
+      relations: ['messages'],
       order: { isPinned: 'DESC', updatedAt: 'DESC' },
-      take: options?.limit || 20,
-      skip: options?.offset || 0,
+      take: limit,
+      skip: offset,
     });
   }
 }

@@ -7,6 +7,16 @@ export class MentorFeatureRequestDto {
   @IsString()
   query?: string;
 
+  @ApiPropertyOptional({ description: 'Specific message content from chat client' })
+  @IsOptional()
+  @IsString()
+  message?: string;
+
+  @ApiPropertyOptional({ description: 'Specific prompt content from chat client' })
+  @IsOptional()
+  @IsString()
+  prompt?: string;
+
   @ApiPropertyOptional({ description: 'Existing conversation UUID to attach to' })
   @IsOptional()
   @IsUUID()

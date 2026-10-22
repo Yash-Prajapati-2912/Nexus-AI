@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AIMentorProviderFactory } from '../providers/ai-mentor-provider.factory';
 import { ContextEngineService } from '../context/context-engine.service';
@@ -8,6 +8,7 @@ import { ConversationRepository } from '../repositories/conversation.repository'
 import { ConversationMessageRepository } from '../repositories/conversation-message.repository';
 import { ConversationContextRepository } from '../repositories/conversation-context.repository';
 import { MentorRecommendationRepository } from '../repositories/mentor-recommendation.repository';
+import { MentorFeedbackRepository } from '../repositories/mentor-feedback.repository';
 import { AIUsageLogRepository } from '../repositories/ai-usage-log.repository';
 import { AIMentorCacheService } from './ai-mentor-cache.service';
 import { AIMentorQueueProcessor } from '../queue/ai-mentor.queue';
@@ -15,9 +16,10 @@ import { AIMentorQueueProcessor } from '../queue/ai-mentor.queue';
 import { ChatRequestDto } from '../dto/chat-request.dto';
 import { ChatResponseDto } from '../dto/chat-response.dto';
 import { ConversationQueryDto } from '../dto/conversation-query.dto';
-import { ConversationResponseDto } from '../dto/conversation-response.dto';
+import { ConversationResponseDto, MessageItemDto } from '../dto/conversation-response.dto';
 import { UpdateConversationDto } from '../dto/update-conversation.dto';
 import { MentorFeatureRequestDto } from '../dto/mentor-feature-request.dto';
+import { MessageFeedbackDto } from '../dto/message-feedback.dto';
 import { ConversationType, MessageRole, MentorRecommendationPriority } from '../constants/mentor-enums.constants';
 import { MentorMapper } from '../mappers/mentor.mapper';
 import { ConversationCreatedEvent } from '../events/conversation-created.event';
@@ -35,6 +37,7 @@ export class AIMentorService {
     private readonly messageRepository: ConversationMessageRepository,
     private readonly contextRepository: ConversationContextRepository,
     private readonly recommendationRepository: MentorRecommendationRepository,
+    private readonly feedbackRepository: MentorFeedbackRepository,
     private readonly usageLogRepository: AIUsageLogRepository,
     private readonly cacheService: AIMentorCacheService,
     private readonly queueProcessor: AIMentorQueueProcessor,
@@ -45,20 +48,29 @@ export class AIMentorService {
     const startTime = Date.now();
     let conversation: any;
 
+    const userMessage = dto.message || dto.prompt || '';
+    const resolvedType = (dto.conversationType && dto.conversationType !== ConversationType.GENERAL)
+      ? dto.conversationType
+      : (dto.topic && (ConversationType as any)[dto.topic.toUpperCase()]
+          ? (ConversationType as any)[dto.topic.toUpperCase()]
+          : (dto.conversationType || ConversationType.GENERAL));
+
     if (dto.conversationId) {
       conversation = await this.conversationRepository.findById(dto.conversationId);
       if (!conversation) throw new NotFoundException('Conversation not found');
       if (conversation.userId !== userId) throw new ForbiddenException('Access denied to conversation');
+      conversation.updatedAt = new Date();
+      await this.conversationRepository.save(conversation, userId);
     } else {
-      const generatedTitle = dto.message.length > 30 ? `${dto.message.substring(0, 30)}...` : dto.message;
+      const generatedTitle = userMessage.length > 30 ? `${userMessage.substring(0, 30)}...` : (userMessage || 'New Conversation');
       conversation = this.conversationRepository.create(
         {
           userId,
           title: generatedTitle,
-          conversationType: dto.conversationType || ConversationType.GENERAL,
+          conversationType: resolvedType,
           isArchived: false,
           isPinned: false,
-          tags: [dto.conversationType || 'GENERAL'],
+          tags: [resolvedType],
         },
         userId,
       );
@@ -75,7 +87,7 @@ export class AIMentorService {
     const provider = this.providerFactory.getProvider(dto.provider);
     const prompt = new MentorPromptBuilder()
       .setContext(context)
-      .setUserMessage(dto.message)
+      .setUserMessage(userMessage)
       .setMentorDomain(conversation.conversationType)
       .build();
 
@@ -86,7 +98,7 @@ export class AIMentorService {
       {
         conversationId: conversation.id,
         role: MessageRole.USER,
-        userMessage: dto.message,
+        userMessage: userMessage,
         aiResponse: null,
         tokenUsage: 100,
         providerName: provider.providerName,
@@ -150,7 +162,7 @@ export class AIMentorService {
 
   async careerMentor(userId: string, dto: MentorFeatureRequestDto): Promise<ChatResponseDto> {
     return this.chat(userId, {
-      message: dto.query || 'Provide career development and skill optimization advice.',
+      message: dto.query || dto.message || dto.prompt || 'Provide career development and skill optimization advice.',
       conversationId: dto.conversationId,
       conversationType: ConversationType.CAREER,
     });
@@ -158,7 +170,7 @@ export class AIMentorService {
 
   async studyMentor(userId: string, dto: MentorFeatureRequestDto): Promise<ChatResponseDto> {
     return this.chat(userId, {
-      message: dto.query || 'Help me plan my study schedule and prepare for academic milestones.',
+      message: dto.query || dto.message || dto.prompt || 'Help me plan my study schedule and prepare for academic milestones.',
       conversationId: dto.conversationId,
       conversationType: ConversationType.STUDY,
     });
@@ -166,7 +178,7 @@ export class AIMentorService {
 
   async decisionMentor(userId: string, dto: MentorFeatureRequestDto): Promise<ChatResponseDto> {
     return this.chat(userId, {
-      message: dto.query || 'Analyze my current choices and guide me through a structured decision framework.',
+      message: dto.query || dto.message || dto.prompt || 'Analyze my current choices and guide me through a structured decision framework.',
       conversationId: dto.conversationId,
       conversationType: ConversationType.DECISION,
     });
@@ -174,7 +186,7 @@ export class AIMentorService {
 
   async productivityMentor(userId: string, dto: MentorFeatureRequestDto): Promise<ChatResponseDto> {
     return this.chat(userId, {
-      message: dto.query || 'Help me optimize my weekly focus hours and time management.',
+      message: dto.query || dto.message || dto.prompt || 'Help me optimize my weekly focus hours and time management.',
       conversationId: dto.conversationId,
       conversationType: ConversationType.PRODUCTIVITY,
     });
@@ -182,7 +194,7 @@ export class AIMentorService {
 
   async financeMentor(userId: string, dto: MentorFeatureRequestDto): Promise<ChatResponseDto> {
     return this.chat(userId, {
-      message: dto.query || 'Review my student budget and give me actionable financial coaching.',
+      message: dto.query || dto.message || dto.prompt || 'Review my student budget and give me actionable financial coaching.',
       conversationId: dto.conversationId,
       conversationType: ConversationType.FINANCE,
     });
@@ -196,6 +208,7 @@ export class AIMentorService {
       isPinned: queryDto.isPinned,
       limit: queryDto.limit,
       offset: queryDto.offset,
+      page: queryDto.page,
     });
 
     return convs.map(MentorMapper.toConversationDto);
@@ -210,6 +223,15 @@ export class AIMentorService {
     conv.messages = messages;
 
     return MentorMapper.toConversationDto(conv);
+  }
+
+  async getConversationMessages(userId: string, id: string): Promise<MessageItemDto[]> {
+    const conv = await this.conversationRepository.findById(id);
+    if (!conv) throw new NotFoundException('Conversation not found');
+    if (conv.userId !== userId) throw new ForbiddenException('Access denied');
+
+    const messages = await this.messageRepository.findConversationMessages(id, 100);
+    return messages.map(MentorMapper.toMessageDto);
   }
 
   async updateConversation(userId: string, id: string, dto: UpdateConversationDto): Promise<ConversationResponseDto> {
@@ -233,6 +255,60 @@ export class AIMentorService {
 
     await this.conversationRepository.softDeleteById(id, userId);
     return { success: true };
+  }
+
+  async submitMessageFeedback(
+    userId: string,
+    messageId: string,
+    dto: MessageFeedbackDto,
+  ): Promise<{ success: boolean; feedbackId: string; updated: boolean }> {
+    const resolvedRating = dto.rating ?? (dto.isHelpful === false ? 1 : 5);
+    if (resolvedRating < 1 || resolvedRating > 5) {
+      throw new BadRequestException('Rating must be between 1 and 5');
+    }
+
+    const message = await this.messageRepository.findById(messageId);
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    if (message.role !== MessageRole.ASSISTANT) {
+      throw new BadRequestException('Feedback can only be submitted for assistant messages');
+    }
+
+    const conversation = await this.conversationRepository.findById(message.conversationId);
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+    if (conversation.userId !== userId) {
+      throw new ForbiddenException('Access denied to conversation message');
+    }
+
+    const commentsText = dto.comment ?? dto.comments ?? null;
+
+    // Check for existing feedback record to avoid duplicates
+    const existing = await this.feedbackRepository.findOne({
+      where: { userId, messageId },
+    });
+
+    if (existing) {
+      existing.ratingScore = resolvedRating;
+      existing.comments = commentsText;
+      const updated = await this.feedbackRepository.save(existing, userId);
+      return { success: true, feedbackId: updated.id, updated: true };
+    }
+
+    const newFeedback = this.feedbackRepository.create(
+      {
+        userId,
+        messageId,
+        ratingScore: resolvedRating,
+        comments: commentsText,
+      },
+      userId,
+    );
+    const saved = await this.feedbackRepository.save(newFeedback, userId);
+    return { success: true, feedbackId: saved.id, updated: false };
   }
 
   private async logUsage(userId: string, providerName: string, operationType: string, latencyMs: number): Promise<void> {

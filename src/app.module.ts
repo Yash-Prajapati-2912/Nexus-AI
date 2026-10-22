@@ -48,7 +48,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     // Configuration Module with Joi validation & namespaced loaders
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV || 'development'}`],
       validationSchema: environmentValidationSchema,
       load: [
         appConfig,
