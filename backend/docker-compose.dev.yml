@@ -1,0 +1,114 @@
+version: '3.8'
+
+# ==============================================================================
+# NEXUS AI BACKEND - DEVELOPMENT DOCKER COMPOSE ORCHESTRATION
+# ==============================================================================
+# Features:
+#   - Source code volume mounting for instant NestJS hot reloading (start:dev)
+#   - Debugger port exposure (9229)
+#   - Isolated container network and data volumes
+# ==============================================================================
+
+networks:
+  nexus-dev-network:
+    driver: bridge
+    name: nexus-dev-network
+
+volumes:
+  postgres_dev_data:
+    name: nexus_postgres_dev_data
+    driver: local
+  pgadmin_dev_data:
+    name: nexus_pgadmin_dev_data
+    driver: local
+
+services:
+  postgres:
+    container_name: nexus-postgres-dev
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-nexus_user}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-nexus_password}
+      POSTGRES_DB: ${DATABASE_NAME:-nexus_db}
+      TZ: UTC
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - nexus-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-nexus_user} -d ${DATABASE_NAME:-nexus_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  pgadmin:
+    container_name: nexus-pgadmin-dev
+    image: dpage/pgadmin4:8.12
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@nexus.ai}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin_password}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - nexus-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    container_name: nexus-api-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+      - "9229:9229"
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-3000}
+      API_PREFIX: ${API_PREFIX:-api}
+      API_VERSION: ${API_VERSION:-v1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8080}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${DATABASE_USER:-nexus_user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-nexus_password}
+      DATABASE_NAME: ${DATABASE_NAME:-nexus_db}
+      DATABASE_SCHEMA: ${DATABASE_SCHEMA:-public}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+      DATABASE_LOGGING: ${DATABASE_LOGGING:-true}
+      DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-20}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_jwt_access_token_key_nexus_ai_2026}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-900}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev_secret_jwt_refresh_token_key_nexus_ai_2026}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800}
+      THROTTLE_TTL: ${THROTTLE_TTL:-60}
+      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-100}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-dev_gemini_api_key_placeholder}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-nexus_dev_cloud}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-1234567890}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-dev_cloudinary_secret}
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-nexus-dev-firebase}
+      FCM_CLIENT_EMAIL: ${FCM_CLIENT_EMAIL:-dev-firebase@nexus.iam.gserviceaccount.com}
+      FCM_PRIVATE_KEY: ${FCM_PRIVATE_KEY:-"-----BEGIN PRIVATE KEY-----\ndev_key\n-----END PRIVATE KEY-----"}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_dev_key_id}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-dev_razorpay_secret}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-dev_webhook_secret}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - nexus-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
