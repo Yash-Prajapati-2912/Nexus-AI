@@ -1,0 +1,26 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Runs tests"
+  lane :test do
+    sh("flutter test")
+  end
+
+  desc "Deploy Beta to TestFlight"
+  lane :beta do
+    sh("flutter build ipa --target=lib/main_staging.dart --release")
+    upload_to_testflight(
+      ipa: "../build/ios/ipa/nexus_ai.ipa",
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Deploy Production to App Store"
+  lane :deploy do
+    sh("flutter build ipa --target=lib/main_prod.dart --release")
+    upload_to_app_store(
+      ipa: "../build/ios/ipa/nexus_ai.ipa",
+      force: true
+    )
+  end
+end

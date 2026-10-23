@@ -1,0 +1,28 @@
+default_platform(:android)
+
+platform :android do
+  desc "Runs static checks and unit tests"
+  lane :test do
+    sh("flutter test")
+  end
+
+  desc "Deploy Internal Beta to Google Play Console"
+  lane :beta do
+    sh("flutter build appbundle --target=lib/main_staging.dart --release")
+    upload_to_play_store(
+      track: 'internal',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Deploy Production Build to Google Play Store"
+  lane :deploy do
+    sh("flutter build appbundle --target=lib/main_prod.dart --release")
+    upload_to_play_store(
+      track: 'production',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_apk: true
+    )
+  end
+end

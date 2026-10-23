@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      injectable_generator:injectable_builder:
+        options:
+          auto_register: true
+      freezed:freezed:
+        options:
+          field_rename: snake
+      json_serializable:
+        options:
+          field_rename: snake
+          explicit_to_json: true
