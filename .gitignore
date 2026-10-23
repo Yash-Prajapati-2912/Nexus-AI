@@ -1,0 +1,68 @@
+# ==============================================================================
+# NEXUS AI UNIFIED MONOREPO - GIT IGNORE SPECIFICATION
+# ==============================================================================
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.iml
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+
+# Node.js & NestJS Backend
+**/node_modules/
+**/dist/
+**/coverage/
+**/.pnpm-store/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+**/logs/
+**/*.log
+
+# Environment & Credentials (Secrets)
+**/.env
+**/.env.development
+**/.env.production
+**/.env.local
+**/.env.test
+!**/.env.example
+
+# Flutter & Dart (Frontend & Admin)
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.metadata
+**/.packages
+**/doc/api/
+**/.pub-cache/
+**/.pub/
+
+# Android build outputs
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/generated/
+
+# iOS build outputs
+**/ios/Flutter/ephemeral/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/DerivedData/
+
+# Miscellaneous
+scratch/
+test-cache/
